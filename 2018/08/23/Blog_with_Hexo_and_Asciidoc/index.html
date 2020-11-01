@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- PACE Progress Bar START -->
+  
+    
+<script src="https://raw.githubusercontent.com/HubSpot/pace/v1.0.2/pace.min.js"></script>
+
+    
+<link rel="stylesheet" href="https://github.com/HubSpot/pace/raw/master/themes/orange/pace-theme-flash.css">
+
+  
+  
+
+  <!-- PACE Progress Bar START -->
+
+  
+  <title>hexoとasciidocでブログ構築 | blah blah blah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="HexoAsciidocblog" />
+  
+  
+  
+  
+  <meta name="description" content="この記事の目的     AsciidocとHexoというStatic Site Generatorを使用してブログを構築する。   ブログはGithub Pagesにホスティングする">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HexoとAsciidocでブログ構築">
+<meta property="og:url" content="http://sukehisa.github.io/2018/08/23/Blog_with_Hexo_and_Asciidoc/index.html">
+<meta property="og:site_name" content="blah blah blah">
+<meta property="og:description" content="この記事の目的     AsciidocとHexoというStatic Site Generatorを使用してブログを構築する。   ブログはGithub Pagesにホスティングする">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/HexoとAsciidocでブログ構築/2018-08-23-11-58-28.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/HexoとAsciidocでブログ構築/testimg.png">
+<meta property="article:published_time" content="2018-08-23T01:45:22.000Z">
+<meta property="article:modified_time" content="2020-11-01T01:48:08.960Z">
+<meta property="article:author" content="Yusuke Kumura">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="Asciidoc">
+<meta property="article:tag" content="blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/HexoとAsciidocでブログ構築/2018-08-23-11-58-28.png">
+  
+    <link rel="alternate" href="/atom.xml" title="blah blah blah" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="https://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="/css/hiero.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+  
+    <link rel="stylesheet" href="/css/vdonate.css" >
+  
+
+  <!-- Custom CSS -->
+  
+<link rel="stylesheet" href="/css/my.css">
+
+  <!-- Google Adsense -->
+  
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-0123456789ABCDEF",
+          enable_page_level_ads: true
+      });
+  </script>
+  
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<script>
+var themeMenus = {};
+
+  themeMenus["/"] = "Home"; 
+
+  themeMenus["/archives"] = "Archives"; 
+
+  themeMenus["/categories"] = "Categories"; 
+
+  themeMenus["/tags"] = "Tags"; 
+
+  themeMenus["/about"] = "About"; 
+
+</script>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="blah blah blah" rel="home"> blah blah blah </a>
+            
+          </h1>
+
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+            <div class="clearfix sf-menu">
+
+              <ul id="main-nav" class="nmenu sf-js-enabled">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="originBgDiv" style="background: #fff; width: 100%;">
+
+      <div style="max-height:600px; overflow: hidden;  display: flex; display: -webkit-flex; align-items: center;">
+        <img id="originBg" width="100%" alt="" src="">
+      </div>
+
+  </div>
+
+  <script>
+  function setAboutIMG(){
+      var imgUrls = "css/images/pose.jpg,https://source.unsplash.com/collection/954550/1920x1080".split(",");
+      var random = Math.floor((Math.random() * imgUrls.length ));
+      if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+        document.getElementById("originBg").src=imgUrls[random];
+      } else {
+        document.getElementById("originBg").src='/' + imgUrls[random];
+      }
+  }
+  bgDiv=document.getElementById("originBgDiv");
+  if(location.pathname.match('about')){
+    setAboutIMG();
+    bgDiv.style.display='block';
+  }else{
+    bgDiv.style.display='none';
+  }
+  </script>
+
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Blog_with_Hexo_and_Asciidoc" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      HexoとAsciidocでブログ構築
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2018/08/23/Blog_with_Hexo_and_Asciidoc/" class="article-date">
+	  <time datetime="2018-08-23T01:45:22.000Z" itemprop="datePublished">August 23, 2018</time>
+	</a>
+
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="sect1">
+<h2 id="_この記事の目的">この記事の目的</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>AsciidocとHexoというStatic Site Generatorを使用してブログを構築する。</p>
+</li>
+<li>
+<p>ブログはGithub Pagesにホスティングする</p>
+</li>
+</ul>
+</div>
+<a id="more"></a>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_モチベーション">モチベーション</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>何よりも、なんでもAsciidocで書きたい。<br>
+ここ数年のメモ取りはすべてAsciidocで書いている。Markdownより少し難しいくらいの文法で、かなり記述性が高いと思う。
+ただ、ほとんどのブログサービスはAsciidocをサポートしておらず、Markdownのみをサポートしているのが現状と思われる。</p>
+</li>
+<li>
+<p>したがって、Asciidocでブログを書くために、構築方法を検討した。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_検討した選択肢">検討した選択肢</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Static Content Generation系が良さそうということに。</p>
+</li>
+<li>
+<p>ただし、この業界は大量に似たものがあるようで、その中から使いやすいものを選定する必要があった。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://www.staticgen.com/">StaticGen | Top Open Source Static Site Generators</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>ものすごいたくさんある・・・・</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_hubpress">hubpress</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>hubpressはブラウザ上でlive previewしながら記事をかけるといった期待できそうなプロジェクトだが、現段階ではまだ問題が多そう。現に使ってみると、投稿時に無限ループになり、うまく行かなかった。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://github.com/HubPress/hubpress.io">HubPress/hubpress.io: A web application to build your blog on GitHub</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hexo">Hexo</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>これにした。CLIもシンプルだし、themesやpluginも比較的多く、拡張しやすそうだと思った。</p>
+</li>
+<li>
+<p>ページ生成も早い。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hexoを使ってのブログ構築">Hexoを使ってのブログ構築</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_installation">Installation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>npm install hexo</p>
+</li>
+<li>
+<p>npm install node-sass</p>
+</li>
+<li>
+<p>npm install hexo-deployer-git</p>
+</li>
+<li>
+<p>github向けには公開鍵を登録しておくこと</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_プラグイン">プラグイン</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>asciidoc用のプラグインを追加</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://github.com/hcoona/hexo-renderer-asciidoc">hcoona/hexo-renderer-asciidoc: Asciidoc renderer plugin for Hexo</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hexoの使いかた">Hexoの使いかた</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>とっても簡単。基本は以下の4ステップ</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_hexo_clean">hexo clean</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>source配下に配置された記事ファイル(adoc,md)から過去に生成されたファイルも削除する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>publicフォルダ配下にある</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ hexo clean</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hexo_new_で記事を作成">hexo new で記事を作成</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>postで公開記事を作成する</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ hexo new</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hexo_generateで記事を生成">hexo generateで記事を生成</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>sourceに存在する記事ファイルから、記事を生成</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ hexo generate // 記事を生成
+$ hexo generate -d // -d: 記事を生成後、デプロイ</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_生成した記事をgithub_pagesにdeployする">生成した記事をgithub pagesにdeployする</h4>
+<div class="listingblock">
+<div class="content">
+<pre>$ hexo deploy</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_採用したテーマ">採用したテーマ</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>hiero　というテーマを採用。検索もできて良い感じ</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://github.com/iTimeTraveler/hexo-theme-hiero">iTimeTraveler/hexo-theme-hiero: An awesome magazine, blog theme for your Hexo site.</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>DISQUSにも対応しているので、enableにした</p>
+</li>
+<li>
+<p>TOC（目次）もちゃんと出る</p>
+</li>
+<li>
+<p>git clone <a target="_blank" rel="noopener" href="https://github.com/iTimeTraveler/hexo-theme-hiero.git" class="bare">https://github.com/iTimeTraveler/hexo-theme-hiero.git</a> themes/hiero</p>
+</li>
+<li>
+<p>_config.ymlでthemeを指定すること</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_いろいろ試す">いろいろ試す</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_画像の貼り方">画像の貼り方</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>公式ドキュメントどおり、設定する</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://hexo.io/docs/asset-folders">Asset Folders | Hexo</a></p>
+<div class="listingblock">
+<div class="content">
+<pre>post_asset_folder: true</pre>
+</div>
+</div>
+</li>
+<li>
+<p>hexo newすると、記事と同名のフォルダが作成される。ここのファイルも一緒にdeployされるようになる</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>github pagesの画像</p>
+<div class="ulist">
+<ul>
+<li>
+<p>このブログはgithub pagesにホスティングしているため、画像もそれを参照する</p>
+</li>
+<li>
+<p>hexo deployすると、こんな感じで、ページと同階層に画像ファイルがpushされる
+<span class="image"><img src="https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/HexoとAsciidocでブログ構築/2018-08-23-11-58-28.png" alt="hexo deployしたときのgithub上のファイル状態"></span></p>
+</li>
+<li>
+<p>pushしたら、画像のRaw URLを指定して表示できる
+<span class="image"><img src="https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/HexoとAsciidocでブログ構築/testimg.png" alt="イメージ表示のテスト"></span></p>
+</li>
+<li>
+<p>書き方（普通のasciidocの記法）</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>// asciidocでURL直指定
+* image:https://raw.githubusercontent.com/sukehisa/sukehisa.github.io/master/2018/08/23/hoge/testimg.png[イメージ表示のテスト]</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>もっと楽に各方法がないか模索中。。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gistのソースコード埋め込み">gistのソースコード埋め込み</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>普通に埋め込める</p>
+</li>
+</ul>
+</div>
+<script src="https://gist.github.com/sukehisa/8f4eaa849f59dd395dacca8a30107e6f.js"></script>
+<div class="ulist">
+<ul>
+<li>
+<p>こうやって書く</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>++++
+&lt;script src="https://gist.github.com/sukehisa/8f4eaa849f59dd395dacca8a30107e6f.js"&gt;&lt;/script&gt;
+++++</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_excerpt記事概要機能">Excerpt(記事概要）機能</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>公式のドキュメントはMarkdownのやり方なのでうまくいかない</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://hexo.io/docs/tag-plugins#Post-Excerpt">Tag Plugins | Hexo</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>このように、そのままmoreラベルを出力するように回避</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>++++
+&lt;!-- more --&gt;
+++++</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_categories_tagsページの生成">categories, tagsページの生成</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>各postで設定したcategory, tagをサマリーするページをhexo自体の機能で作れるが、少しハマったのでメモ</p>
+</li>
+<li>
+<p>まず、tagsとcategories用の　page　を作る</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ hexo new page tags
+$ hexo new page categories</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>次に、生成されたindex.mdのヘッダ部分に書きを追記する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>layoutはtags, categories</p>
+</li>
+<li>
+<p>commentsはfalseにしないと、コメント欄が出てきてしまう</p>
+<div class="listingblock">
+<div class="content">
+<pre>---
+title: XXXXX
+date: 2017-04-04 17:21:30
+layout: "categories"
+comments: false
+---</pre>
+</div>
+</div>
+</li>
+<li>
+<p>結構ハマった・・中国語はなんとか読めるので助かった</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://github.com/iTimeTraveler/hexo-theme-hiero/issues/3">head-menu和站内搜索 · Issue #3 · iTimeTraveler/hexo-theme-hiero</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_その他todo">その他TODO</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>このブログの検索どうやるんだろう</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://tech.qookie.jp/">Qookie Tech</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/HowTo/">HowTo</a>, <a class="article-category-link" href="/categories/HowTo/Blog/">Blog</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Asciidoc/" rel="tag">Asciidoc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
+
+      
+        <div id="donation_div"></div>
+
+
+<script src="/js/vdonate.js"></script>
+
+<script>
+var a = new Donate({
+  title: '如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作!', // 可选参数，打赏标题
+  btnText: 'Donate', // 可选参数，打赏按钮文字
+  el: document.getElementById('donation_div'),
+  wechatImage: 'https://raw.githubusercontent.com/iTimeTraveler/iTimeTraveler.github.io/site/source/about/donate/images/WeChanQR.png',
+  alipayImage: 'https://raw.githubusercontent.com/iTimeTraveler/iTimeTraveler.github.io/site/source/about/donate/images/AliPayQR.jpg'
+});
+</script>
+      
+            
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/09/11/Mustle_Training_For_BusyPeople/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          限られた時間で効率よく筋トレをする方法
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#_%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AE%E7%9B%AE%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">この記事の目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#_%E3%83%A2%E3%83%81%E3%83%99%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3"><span class="nav-number">2.</span> <span class="nav-text">モチベーション</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#_%E6%A4%9C%E8%A8%8E%E3%81%97%E3%81%9F%E9%81%B8%E6%8A%9E%E8%82%A2"><span class="nav-number">3.</span> <span class="nav-text">検討した選択肢</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#_hubpress"><span class="nav-number">3.1.</span> <span class="nav-text">hubpress</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_hexo"><span class="nav-number">3.2.</span> <span class="nav-text">Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#_hexo%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E3%81%AE%E3%83%96%E3%83%AD%E3%82%B0%E6%A7%8B%E7%AF%89"><span class="nav-number">4.</span> <span class="nav-text">Hexoを使ってのブログ構築</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#_installation"><span class="nav-number">4.1.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3"><span class="nav-number">4.2.</span> <span class="nav-text">プラグイン</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_hexo%E3%81%AE%E4%BD%BF%E3%81%84%E3%81%8B%E3%81%9F"><span class="nav-number">4.3.</span> <span class="nav-text">Hexoの使いかた</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#_hexo_clean"><span class="nav-number">4.3.1.</span> <span class="nav-text">hexo clean</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_hexo_new_%E3%81%A7%E8%A8%98%E4%BA%8B%E3%82%92%E4%BD%9C%E6%88%90"><span class="nav-number">4.3.2.</span> <span class="nav-text">hexo new で記事を作成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_hexo_generate%E3%81%A7%E8%A8%98%E4%BA%8B%E3%82%92%E7%94%9F%E6%88%90"><span class="nav-number">4.3.3.</span> <span class="nav-text">hexo generateで記事を生成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#_%E7%94%9F%E6%88%90%E3%81%97%E3%81%9F%E8%A8%98%E4%BA%8B%E3%82%92github_pages%E3%81%ABdeploy%E3%81%99%E3%82%8B"><span class="nav-number">4.3.4.</span> <span class="nav-text">生成した記事をgithub pagesにdeployする</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_%E6%8E%A1%E7%94%A8%E3%81%97%E3%81%9F%E3%83%86%E3%83%BC%E3%83%9E"><span class="nav-number">4.4.</span> <span class="nav-text">採用したテーマ</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#_%E3%81%84%E3%82%8D%E3%81%84%E3%82%8D%E8%A9%A6%E3%81%99"><span class="nav-number">5.</span> <span class="nav-text">いろいろ試す</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#_%E7%94%BB%E5%83%8F%E3%81%AE%E8%B2%BC%E3%82%8A%E6%96%B9"><span class="nav-number">5.1.</span> <span class="nav-text">画像の貼り方</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_gist%E3%81%AE%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89%E5%9F%8B%E3%82%81%E8%BE%BC%E3%81%BF"><span class="nav-number">5.2.</span> <span class="nav-text">gistのソースコード埋め込み</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_excerpt%E8%A8%98%E4%BA%8B%E6%A6%82%E8%A6%81%E6%A9%9F%E8%83%BD"><span class="nav-number">5.3.</span> <span class="nav-text">Excerpt(記事概要）機能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#_categories_tags%E3%83%9A%E3%83%BC%E3%82%B8%E3%81%AE%E7%94%9F%E6%88%90"><span class="nav-number">5.4.</span> <span class="nav-text">categories, tagsページの生成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#_%E3%81%9D%E3%81%AE%E4%BB%96todo"><span class="nav-number">6.</span> <span class="nav-text">その他TODO</span></a></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+      <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2020 blah blah blah All Rights Reserved.
+          
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hiero" target="_blank">hiero</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var contentdiv = document.getElementById("content");
+
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+</script>
+
+<!-- Custome JS -->
+
+<script src="/js/my.js"></script>
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css">
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/scripts.js"></script>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://dnqof95d40fo6.cloudfront.net/atw7f8.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
