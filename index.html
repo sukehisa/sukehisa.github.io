@@ -228,7 +228,78 @@ var themeMenus = {};
 </li>
 </ul>
 <h2 id="Docker関連"><a href="#Docker関連" class="headerlink" title="Docker関連"></a>Docker関連</h2><ul>
+<li><p>参考</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/">Don’t Panic: Kubernetes and Docker | Kubernetes</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/061329">Kubernetes 1.20からDockerが非推奨になる理由 - inductor’s blog</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/144834">KubernetesのDockershim廃止における開発者の対応 - inductor’s blog</a></li>
+</ul>
+</li>
+<li><p>Kubernetes - Container Runtime　のインタフェースをCRI (Container Runtime Interface)と呼ぶ</p>
+</li>
+<li><p>DockerがCRIをサポートしていないので、<code>dockershim</code>というブリッジが Docker API-CRIの変換をしていたが、ここがdeprecateになる</p>
+</li>
+<li><p>そもそも、Dockerの機能のうち、Kubernetesが使用するのはコアなランタイムのみ（containerd)</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/">containerd/containerd: An open and reliable container runtime</a></li>
+<li>Dockerに内包されているが、DockerがCRIに対応していないので、<code>dockershim</code>が必要だった</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>Kubernates</p>
+<ul>
+<li>Red Hatのdistribution: OpenShift<ul>
+<li>ここで使われるのは、cri-o というランタイム</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Container Runtimeの構造</p>
+<ul>
+<li>High Level Runtime(CRI Runtime)<ul>
+<li>e.g. containerd, cri-o</li>
+<li>kuberlet とやりとりする</li>
+</ul>
+</li>
+<li>Low Level Runtime(OCI Runtime)<ul>
+<li>runC, gVisor</li>
+<li>CRI Runtimeとやりとりする</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>影響まとめ</p>
+<ul>
+<li><p>でも、Dockerにはcontainerdが内包されているので、互換性は高い</p>
+</li>
+<li><p>Docker-produced images will continue to work in your cluster with all runtimes, as they always have.</p>
+</li>
+<li><p>Docker is still a useful tool for building containers, and the images that result from running docker build can still run in your Kubernetes cluster.</p>
+</li>
+<li><p>The image that Docker produces isn’t really a Docker-specific image – it’s an OCI (Open Container Initiative) image. </p>
+</li>
+<li><p>Any OCI-compliant image, regardless of the tool you use to build it, will look the same to Kubernetes. </p>
+</li>
+<li><p>Both containerd and CRI-O know how to pull those images and run them.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Kotlin関連"><a href="#Kotlin関連" class="headerlink" title="Kotlin関連"></a>Kotlin関連</h2><ul>
+<li>null safety関連の機能</li>
+<li>Javaからの移行はどうなるんだろう？<ul>
+<li>Kotlin自体もJVMで動く</li>
+<li>Java-Kotlin間は相互運用可能（お互いにcallable)</li>
+<li>Spring Initializerでも、Kotlinを既にサポートしている</li>
+<li>言語的に大きくJavaに対して優位性があれば切り替えられるが・・・<ul>
+<li>実際には会社や世の中の開発者のスキルセット　とか</li>
+<li>既存アセット</li>
+<li>に引っ張られて、すぐに変わる原動力にはならなそう。個人的には気になる</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
       
