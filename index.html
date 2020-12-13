@@ -173,6 +173,88 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-20201213の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/">20201213の調べ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
+	  <time datetime="2020-12-13T02:30:35.000Z" itemprop="datePublished">December 13, 2020</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Docker-on-M1関連"><a href="#Docker-on-M1関連" class="headerlink" title="Docker on M1関連"></a>Docker on M1関連</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/apple-silicon-m1-chips-and-docker/?utm_campaign=IT+Pro&utm_content=1605547520&utm_medium=social&utm_source=Organic">Apple Silicon M1 Chips and Docker - Docker Blog</a>を見ると</p>
+<ul>
+<li><p>Docker Desktop for Mac　がMacでのDocker 実行環境</p>
+<ul>
+<li>裏で、VMを動かし、その上でLinuxを動かしている</li>
+<li>VMを動かすために、Appleのhypervisor frameworkを使用しており、その対応　がないとM1で動かせない</li>
+<li>それ以外にも、細かいところで、goやElectronの対応などもある</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/hypervisor">Hypervisor | Apple Developer Documentation</a></p>
+<ul>
+<li><p>このM1対応が必要？</p>
+</li>
+<li><p>Intel Macの場合は、Intelの hardware-assistedなvirtualizationに依存しているはず。M1はどうなってるんだろう・・・</p>
+<ul>
+<li>ARMの仮想化とは？</li>
+</ul>
+</li>
+<li><p>そもそも仮想化には<code>ホスト型</code>と<code>Hypervisor型</code>の方式がある</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://news.mynavi.jp/article/osxhack-269/">ARMへの移行で変わるMacの「仮想化」 - 新・OS X ハッキング!(269) | マイナビニュース</a></li>
+<li>ホスト型では、HWアクセスが、必ずホストOSを通過するので、オーバーヘッド大きい</li>
+<li>一方、Hypervisor型では、直接HWを制御ができる。これには、HWのアシストが必要で、Intelの場合はVT-X, EPTで、それに対するFWとして、MacではHypervisor.frameworkが存在する<ul>
+<li>つまり、x86-64に依存しているということ</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/docker-desktop-3-0-0-smaller-faster-releases/">Docker Desktop 3.0.0: Smaller, Faster Releases - Docker Blog</a></p>
+<ul>
+<li>Previewでは対応版が公開されているとのこと、早い</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-20201212の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -285,6 +367,34 @@ var themeMenus = {};
 </li>
 </ul>
 </li>
+<li><p>コンテナの仕組みってそもそもなんだ・・</p>
+<ul>
+<li>Linuxの<code>chroot</code>のすごいバージョンである<ul>
+<li>特定のディレクトリをrootにして、それ以下のみの世界を作る技術</li>
+</ul>
+</li>
+<li>そのファイルシステムに対して、<code>namespace</code>でユーザやプロセス、NWを割り当て</li>
+<li><code>cgroups</code>でリソースの制御をかける</li>
+<li>そして、VMのように扱える　という技術</li>
+</ul>
+</li>
+<li><p>コンテナイメージ</p>
+<ul>
+<li>DebianとかUbuntuが動く最低限のファイルシステムを含んだものをtarしたもの</li>
+</ul>
+</li>
+<li><p>runCの仕組み</p>
+<ul>
+<li>ホストOS・カーネルは、マシンごとに共通である</li>
+<li>特権が必要なので、runCに脆弱性があると、危険</li>
+</ul>
+</li>
+<li><p>gVisorの仕組み</p>
+<ul>
+<li>Linux上でプロセスとして動くゲストカーネル</li>
+<li>gVisorの上で複数コンテナが動き、コンテナのシステムコールをptraceでフックし、gVisorが代理実行する</li>
+</ul>
+</li>
 </ul>
 <h2 id="Kotlin関連"><a href="#Kotlin関連" class="headerlink" title="Kotlin関連"></a>Kotlin関連</h2><ul>
 <li>null safety関連の機能</li>
@@ -298,6 +408,14 @@ var themeMenus = {};
 <li>に引っ張られて、すぐに変わる原動力にはならなそう。個人的には気になる</li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<h2 id="Pen-offensive-security"><a href="#Pen-offensive-security" class="headerlink" title="Pen, offensive security"></a>Pen, offensive security</h2><ul>
+<li>Hack the box, VolnHub, TryHackMe というサービスがある</li>
+<li>VolnHub: 脆弱性ありのVMイメージ配布サイト<ul>
+<li><a target="_blank" rel="noopener" href="https://www.vulnhub.com/">Vulnerable By Design ~ VulnHub</a></li>
+<li>初学者向けではないな。練習用</li>
 </ul>
 </li>
 </ul>
@@ -2382,106 +2500,12 @@ Automate Mouse Clicking with Mac Auto ...
     
 
   
-    <article id="post-Blog_with_Hexo_and_Asciidoc"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+
+
+  <nav id="page-nav">
     
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2018/08/23/Blog_with_Hexo_and_Asciidoc/">HexoとAsciidocでブログ構築</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2018/08/23/Blog_with_Hexo_and_Asciidoc/" class="article-date">
-	  <time datetime="2018-08-23T01:45:22.000Z" itemprop="datePublished">August 23, 2018</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-
-          
-            <div class="entry-summary" style="margin-left:0;">
-            
-この記事の目的
-
-
-
-
-AsciidocとHexoというStatic Site Generatorを使用してブログを構築する。
-
-
-ブログはGithub Pagesにホスティングする
-
-
-
-
-
-
-
-モチベーション
-
-
-
-
-何よりも、なんでもAsciidocで書きたい。
-ここ数年のメモ取りはすべてAsciidocで書いている。Markdownより少し難しいくらいの文法で、かなり記述性が高いと思う。
-ただ、ほとんどのブログサービスはAsciidocをサポートしておらず、Markdownのみをサポートしているのが現状と思われる。
-
-
-したがって、Asciidocでブログを書くために、構築方法を検討した。
-
-
-
-
-
-
-検討した選択肢
-
-
-
-
-Static Content Generation...
-          
-
-        
-          <p class="article-more-link">
-            <a href="/2018/08/23/Blog_with_Hexo_and_Asciidoc/#more">Continue Reading →</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/HowTo/">HowTo</a>, <a class="article-category-link" href="/categories/HowTo/Blog/">Blog</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Asciidoc/" rel="tag">Asciidoc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
-
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
-
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next</a>
+  </nav>
 
 </section>
           <aside id="sidebar">
@@ -2606,6 +2630,18 @@ Static Content Generation...
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/">20201213の調べ</a></h6>
+              <span>December 13, 2020</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/">20201212の調べ</a></h6>
               <span>December 12, 2020</span>
             </div>
@@ -2660,18 +2696,6 @@ Static Content Generation...
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2018/12/22/%E7%9F%A5%E3%82%89%E3%81%AA%E3%81%84%E6%9B%B2%E3%81%AE%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB%E3%82%92%E8%A6%8B%E3%81%A4%E3%81%91%E3%82%8B%E6%96%B9%E6%B3%95/">知らない曲のタイトルを見つける方法</a></h6>
-              <span>December 22, 2018</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -2711,7 +2735,7 @@ Static Content Generation...
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 

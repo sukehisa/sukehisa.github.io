@@ -17,21 +17,21 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>20201212の調べ | blah blah blah</title>
+  <title>20201213の調べ | blah blah blah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="Apple M1関連 M1  ISA: ARM 64  強さ  メモリ性能とIO性能が高い   M1で動くアプリ  ARM64 nativeアプリ x86-64–Rosetta–&gt;ARM64   Intelと比較  intelに最適化されてると勝てない     Rosettaは何者？  x86-64 CISC -&gt; ARM64のコンパイラ　not インタプリタ M1がApple設計なの">
+  <meta name="description" content="Docker on M1関連 Apple Silicon M1 Chips and Docker - Docker Blogを見ると  Docker Desktop for Mac　がMacでのDocker 実行環境  裏で、VMを動かし、その上でLinuxを動かしている VMを動かすために、Appleのhypervisor frameworkを使用しており、その対応　がないとM1で動かせない そ">
 <meta property="og:type" content="article">
-<meta property="og:title" content="20201212の調べ">
-<meta property="og:url" content="http://sukehisa.github.io/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/index.html">
+<meta property="og:title" content="20201213の調べ">
+<meta property="og:url" content="http://sukehisa.github.io/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/index.html">
 <meta property="og:site_name" content="blah blah blah">
-<meta property="og:description" content="Apple M1関連 M1  ISA: ARM 64  強さ  メモリ性能とIO性能が高い   M1で動くアプリ  ARM64 nativeアプリ x86-64–Rosetta–&gt;ARM64   Intelと比較  intelに最適化されてると勝てない     Rosettaは何者？  x86-64 CISC -&gt; ARM64のコンパイラ　not インタプリタ M1がApple設計なの">
+<meta property="og:description" content="Docker on M1関連 Apple Silicon M1 Chips and Docker - Docker Blogを見ると  Docker Desktop for Mac　がMacでのDocker 実行環境  裏で、VMを動かし、その上でLinuxを動かしている VMを動かすために、Appleのhypervisor frameworkを使用しており、その対応　がないとM1で動かせない そ">
 <meta property="og:locale">
-<meta property="article:published_time" content="2020-12-12T01:19:56.000Z">
-<meta property="article:modified_time" content="2020-12-12T14:10:49.011Z">
+<meta property="article:published_time" content="2020-12-13T02:30:35.000Z">
+<meta property="article:modified_time" content="2020-12-13T02:57:25.421Z">
 <meta property="article:author" content="Yusuke Kumura">
 <meta name="twitter:card" content="summary">
   
@@ -175,7 +175,7 @@ var themeMenus = {};
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-20201212の調べ" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-20201213の調べ" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -183,7 +183,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      20201212の調べ
+      20201213の調べ
     </h1>
   
 
@@ -191,8 +191,8 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
-	  <time datetime="2020-12-12T01:19:56.000Z" itemprop="datePublished">December 12, 2020</time>
+	Posted on <a href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
+	  <time datetime="2020-12-13T02:30:35.000Z" itemprop="datePublished">December 13, 2020</time>
 	</a>
 
       
@@ -203,143 +203,42 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Apple-M1関連"><a href="#Apple-M1関連" class="headerlink" title="Apple M1関連"></a>Apple M1関連</h2><ul>
-<li><p>M1</p>
+        <h2 id="Docker-on-M1関連"><a href="#Docker-on-M1関連" class="headerlink" title="Docker on M1関連"></a>Docker on M1関連</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/apple-silicon-m1-chips-and-docker/?utm_campaign=IT+Pro&utm_content=1605547520&utm_medium=social&utm_source=Organic">Apple Silicon M1 Chips and Docker - Docker Blog</a>を見ると</p>
 <ul>
-<li><p>ISA: ARM 64</p>
-</li>
-<li><p>強さ</p>
+<li><p>Docker Desktop for Mac　がMacでのDocker 実行環境</p>
 <ul>
-<li>メモリ性能とIO性能が高い</li>
+<li>裏で、VMを動かし、その上でLinuxを動かしている</li>
+<li>VMを動かすために、Appleのhypervisor frameworkを使用しており、その対応　がないとM1で動かせない</li>
+<li>それ以外にも、細かいところで、goやElectronの対応などもある</li>
 </ul>
 </li>
-<li><p>M1で動くアプリ</p>
+<li><p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/hypervisor">Hypervisor | Apple Developer Documentation</a></p>
 <ul>
-<li>ARM64 nativeアプリ</li>
-<li>x86-64–Rosetta–&gt;ARM64</li>
-</ul>
+<li><p>このM1対応が必要？</p>
 </li>
-<li><p>Intelと比較</p>
+<li><p>Intel Macの場合は、Intelの hardware-assistedなvirtualizationに依存しているはず。M1はどうなってるんだろう・・・</p>
 <ul>
-<li>intelに最適化されてると勝てない</li>
+<li>ARMの仮想化とは？</li>
 </ul>
 </li>
-</ul>
-</li>
-<li><p>Rosettaは何者？</p>
+<li><p>そもそも仮想化には<code>ホスト型</code>と<code>Hypervisor型</code>の方式がある</p>
 <ul>
-<li>x86-64 CISC -&gt; ARM64のコンパイラ　not インタプリタ</li>
-<li>M1がApple設計なので、OoO実行などCPUレベルの最適化もきっと入っているだろう</li>
+<li><a target="_blank" rel="noopener" href="https://news.mynavi.jp/article/osxhack-269/">ARMへの移行で変わるMacの「仮想化」 - 新・OS X ハッキング!(269) | マイナビニュース</a></li>
+<li>ホスト型では、HWアクセスが、必ずホストOSを通過するので、オーバーヘッド大きい</li>
+<li>一方、Hypervisor型では、直接HWを制御ができる。これには、HWのアシストが必要で、Intelの場合はVT-X, EPTで、それに対するFWとして、MacではHypervisor.frameworkが存在する<ul>
+<li>つまり、x86-64に依存しているということ</li>
 </ul>
 </li>
 </ul>
-<h2 id="Docker関連"><a href="#Docker関連" class="headerlink" title="Docker関連"></a>Docker関連</h2><ul>
-<li><p>参考</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/docker-desktop-3-0-0-smaller-faster-releases/">Docker Desktop 3.0.0: Smaller, Faster Releases - Docker Blog</a></p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/">Don’t Panic: Kubernetes and Docker | Kubernetes</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/061329">Kubernetes 1.20からDockerが非推奨になる理由 - inductor’s blog</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/144834">KubernetesのDockershim廃止における開発者の対応 - inductor’s blog</a></li>
-</ul>
-</li>
-<li><p>Kubernetes - Container Runtime　のインタフェースをCRI (Container Runtime Interface)と呼ぶ</p>
-</li>
-<li><p>DockerがCRIをサポートしていないので、<code>dockershim</code>というブリッジが Docker API-CRIの変換をしていたが、ここがdeprecateになる</p>
-</li>
-<li><p>そもそも、Dockerの機能のうち、Kubernetesが使用するのはコアなランタイムのみ（containerd)</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/">containerd/containerd: An open and reliable container runtime</a></li>
-<li>Dockerに内包されているが、DockerがCRIに対応していないので、<code>dockershim</code>が必要だった</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><p>Kubernates</p>
-<ul>
-<li>Red Hatのdistribution: OpenShift<ul>
-<li>ここで使われるのは、cri-o というランタイム</li>
+<li>Previewでは対応版が公開されているとのこと、早い</li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p>Container Runtimeの構造</p>
-<ul>
-<li>High Level Runtime(CRI Runtime)<ul>
-<li>e.g. containerd, cri-o</li>
-<li>kuberlet とやりとりする</li>
-</ul>
-</li>
-<li>Low Level Runtime(OCI Runtime)<ul>
-<li>runC, gVisor</li>
-<li>CRI Runtimeとやりとりする</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>影響まとめ</p>
-<ul>
-<li><p>でも、Dockerにはcontainerdが内包されているので、互換性は高い</p>
-</li>
-<li><p>Docker-produced images will continue to work in your cluster with all runtimes, as they always have.</p>
-</li>
-<li><p>Docker is still a useful tool for building containers, and the images that result from running docker build can still run in your Kubernetes cluster.</p>
-</li>
-<li><p>The image that Docker produces isn’t really a Docker-specific image – it’s an OCI (Open Container Initiative) image. </p>
-</li>
-<li><p>Any OCI-compliant image, regardless of the tool you use to build it, will look the same to Kubernetes. </p>
-</li>
-<li><p>Both containerd and CRI-O know how to pull those images and run them.</p>
-</li>
-</ul>
-</li>
-<li><p>コンテナの仕組みってそもそもなんだ・・</p>
-<ul>
-<li>Linuxの<code>chroot</code>のすごいバージョンである<ul>
-<li>特定のディレクトリをrootにして、それ以下のみの世界を作る技術</li>
-</ul>
-</li>
-<li>そのファイルシステムに対して、<code>namespace</code>でユーザやプロセス、NWを割り当て</li>
-<li><code>cgroups</code>でリソースの制御をかける</li>
-<li>そして、VMのように扱える　という技術</li>
-</ul>
-</li>
-<li><p>コンテナイメージ</p>
-<ul>
-<li>DebianとかUbuntuが動く最低限のファイルシステムを含んだものをtarしたもの</li>
-</ul>
-</li>
-<li><p>runCの仕組み</p>
-<ul>
-<li>ホストOS・カーネルは、マシンごとに共通である</li>
-<li>特権が必要なので、runCに脆弱性があると、危険</li>
-</ul>
-</li>
-<li><p>gVisorの仕組み</p>
-<ul>
-<li>Linux上でプロセスとして動くゲストカーネル</li>
-<li>gVisorの上で複数コンテナが動き、コンテナのシステムコールをptraceでフックし、gVisorが代理実行する</li>
-</ul>
-</li>
-</ul>
-<h2 id="Kotlin関連"><a href="#Kotlin関連" class="headerlink" title="Kotlin関連"></a>Kotlin関連</h2><ul>
-<li>null safety関連の機能</li>
-<li>Javaからの移行はどうなるんだろう？<ul>
-<li>Kotlin自体もJVMで動く</li>
-<li>Java-Kotlin間は相互運用可能（お互いにcallable)</li>
-<li>Spring Initializerでも、Kotlinを既にサポートしている</li>
-<li>言語的に大きくJavaに対して優位性があれば切り替えられるが・・・<ul>
-<li>実際には会社や世の中の開発者のスキルセット　とか</li>
-<li>既存アセット</li>
-<li>に引っ張られて、すぐに変わる原動力にはならなそう。個人的には気になる</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="Pen-offensive-security"><a href="#Pen-offensive-security" class="headerlink" title="Pen, offensive security"></a>Pen, offensive security</h2><ul>
-<li>Hack the box, VolnHub, TryHackMe というサービスがある</li>
-<li>VolnHub: 脆弱性ありのVMイメージ配布サイト<ul>
-<li><a target="_blank" rel="noopener" href="https://www.vulnhub.com/">Vulnerable By Design ~ VulnHub</a></li>
-<li>初学者向けではないな。練習用</li>
 </ul>
 </li>
 </ul>
@@ -397,19 +296,10 @@ var a = new Donate({
     
 <nav id="article-nav">
   
-    <a href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          20201213の調べ
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/11/01/Taiwan-Open-Government/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Taiwan_Open_Government</div>
+      <div class="article-nav-title">20201212の調べ</div>
     </a>
   
 </nav>
@@ -423,7 +313,7 @@ var a = new Donate({
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Apple-M1%E9%96%A2%E9%80%A3"><span class="nav-number">1.</span> <span class="nav-text">Apple M1関連</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker%E9%96%A2%E9%80%A3"><span class="nav-number">2.</span> <span class="nav-text">Docker関連</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kotlin%E9%96%A2%E9%80%A3"><span class="nav-number">3.</span> <span class="nav-text">Kotlin関連</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pen-offensive-security"><span class="nav-number">4.</span> <span class="nav-text">Pen, offensive security</span></a></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-on-M1%E9%96%A2%E9%80%A3"><span class="nav-number">1.</span> <span class="nav-text">Docker on M1関連</span></a></li></ol>
     
     </div>
   </aside>
