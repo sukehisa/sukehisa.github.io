@@ -17,21 +17,25 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>20210627の調べ | blah blah blah</title>
+  <title>20210627の調べ, dumb pipesとapi gatewayのふりをしたesb | blah blah blah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta property="og:type" content="article">
-<meta property="og:title" content="20210627の調べ">
+  <meta name="description" content="Layered platform teams Layered platform teams | Technology Radar | ThoughtWorks Techniquesのセクションで、HOLDの位置づけとなっている。自分の感覚とも合うので、掘り下げてみる    このチームモデルは、レイヤでチームを分離するということ。 つまり、  フロントエンドはフロントチーム ビジネスロジックは、ビジ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="20210627の調べ, dumb pipesとAPI GatewayのふりをしたESB">
 <meta property="og:url" content="http://sukehisa.github.io/2021/06/27/20210627%E3%81%AE%E8%AA%BF%E3%81%B9/index.html">
 <meta property="og:site_name" content="blah blah blah">
+<meta property="og:description" content="Layered platform teams Layered platform teams | Technology Radar | ThoughtWorks Techniquesのセクションで、HOLDの位置づけとなっている。自分の感覚とも合うので、掘り下げてみる    このチームモデルは、レイヤでチームを分離するということ。 つまり、  フロントエンドはフロントチーム ビジネスロジックは、ビジ">
 <meta property="og:locale">
+<meta property="og:image" content="https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/bf1133e7-a76d-458d-a09e-6b3376ab7d66.jpg">
 <meta property="article:published_time" content="2021-06-26T23:48:04.000Z">
-<meta property="article:modified_time" content="2021-06-26T23:48:11.158Z">
+<meta property="article:modified_time" content="2021-06-27T03:44:56.934Z">
 <meta property="article:author" content="Yusuke Kumura">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/bf1133e7-a76d-458d-a09e-6b3376ab7d66.jpg">
   
     <link rel="alternate" href="/atom.xml" title="blah blah blah" type="application/atom+xml">
   
@@ -181,7 +185,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      20210627の調べ
+      20210627の調べ, dumb pipesとAPI GatewayのふりをしたESB
     </h1>
   
 
@@ -201,7 +205,65 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="Layered-platform-teams"><a href="#Layered-platform-teams" class="headerlink" title="Layered platform teams"></a>Layered platform teams</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/radar/techniques/layered-platform-teams">Layered platform teams | Technology Radar | ThoughtWorks</a><ul>
+<li>Techniquesのセクションで、<code>HOLD</code>の位置づけとなっている。自分の感覚とも合うので、掘り下げてみる</li>
+</ul>
+</li>
+</ul>
+<p>このチームモデルは、レイヤでチームを分離するということ。</p>
+<p>つまり、</p>
+<ul>
+<li>フロントエンドはフロントチーム</li>
+<li>ビジネスロジックは、ビジネスロジックチーム</li>
+<li>データは、データチーム。</li>
+</ul>
+<p>現在、広く知られているのは、やっぱりConway’s Lawということ。<br>つまり、チームの単位は、Business Capabilityの単位とすべきで、各チームはend-to-endで、別にTechnologyのレイヤを意識せずに、責任を持つべしということ。</p>
+<p>これは実体験としても、同意である。</p>
+<ul>
+<li>チームが増えれば、チーム間のコミュニケーションが増える。依存関係ができて、ほかチームの完成を待つ　とか。</li>
+<li>分離されてしまって、個々のチーム（特に、目に見えない部分）は、全体としての目的を見失う</li>
+</ul>
+<h2 id="ESBs-in-API-Gateway’s-clothing"><a href="#ESBs-in-API-Gateway’s-clothing" class="headerlink" title="ESBs in API Gateway’s clothing"></a>ESBs in API Gateway’s clothing</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/radar/techniques/esbs-in-api-gateway-s-clothing">ESBs in API Gateway’s clothing | Technology Radar | ThoughtWorks</a><ul>
+<li>Techniquesのセクションで、<code>HOLD</code>の位置づけ</li>
+</ul>
+</li>
+</ul>
+<p>ESBのアプローチに対する懸念あり。Microservice architectureとしては、<code>dumb pipes</code>にしたいのに、pipeにロジックが入り込んでしまうため、疎結合化できないし、ビジネスロジックを持ってしまうことで、ESBもメンテ対象になるし、ESB製品にロックされてしまう。たしかに。</p>
+<blockquote>
+<p>we’re observing a pattern of traditional ESBs rebranding themselves, creating ESBs in API gateway’s clothing that naturally encourage overambitious API gateways</p>
+</blockquote>
+<p>もともとESBとしての製品が、たしかに API Gatewayという服着てるだけで、本質的にはESBであることに変わりはない。実体験とも合致する。<br>無駄にレイヤを増やして開発物が増えている印象。</p>
+<blockquote>
+<p>API gateways can still act as a useful abstraction for crosscutting concerns, but we believe the smarts should live in the APIs themselves.</p>
+</blockquote>
+<p>これに尽きる。API gatewayは認証・認可、ロギング、セキュリティ系など、共通的なedge functionの役割を担うべきだと思う。</p>
+<p>このAPI Gatewayのふりした、ESBが、<a target="_blank" rel="noopener" href="https://www.thoughtworks.com/radar/platforms/overambitious-api-gateways">Overambitious API gateways | Technology Radar | ThoughtWorks</a>と呼ばれている。</p>
+<blockquote>
+<p>any domain smarts should live in applications or services.</p>
+</blockquote>
+<blockquote>
+<p>concerned about business logic and process orchestration implemented in middleware, especially where it requires expert skills and tooling while creating single points of scaling and control. </p>
+</blockquote>
+<p>API Gateway <code>is essentially a reverse proxy</code></p>
+<p>このMagic QuadrantのFull Lifecycle API Managementの中にも、入っているはずで、製品ベンダの謳い文句にも疑いを持っていきましょうですね。<br><img src="https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/bf1133e7-a76d-458d-a09e-6b3376ab7d66.jpg" title="Magic QuadrantのFull Lifecycle API Management"></p>
+<p><a target="_blank" rel="noopener" href="https://sookocheff.com/post/api/overambitious-api-gateways/">Overambitious API gateways - Kevin Sookocheff</a>の記事でも書いてあった。<br>確かに、多くのAPI Gateway製品は、多種多様な変換とか、aggregationというまさにロジックを差別化のポイントとして、売っている。</p>
+<p>ESB的なAPI Gatewayは、heavyになってくると、開発のスピードを落とす懸念もある。</p>
+<ul>
+<li>API Gatewayは位置づけ的に、クライアントに対して、入り口なので、ここがデプロイされないと、アプリケーションが動かない。ボトルネックになり得るため。</li>
+<li>なので、API Gatewayの更新はできる限り、lightweightにする必要がある。　ビジネスロジックが入り込むと、開発・テスト、デプロイが必要になり、全体の足を引っ張る。</li>
+</ul>
+<p><code>API Composition</code>の役割をどこで持つかという問いが生まれる。API Gatewayは薄く、reverse proxy/routingに徹するとすると、バックのサービスとなるため、compositionするサービスを持つのが良いのかな。</p>
+<p>関連のマイクロサービスアーキテクチャのqueryパターン</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://microservices.io/patterns/data/api-composition.html">API composition</a><ul>
+<li>サービスに持たせるのもありだし、API Gatewayに持たせるのもあり。　後者について懸念があるということ</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://microservices.io/patterns/data/cqrs.html">Command Query Responsibility Segregation (CQRS)</a></li>
+</ul>
+
       
     </div>
     <footer class="entry-meta entry-footer">
@@ -272,7 +334,7 @@ var a = new Donate({
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav">None</ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Layered-platform-teams"><span class="nav-number">1.</span> <span class="nav-text">Layered platform teams</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ESBs-in-API-Gateway%E2%80%99s-clothing"><span class="nav-number">2.</span> <span class="nav-text">ESBs in API Gateway’s clothing</span></a></li></ol>
     
     </div>
   </aside>
