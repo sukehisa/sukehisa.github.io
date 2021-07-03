@@ -195,29 +195,159 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <a id="more"></a>
 
-          
-            <div class="entry-summary" style="margin-left:0;">
-            Lakehouse
-Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics
-データレイクとデータウェアハウスとは？それぞれの強み・弱みと次世代のデータ管理システム「データレイクハウス」を解説 - Databricks ブログ
-
-
-Data Lakeだと、結局　BIなどの用途で、ETLかましたDWHができる問題あり。
-分析、ML系のworkloadで、SQL越しではなく、効率的に直接DataFrameアクセスしたくなるというのは納得
-Datawarehouseだときついところ（structured data store)
-
-
-Lakehouse
-コンピ...
-          
-
-        
-          <p class="article-more-link">
-            <a href="/2021/07/03/20210703%E3%81%AE%E8%AA%BF%E3%81%B9/#more">Continue Reading →</a>
-          </p>
-        </div>
+<h2 id="Lakehouse"><a href="#Lakehouse" class="headerlink" title="Lakehouse"></a>Lakehouse</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://cidrdb.org/cidr2021/papers/cidr2021_paper17.pdf">Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics</a></li>
+<li><a target="_blank" rel="noopener" href="https://databricks.com/jp/blog/2020/01/30/what-is-a-data-lakehouse.html">データレイクとデータウェアハウスとは？それぞれの強み・弱みと次世代のデータ管理システム「データレイクハウス」を解説 - Databricks ブログ</a></li>
+</ul>
+<ul>
+<li>Data Lakeだと、結局　BIなどの用途で、ETLかましたDWHができる問題あり。</li>
+<li>分析、ML系のworkloadで、SQL越しではなく、効率的に直接DataFrameアクセスしたくなるというのは納得<ul>
+<li>Datawarehouseだときついところ（structured data store)</li>
+</ul>
+</li>
+<li>Lakehouse<ul>
+<li>コンピュート　と　データの分離<ul>
+<li>DWHは一体ですからね。　分析系のworkloadは、コンピュートがバラけているから、扱いづらい</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Cloud-Spanner-と-CAP"><a href="#Cloud-Spanner-と-CAP" class="headerlink" title="Cloud Spanner と CAP"></a>Cloud Spanner と CAP</h2><h3 id="Cloud-Spannerとはなんだろう？"><a href="#Cloud-Spannerとはなんだろう？" class="headerlink" title="Cloud Spannerとはなんだろう？"></a>Cloud Spannerとはなんだろう？</h3><p>分散データベースだけどACIDが実現できるらしい　プロダクト？　RDB?</p>
+<ul>
+<li><p>グローバルに分散したデータベースである</p>
+</li>
+<li><p>Googleのプロダクト。</p>
+<ul>
+<li>Google Photosとか色々で使われている</li>
+<li>もともと使っていたMySQLを代替。</li>
+</ul>
+</li>
+<li><p>ConsistencyとScalabilityを両立</p>
+<ul>
+<li>SQLのsyntaxで、トランザクションも提供可能</li>
+<li>globalに、scalableにできるNoSQL的な利点も享受</li>
+</ul>
+</li>
+<li><p>どういうときに使う？</p>
+<ul>
+<li>通常のRDBで、スケールの限界にぶつかったとき。<ul>
+<li>シャーディングやNoSQLが選択肢となるが、</li>
+<li>SQLを使いたければ、Spannerが選択肢になってくる</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>ref</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://jp.techcrunch.com/2017/02/15/20170214google-launches-cloud-spanner-a-new-globally-distributed-database-service/">Googleがグローバルな分散データベースCloud Spannerをローンチ、SQLとNoSQLの‘良いとこ取り’を実装 | TechCrunch Japan</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=amcf6W2Xv6M&t=2s">Cloud Spanner - YouTube</a></li>
+</ul>
+</li>
+<li><p>GCPのデータベースプロダクト</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.google.com/products/databases">Google Cloud データベース</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="Cloud-Spannerに対抗する、AWSやAzureのサービスはある？"><a href="#Cloud-Spannerに対抗する、AWSやAzureのサービスはある？" class="headerlink" title="Cloud Spannerに対抗する、AWSやAzureのサービスはある？"></a>Cloud Spannerに対抗する、AWSやAzureのサービスはある？</h3><ul>
+<li>AWSの場合、AuroraとDynamo DBと思われる<ul>
+<li>Aurora<ul>
+<li>auto scale up and down, </li>
+<li>Spannerの持つ、multi-masterには勝てない？<ul>
+<li>これが必要なのは、ごく少数の超巨大グローバル企業のはずで、ほとんどのユースケースでは変わらないかも</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Dynamo DB<ul>
+<li>auto scaling</li>
+<li>multi region, multi-master</li>
+<li>NoSQL</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Spannerの原理、仕組みは？"><a href="#Spannerの原理、仕組みは？" class="headerlink" title="Spannerの原理、仕組みは？"></a>Spannerの原理、仕組みは？</h3><ul>
+<li><p>Paxos, 原子時計。難しい</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.itmedia.co.jp/enterprise/articles/1706/29/news040_2.html">夢のデータベース？　「Cloud Spanner」の実力は？：Mostly Harmless（2/2 ページ） - ITmedia エンタープライズ</a></li>
+<li>Paxosは院生のとき流行って、論文読んだがよくわからなかった記憶がある。。</li>
+</ul>
+</li>
+<li><p>CAP定理と関連して</p>
+<ul>
+<li>説明だけ見ると、C,A,P同時に満たしている夢のデータベースに見える</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://cloud.google.com/blog/ja/products/gcp/inside-cloud-spanner-and-the-cap-theorem">Cloud Spanner と CAP 定理 | Google Cloud Blog</a>がわかりやすい</p>
+</li>
+<li><p>確かに。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CAP 定理の意図は本来、設計者にこのトレードオフを真剣に考えてもらうことにありました。ですが、ここでは 2 つの注意すべきことを挙げます。第 1 に、一貫性や可用性を犠牲にしなければならないのは、実際に分断が起こっている間だけで、その間であっても、それを緩和する方法は多くあるということ。第 2 に、定理には 100% の可用性とありますが、そこで議論すべきなのは、現実的な高可用性の実現に伴うトレードオフについてです。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>基本、CAで、分断時はCPシステムである</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">はたして Spanner は CAP で定義されているような CA システムなのだろうかと。端的に答えると、技術的には違いますが、実際のところ CA システムだと考えて構いません。</span><br><span class="line">分断が起きると Spanner は C を選択し、A を犠牲にします。つまり技術的に見ると、Spanner は CP システムなのです。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Availabilityを犠牲にしているとはいえ、現実的には無視できるレベル　だからOKである。</p>
+</li>
+<li><p>結局仕組みはよくわからない。</p>
+<ul>
+<li>Googleの管理するインフラ、NWの中でのみ使えるということ　がポイントなのだろう。</li>
+<li>グローバルに一貫したタイムスタンプを付与する仕組みは？<ul>
+<li>原子時計？</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h3><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.publickey1.jp/blog/13/capcap32.html">CAP定理を見直す。“CAPの3つから2つを選ぶ”という説明はミスリーディングだった － Publickey</a></p>
+</li>
+<li><p>ACID, BASE, CAP</p>
+<ul>
+<li><code>一貫性対可用性の議論の最初のバージョンはACID対BASEというかたちで現れました</code></li>
+<li><code>CAP定理の目的はより広く設計について探索する必要があることを示すことでした</code></li>
+</ul>
+</li>
+<li><p>そもそも、CPってどういうシステム？</p>
+<ul>
+<li>Pがわからない。<ul>
+<li>P: the system continues to work in spite of <code>Network</code> failure</li>
+<li>データベースに対する、cache (e.g. Redis)が該当するっぽい</li>
+</ul>
+</li>
+<li>Network failureを許容して、Consistensy　を維持ってどういうこと？<ul>
+<li>Network分断の時点で、Consistency保てないのでは？</li>
+</ul>
+</li>
+<li>PでRedisがいて、すべてのクライアントが同じデータを見れるから、CPなのかな。<br><img src="20210703%E3%81%AE%E8%AA%BF%E3%81%B9/2021-07-03-15-17-58.png" alt="xxx"><ul>
+<li><a target="_blank" rel="noopener" href="https://www.researchgate.net/figure/CAP-theorem-with-databases-that-choose-CA-CP-and-AP_fig1_282519669">CAP theorem with databases that “choose” CA, CP and AP | Download Scientific Diagram</a>より</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>APは </p>
+<ul>
+<li>他ノードへのConsistencyはおいておいて、アクセスできるノードにアクセスしてしまう。（それが、consistentかはおいておいて）→<code>A</code>の選択</li>
+<li><code>P</code>は？</li>
+</ul>
+</li>
+<li><p>やっぱり、この2つ選ぶというのはミスリーディングである。</p>
+</li>
+<li><p>[Please stop calling databases CP or AP — Martin Kleppmann’s blog](<a target="_blank" rel="noopener" href="https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap">https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap</a>.<br>html)</p>
+<ul>
+<li><p>Pは、犠牲にする・しない　という問題じゃない。インターネットは常にこの問題をはらむ</p>
+<blockquote>
+<p>Partition Tolerance (terribly misnamed) basically means that you’re communicating over an asynchronous network that may delay or drop messages. The internet and all our data centres have this property, so you don’t really have any choice in this matter.</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Cloud-Spanner使ってみる"><a href="#Cloud-Spanner使ってみる" class="headerlink" title="Cloud Spanner使ってみる"></a>Cloud Spanner使ってみる</h3>
       
     </div>
     <footer class="entry-meta entry-footer">
