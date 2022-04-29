@@ -171,6 +171,308 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-learning-database-and-Java"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2022/04/29/learning-database-and-Java/">Database Design and Implementation 2ndを読みつつ、Java関連を学んだ足跡</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2022/04/29/learning-database-and-Java/" class="article-date">
+	  <time datetime="2022-04-29T08:04:34.000Z" itemprop="datePublished">April 29, 2022</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Chapter-2-JDBC"><a href="#Chapter-2-JDBC" class="headerlink" title="Chapter 2: JDBC"></a>Chapter 2: JDBC</h1><h2 id="Explicit-Transaction-Handling"><a href="#Explicit-Transaction-Handling" class="headerlink" title="Explicit Transaction Handling"></a>Explicit Transaction Handling</h2><ul>
+<li><p>JDBCで、setAutoCommit(false)を明示的にすることでトランザクション境界を制御するが、Spring BootなどのFWでは、Controller In/Outでそのようになっているのか</p>
+<ul>
+<li><code>@Transactional</code> の宣言的アノテーションを使うと、そのメソッドがトランザクション境界となる</li>
+</ul>
+</li>
+<li><p>この<code>@Transactional</code>　のようなアノテーションの仕組み（AOPの実装）は？</p>
+<ul>
+<li><p>実行時にclass fileを書き換える、作成する　といった黒魔術的な技術によって支えられている</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://asm.ow2.io/">ASM</a><ul>
+<li>byte code parser</li>
+<li><code>jacoco</code>などのCode coverage取得など、色々使われている</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://bytebuddy.net/#/">Byte Buddy - runtime code generation for the Java virtual machine</a></li>
+</ul>
+</li>
+<li><p>Javaのclass fileはフォーマットがかっちりしているので、ごにょごにょできるわけだ</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html">Chapter 4. The class File Format</a><ul>
+<li>みると結構勉強になる</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>黒魔術は危険な側面もあるが、便利な側面もある</p>
+<blockquote>
+<p>However, this picture changes when creating libraries that need to interact with arbitrary code and unknown type hierarchies. In this context, a library implementer must often choose between either requiring a user to implement library-proprietary interfaces or to generate code at runtime when the user’s type hierarchy becomes first known to the library.</p>
+<p>– <a target="_blank" rel="noopener" href="https://bytebuddy.net/#/">Byte Buddy - runtime code generation for the Java virtual machine</a></p>
+</blockquote>
+<p>  なるほど。インタフェースを実装してもらうか、ランタイムに情報を集めるしか無い。<br>  黒魔術によって、POJO化できる。<br>  が、ソースコードを追ってるとき、裏で何をやってるかわけわからん　みたいなことにはなる。</p>
+</li>
+<li><p>Spring Frameworkでは、<code>Proxy</code>という仕組みと呼ばれており、そのインスタンスが実際には実行され、周辺処理が挟み込みされる. </p>
+</li>
+<li><p>AspectJ</p>
+</li>
+<li><p>参考</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.classmethod.jp/articles/declarative-trasaction-by-spring-aop/">第7回 Springの宣言的トランザクションのしくみ【AOP】 | DevelopersIO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-20211017の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2021/10/17/20211017%E3%81%AE%E8%AA%BF%E3%81%B9/">20211017の調べ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2021/10/17/20211017%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
+	  <time datetime="2021-10-17T05:44:23.000Z" itemprop="datePublished">October 17, 2021</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="UNYSYS技報"><a href="#UNYSYS技報" class="headerlink" title="UNYSYS技報"></a>UNYSYS技報</h2><ul>
+<li><p>No146 ハイブリッドクラウドの最新動向　を読んで</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.unisys.co.jp/tec_info/tr146/146abs.htm">ネットワークⅣ【日本ユニシス】</a></li>
+</ul>
+</li>
+<li><p>IBM と Redhat</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.orangeitems.com/entry/2019/10/07/181325">IBMがRedHatを買った理由が今さらながらわかってきた OpenShiftとCloud Paks - orangeitems’s diary</a></li>
+<li>IBM製品は、ゆくゆくは、コンテナ化され、どの環境でも動くようになるんだろうな。そうすると、既存システムのクラウド化がようやくスムーズになるかも？</li>
+</ul>
+</li>
+<li><p>VMware</p>
+<ul>
+<li>SDDC (Software Defined Data Center)を各パブリッククラウドと連携して、hostedな private cloudを提供</li>
+</ul>
+</li>
+<li><p>Nutanix</p>
+<ul>
+<li>Invisible Infra がコンセプトの会社<ul>
+<li>ハイブリッドクラウド環境をone interfaceで管理する　など</li>
+</ul>
+</li>
+<li>HCI, private cloud, hybrid cloud</li>
+</ul>
+</li>
+<li><p>パブリッククラウド　on オンプレの動き</p>
+<ul>
+<li>AWS: Outposts</li>
+<li>Azure Stack</li>
+<li>セキュリティやネットワークレイテンシ厳しいアプリなどの理由で、結局はオンプレ環境を持たざるを得ない事情があるのだなぁ</li>
+</ul>
+</li>
+<li><p>パブリッククラウドやら、プライベートクラウドやら、ハイブリッドクラウドやら色々あるが、インフラレイヤをさらに抽象化して、いく動き。システムの世界がもう一段、抽象化されてきた印象。アプリを作って、その下のレイヤは　「いい感じによろしく」という世界になっていくはず。</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-20210912の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2021/09/12/20210912%E3%81%AE%E8%AA%BF%E3%81%B9/">20210912の調べ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2021/09/12/20210912%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
+	  <time datetime="2021-09-12T01:24:23.000Z" itemprop="datePublished">September 12, 2021</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="分散トレーシング"><a href="#分散トレーシング" class="headerlink" title="分散トレーシング"></a>分散トレーシング</h2><ul>
+<li>AWS X-Ray<ul>
+<li><a target="_blank" rel="noopener" href="https://d1.awsstatic.com/webinars/jp/pdf/services/20200526_BlackBelt_X-Ray.pdf">PowerPoint Presentation</a></li>
+<li>AWS App Mesh　<ul>
+<li>裏側はEnvoy. 設定で、X-Rayと連動できる</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Service Mesh<ul>
+<li><a target="_blank" rel="noopener" href="https://qiita.com/mamomamo/items/92085e0e508e18bc8532">サービスメッシュについて調査してみた件 - Qiita</a></li>
+<li>分散システムの課題を解決する。Sidecar/Proxyで、ネットワーキングを制御<ul>
+<li>Service Discovery</li>
+<li>Fault Tolerance<ul>
+<li>e.g. Circuit Breaker</li>
+</ul>
+</li>
+<li>Tracing, Observability</li>
+<li>Security<ul>
+<li>Auth</li>
+</ul>
+</li>
+<li>アプリレベルでやっていた制御<ul>
+<li>リトライ</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://www.slideshare.net/AmazonWebServicesJapan/20201014-aws-black-belt-online-seminar-aws-app-mesh-deep-dive">20201014 AWS Black Belt Online Seminar AWS App Mesh Deep Dive</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="SAM"><a href="#SAM" class="headerlink" title="SAM"></a>SAM</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://aws.amazon.com/jp/serverless/sam/">AWS サーバーレスアプリケーションモデル - アマゾン ウェブ サービス</a><ul>
+<li>serverless Application Model</li>
+</ul>
+</li>
+<li>serverless frameworkと完全に同じ位置づけだな・・</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-20210731の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2021/07/31/20210731%E3%81%AE%E8%AA%BF%E3%81%B9/">20210731の調べ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2021/07/31/20210731%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
+	  <time datetime="2021-07-31T07:50:37.000Z" itemprop="datePublished">July 31, 2021</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="C4-model-for-visualizing-SW-arch"><a href="#C4-model-for-visualizing-SW-arch" class="headerlink" title="C4 model for visualizing SW arch"></a>C4 model for visualizing SW arch</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.codingthearchitecture.com/2017/04/27/visualising_and_documenting_software_architecture_cheat_sheets.html">Visualising and documenting software architecture cheat sheets - Coding the Architecture</a></li>
+</ul>
+<h2 id="Spinnaker"><a href="#Spinnaker" class="headerlink" title="Spinnaker"></a>Spinnaker</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://engineering.mercari.com/blog/entry/2017-08-21-092743/">SpinnakerによるContinuous Delivery | メルカリエンジニアリング</a></li>
+<li>Continuous Delivery用のplatform<ul>
+<li>blue/greenとか、CD用のpipeline作ったり（e.g. レビューを挟む、トリガーでキックする）といったことができる模様</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-20210725の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -780,469 +1082,11 @@ var themeMenus = {};
     
 
   
-    <article id="post-20201230の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/30/20201230%E3%81%AE%E8%AA%BF%E3%81%B9/">20201230の調べ</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2020/12/30/20201230%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
-	  <time datetime="2020-12-29T23:53:10.000Z" itemprop="datePublished">December 30, 2020</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="hotwire"><a href="#hotwire" class="headerlink" title="hotwire"></a>hotwire</h2><ul>
-<li><p><a target="_blank" rel="noopener" href="https://hotwire.dev/">HTML Over The Wire | Hotwire</a></p>
-</li>
-<li><p>フロントのJavascript処理をサーバサイドに寄せて、全体最適化するというような話？</p>
-</li>
-<li><p><code>Turbo Streams deliver page changes over WebSocket</code>が面白い</p>
-</li>
-<li><p>WebSocket</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc6455">RFC 6455 - The WebSocket Protocol</a></li>
-<li>it’s on TCP</li>
-<li>The goal of<br>this technology is to provide a mechanism for browser-based<br>applications that need two-way communication with servers that does<br>not rely on opening multiple HTTP connections</li>
-</ul>
-</li>
-</ul>
-<h2 id="Thought-Works"><a href="#Thought-Works" class="headerlink" title="Thought Works"></a>Thought Works</h2><ul>
-<li><p><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/radar#download-current-radar">Technology Radar | An opinionated guide to technology frontiers | ThoughtWorks</a></p>
-</li>
-<li><p>Dependency drift fitness function　＋ Cost</p>
-<ul>
-<li>進化アーキテクチャの文脈における、fitness functionで、ちゃんと依存先のメンテしようという話<ul>
-<li>実体験としても、mvn/gradle, npmで管理されるライブラリのバージョン追従は苦労する・・</li>
-</ul>
-</li>
-<li>同様にCostも追従すべし</li>
-</ul>
-</li>
-<li><p>Security policy as code</p>
-<ul>
-<li>具体的にはどんな製品？   <ul>
-<li>Open Policy Agent<ul>
-<li><code>OPA for a unified toolset and framework for policy across the cloud native stack.</code></li>
-</ul>
-</li>
-<li>Istio</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Tailored Service template</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://www.thoughtworks.com/radar/techniques/tailored-service-templates">Tailored service templates | Technology Radar | ThoughtWorks</a></li>
-<li>大企業だとわりとやっているイメージ</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
-    <article id="post-20201219の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/19/20201219%E3%81%AE%E8%AA%BF%E3%81%B9/">20201219の調べ</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2020/12/19/20201219%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
-	  <time datetime="2020-12-19T09:12:59.000Z" itemprop="datePublished">December 19, 2020</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="MySQL関連"><a href="#MySQL関連" class="headerlink" title="MySQL関連"></a>MySQL関連</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://blog.kamipo.net/entry/2020/12/15/213359">SELECT ... FOR UPDATE同士でデッドロックさせる - かみぽわーる</a><ul>
-<li>知らなかった。</li>
-<li>確かに、ロックを取るのにも時間がかかるから、SELECT FOR UPDATEでもデッドロックはあり得るな</li>
-<li>FORCE INDEXで使用するindexを故意に別々にして、デッドロックを起こしている例</li>
-</ul>
-</li>
-</ul>
-<h2 id="Docker-関連"><a href="#Docker-関連" class="headerlink" title="Docker 関連"></a>Docker 関連</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://kaminashi-developer.hatenablog.jp/entry/dive-into-swamp-container-scratch">【Go言語】自作コンテナ沼。スクラッチでミニDockerを作ろう - カミナシ開発者ブログ</a><ul>
-<li>mini dockerを作ってみるというもの</li>
-<li>Namespaces, Cgroupの仕組みが気になってきた</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><p>Dockerのコア技術がLinux Kernelの技術だから、Docker imageのベースは全部Linuxのはずだよね？</p>
-<ul>
-<li>Windows OSがベースのものはないはず？<ul>
-<li><a target="_blank" rel="noopener" href="https://hub.docker.com/_/microsoft-windows-base-os-images">Windows base OS images - Docker Hub</a></li>
-<li>これは何だ</li>
-<li>でも<code>Windows requires the host OS version to match the container OS version</code>なので、WindowsのDocker実装があるということかな<ul>
-<li><a target="_blank" rel="noopener" href="https://unit42.paloaltonetworks.jp/what-i-learned-from-reverse-engineering-windows-containers/">Windowsコンテナのリバース エンジニアリングから分かったこと</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a target="_blank" rel="noopener" href="http://docker-saigon.github.io/post/Docker-Internals/">Docker Internals -- Docker Saigon</a></p>
-<ul>
-<li>docker internalのまとめ</li>
-<li>リソース（cpu, memory)の分離・制御</li>
-<li>Networking<ul>
-<li>むずい、よくわからん</li>
-</ul>
-</li>
-<li>Security<ul>
-<li>it was omitted</li>
-</ul>
-</li>
-<li>Container Types<ul>
-<li>System Containers</li>
-<li>App Containers </li>
-<li>Pods : hostとは分離しているが、サブグループとしてPIDとかネットワークなどを共有し得る</li>
-</ul>
-</li>
-<li>Images &amp; Layers<ul>
-<li>UFS</li>
-<li>ここのFSもいくつか種類があり、pro/conある</li>
-</ul>
-</li>
-<li>Container Format<ul>
-<li>containerd : by Docker</li>
-<li>OCI</li>
-<li>AppC by CoreOS : あったな。ここの標準化のところの競り合いだったのか</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
-    <article id="post-20201213の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/">20201213の調べ</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2020/12/13/20201213%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
-	  <time datetime="2020-12-13T02:30:35.000Z" itemprop="datePublished">December 13, 2020</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Docker-on-M1関連"><a href="#Docker-on-M1関連" class="headerlink" title="Docker on M1関連"></a>Docker on M1関連</h2><ul>
-<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/apple-silicon-m1-chips-and-docker/?utm_campaign=IT+Pro&utm_content=1605547520&utm_medium=social&utm_source=Organic">Apple Silicon M1 Chips and Docker - Docker Blog</a>を見ると</p>
-<ul>
-<li><p>Docker Desktop for Mac　がMacでのDocker 実行環境</p>
-<ul>
-<li>裏で、VMを動かし、その上でLinuxを動かしている</li>
-<li>VMを動かすために、Appleのhypervisor frameworkを使用しており、その対応　がないとM1で動かせない</li>
-<li>それ以外にも、細かいところで、goやElectronの対応などもある</li>
-</ul>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/hypervisor">Hypervisor | Apple Developer Documentation</a></p>
-<ul>
-<li><p>このM1対応が必要？</p>
-</li>
-<li><p>Intel Macの場合は、Intelの hardware-assistedなvirtualizationに依存しているはず。M1はどうなってるんだろう・・・</p>
-<ul>
-<li>ARMの仮想化とは？</li>
-</ul>
-</li>
-<li><p>そもそも仮想化には<code>ホスト型</code>と<code>Hypervisor型</code>の方式がある</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://news.mynavi.jp/article/osxhack-269/">ARMへの移行で変わるMacの「仮想化」 - 新・OS X ハッキング!(269) | マイナビニュース</a></li>
-<li>ホスト型では、HWアクセスが、必ずホストOSを通過するので、オーバーヘッド大きい</li>
-<li>一方、Hypervisor型では、直接HWを制御ができる。これには、HWのアシストが必要で、Intelの場合はVT-X, EPTで、それに対するFWとして、MacではHypervisor.frameworkが存在する<ul>
-<li>つまり、x86-64に依存しているということ</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://www.docker.com/blog/docker-desktop-3-0-0-smaller-faster-releases/">Docker Desktop 3.0.0: Smaller, Faster Releases - Docker Blog</a></p>
-<ul>
-<li>Previewでは対応版が公開されているとのこと、早い</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
-    <article id="post-20201212の調べ"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/">20201212の調べ</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2020/12/12/20201212%E3%81%AE%E8%AA%BF%E3%81%B9/" class="article-date">
-	  <time datetime="2020-12-12T01:19:56.000Z" itemprop="datePublished">December 12, 2020</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Apple-M1関連"><a href="#Apple-M1関連" class="headerlink" title="Apple M1関連"></a>Apple M1関連</h2><ul>
-<li><p>M1</p>
-<ul>
-<li><p>ISA: ARM 64</p>
-</li>
-<li><p>強さ</p>
-<ul>
-<li>メモリ性能とIO性能が高い</li>
-</ul>
-</li>
-<li><p>M1で動くアプリ</p>
-<ul>
-<li>ARM64 nativeアプリ</li>
-<li>x86-64–Rosetta–&gt;ARM64</li>
-</ul>
-</li>
-<li><p>Intelと比較</p>
-<ul>
-<li>intelに最適化されてると勝てない</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Rosettaは何者？</p>
-<ul>
-<li>x86-64 CISC -&gt; ARM64のコンパイラ　not インタプリタ</li>
-<li>M1がApple設計なので、OoO実行などCPUレベルの最適化もきっと入っているだろう</li>
-</ul>
-</li>
-</ul>
-<h2 id="Docker関連"><a href="#Docker関連" class="headerlink" title="Docker関連"></a>Docker関連</h2><ul>
-<li><p>参考</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/">Don’t Panic: Kubernetes and Docker | Kubernetes</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/061329">Kubernetes 1.20からDockerが非推奨になる理由 - inductor’s blog</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.inductor.me/entry/2020/12/03/144834">KubernetesのDockershim廃止における開発者の対応 - inductor’s blog</a></li>
-</ul>
-</li>
-<li><p>Kubernetes - Container Runtime　のインタフェースをCRI (Container Runtime Interface)と呼ぶ</p>
-</li>
-<li><p>DockerがCRIをサポートしていないので、<code>dockershim</code>というブリッジが Docker API-CRIの変換をしていたが、ここがdeprecateになる</p>
-</li>
-<li><p>そもそも、Dockerの機能のうち、Kubernetesが使用するのはコアなランタイムのみ（containerd)</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/">containerd/containerd: An open and reliable container runtime</a></li>
-<li>Dockerに内包されているが、DockerがCRIに対応していないので、<code>dockershim</code>が必要だった</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><p>Kubernates</p>
-<ul>
-<li>Red Hatのdistribution: OpenShift<ul>
-<li>ここで使われるのは、cri-o というランタイム</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Container Runtimeの構造</p>
-<ul>
-<li>High Level Runtime(CRI Runtime)<ul>
-<li>e.g. containerd, cri-o</li>
-<li>kuberlet とやりとりする</li>
-</ul>
-</li>
-<li>Low Level Runtime(OCI Runtime)<ul>
-<li>runC, gVisor</li>
-<li>CRI Runtimeとやりとりする</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>影響まとめ</p>
-<ul>
-<li><p>でも、Dockerにはcontainerdが内包されているので、互換性は高い</p>
-</li>
-<li><p>Docker-produced images will continue to work in your cluster with all runtimes, as they always have.</p>
-</li>
-<li><p>Docker is still a useful tool for building containers, and the images that result from running docker build can still run in your Kubernetes cluster.</p>
-</li>
-<li><p>The image that Docker produces isn’t really a Docker-specific image – it’s an OCI (Open Container Initiative) image. </p>
-</li>
-<li><p>Any OCI-compliant image, regardless of the tool you use to build it, will look the same to Kubernetes. </p>
-</li>
-<li><p>Both containerd and CRI-O know how to pull those images and run them.</p>
-</li>
-</ul>
-</li>
-<li><p>コンテナの仕組みってそもそもなんだ・・</p>
-<ul>
-<li>Linuxの<code>chroot</code>のすごいバージョンである<ul>
-<li>特定のディレクトリをrootにして、それ以下のみの世界を作る技術</li>
-</ul>
-</li>
-<li>そのファイルシステムに対して、<code>namespace</code>でユーザやプロセス、NWを割り当て</li>
-<li><code>cgroups</code>でリソースの制御をかける</li>
-<li>そして、VMのように扱える　という技術</li>
-</ul>
-</li>
-<li><p>コンテナイメージ</p>
-<ul>
-<li>DebianとかUbuntuが動く最低限のファイルシステムを含んだものをtarしたもの</li>
-</ul>
-</li>
-<li><p>runCの仕組み</p>
-<ul>
-<li>ホストOS・カーネルは、マシンごとに共通である</li>
-<li>特権が必要なので、runCに脆弱性があると、危険</li>
-</ul>
-</li>
-<li><p>gVisorの仕組み</p>
-<ul>
-<li>Linux上でプロセスとして動くゲストカーネル</li>
-<li>gVisorの上で複数コンテナが動き、コンテナのシステムコールをptraceでフックし、gVisorが代理実行する</li>
-</ul>
-</li>
-</ul>
-<h2 id="Kotlin関連"><a href="#Kotlin関連" class="headerlink" title="Kotlin関連"></a>Kotlin関連</h2><ul>
-<li>null safety関連の機能</li>
-<li>Javaからの移行はどうなるんだろう？<ul>
-<li>Kotlin自体もJVMで動く</li>
-<li>Java-Kotlin間は相互運用可能（お互いにcallable)</li>
-<li>Spring Initializerでも、Kotlinを既にサポートしている</li>
-<li>言語的に大きくJavaに対して優位性があれば切り替えられるが・・・<ul>
-<li>実際には会社や世の中の開発者のスキルセット　とか</li>
-<li>既存アセット</li>
-<li>に引っ張られて、すぐに変わる原動力にはならなそう。個人的には気になる</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="Pen-offensive-security"><a href="#Pen-offensive-security" class="headerlink" title="Pen, offensive security"></a>Pen, offensive security</h2><ul>
-<li>Hack the box, VolnHub, TryHackMe というサービスがある</li>
-<li>VolnHub: 脆弱性ありのVMイメージ配布サイト<ul>
-<li><a target="_blank" rel="noopener" href="https://www.vulnhub.com/">Vulnerable By Design ~ VulnHub</a></li>
-<li>初学者向けではないな。練習用</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
 
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next</a>
   </nav>
 
 </section>
@@ -1340,6 +1184,54 @@ var themeMenus = {};
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2022/04/29/learning-database-and-Java/">Database Design and Implementation 2ndを読みつつ、Java関連を学んだ足跡</a></h6>
+              <span>April 29, 2022</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2021/10/17/20211017%E3%81%AE%E8%AA%BF%E3%81%B9/">20211017の調べ</a></h6>
+              <span>October 17, 2021</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2021/09/12/20210912%E3%81%AE%E8%AA%BF%E3%81%B9/">20210912の調べ</a></h6>
+              <span>September 12, 2021</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2021/07/31/20210731%E3%81%AE%E8%AA%BF%E3%81%B9/">20210731の調べ</a></h6>
+              <span>July 31, 2021</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2021/07/25/20210725%E3%81%AE%E8%AA%BF%E3%81%B9/">20210725の調べ</a></h6>
               <span>July 25, 2021</span>
             </div>
@@ -1354,54 +1246,6 @@ var themeMenus = {};
 
               <h6 style="margin: 0;"><a href="/2021/07/03/20210703%E3%81%AE%E8%AA%BF%E3%81%B9/">20210703の調べ</a></h6>
               <span>July 3, 2021</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2021/06/27/20210627%E3%81%AE%E8%AA%BF%E3%81%B9/">20210627の調べ, dumb pipesとAPI GatewayのふりをしたESB</a></h6>
-              <span>June 27, 2021</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2021/06/05/20210605%E3%81%AE%E8%AA%BF%E3%81%B9/">20210605の調べ</a></h6>
-              <span>June 5, 2021</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2021/01/04/Volume%E3%82%92%E4%BD%9C%E3%82%8A%E7%9B%B4%E3%81%99/">MacでTimemachine用にAPFS Volumeを作り直す</a></h6>
-              <span>January 4, 2021</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2021/01/01/20210101%E3%81%AE%E8%AA%BF%E3%81%B9/">20210101の調べ</a></h6>
-              <span>January 1, 2021</span>
             </div>
 
           </li>
@@ -1445,7 +1289,7 @@ var themeMenus = {};
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1459,7 +1303,7 @@ var themeMenus = {};
 
   <div class="clearfix container">
       <div class="site-info">
-	      &copy; 2021 blah blah blah All Rights Reserved.
+	      &copy; 2022 blah blah blah All Rights Reserved.
           
       </div>
       <div class="site-credit">
