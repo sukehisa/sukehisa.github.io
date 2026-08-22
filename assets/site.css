@@ -1,0 +1,140 @@
+/* sukehisa reports — 一覧ページ共通スタイル
+   生成元: MEMOs/scripts/publish_reports.py（直接編集しないこと） */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --border: rgba(11, 11, 11, 0.10);
+  --hover: rgba(11, 11, 11, 0.045);
+  --accent: #2a78d6;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --border: rgba(255, 255, 255, 0.10);
+    --hover: rgba(255, 255, 255, 0.055);
+    --accent: #6aa8f0;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP",
+               "Segoe UI", Roboto, sans-serif;
+  line-height: 1.7;
+  font-size: 16px;
+}
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.crumb { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px; }
+.crumb a { color: var(--text-secondary); }
+
+.hero { margin: 0 0 32px; }
+.hero h1 { font-size: 1.45rem; line-height: 1.4; margin: 0 0 8px; letter-spacing: 0.01em; }
+.hero p { margin: 0; color: var(--text-secondary); font-size: 0.92rem; }
+
+section { margin-bottom: 40px; }
+section > h2 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+/* カテゴリタイル */
+.tiles, .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.tile a {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+}
+.tile a:hover { background: var(--hover); }
+.tile-icon { font-size: 1.5rem; line-height: 1.2; }
+.tile-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tile-title { font-weight: 600; }
+.tile-desc { font-size: 0.86rem; color: var(--text-secondary); }
+.tile-meta { font-size: 0.78rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* レポートカード */
+.card a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+  min-height: 44px;
+}
+.card a:hover { background: var(--hover); }
+.card-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.card-title { font-weight: 600; font-size: 0.96rem; }
+.card-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.75rem; color: var(--text-muted); }
+.badge {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--text-secondary);
+}
+.size { font-variant-numeric: tabular-nums; }
+
+.cta { margin: 0 0 24px; }
+.button {
+  display: inline-block;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.button:hover { text-decoration: none; opacity: 0.9; }
+.more { margin: 14px 0 0; font-size: 0.88rem; }
+.empty { color: var(--text-muted); font-size: 0.9rem; }
+
+.foot {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.foot p { margin: 0 0 4px; }
+.foot code { font-size: 0.95em; }
+.foot .note { color: var(--text-muted); }
