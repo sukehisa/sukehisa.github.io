@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T11:22:49+09:00",
+  "generated_at": "2026-08-23T11:23:07+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -29,21 +29,21 @@
       "reports": [
         {
           "file": "2026-08-23_market_research_report.html",
-          "title": "市場リサーチ & 5軸評価レポート: エージェント指示ファイルのドリフト・スキルサプライチェーン・EU AI Act Article 50 における穴場市場の特定",
+          "title": "2026-08-23: エージェント指示ファイルのドリフト・スキルサプライチェーン・EU AI Act Article 50 における穴場市場の特定",
           "date": "2026-08-23",
-          "bytes": 65667
+          "bytes": 65630
         },
         {
           "file": "2026-08-22_market_research_report.html",
-          "title": "市場リサーチ & 5軸評価レポート: MCPエコシステム・自律コーディングGuard・国内業務自動化における穴場市場の特定",
+          "title": "2026-08-22: MCPエコシステム・自律コーディングGuard・国内業務自動化における穴場市場の特定",
           "date": "2026-08-22",
-          "bytes": 53739
+          "bytes": 53702
         },
         {
           "file": "2026-08-21_market_research_report.html",
-          "title": "市場リサーチ & 5軸評価レポート: AIエージェント・個人開発エコシステムにおける穴場市場の特定",
+          "title": "2026-08-21: AIエージェント・個人開発エコシステムにおける穴場市場の特定",
           "date": "2026-08-21",
-          "bytes": 46401
+          "bytes": 46364
         }
       ]
     }
