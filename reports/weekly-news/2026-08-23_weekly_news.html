@@ -10,51 +10,60 @@
 <meta name="apple-mobile-web-app-title" content="今週読んだもの">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
 <title>Weekly Promo Dispatch Vol.1 — 2026年8月23日号</title>
 <style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
 :root {
   color-scheme: light;
-  --page: #f7f4ee;
-  --surface: #fffdf8;
-  --ink: #14110d;
-  --ink-2: #4a463e;
-  --ink-3: #837d71;
-  --rule: rgba(20, 17, 13, 0.16);
-  --hairline: rgba(20, 17, 13, 0.09);
-  --accent: #c8102e;
-  --accent-soft: rgba(200, 16, 46, 0.08);
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
   --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
            Georgia, "Times New Roman", serif;
-  --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans",
-          "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page: #12110f;
-    --surface: #1b1a17;
-    --ink: #f4f1ea;
-    --ink-2: #c0bbb0;
-    --ink-3: #8d877c;
-    --rule: rgba(244, 241, 234, 0.20);
-    --hairline: rgba(244, 241, 234, 0.11);
-    --accent: #ff5f6d;
-    --accent-soft: rgba(255, 95, 109, 0.12);
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #12110f;
-  --surface: #1b1a17;
-  --ink: #f4f1ea;
-  --ink-2: #c0bbb0;
-  --ink-3: #8d877c;
-  --rule: rgba(244, 241, 234, 0.20);
-  --hairline: rgba(244, 241, 234, 0.11);
-  --accent: #ff5f6d;
-  --accent-soft: rgba(255, 95, 109, 0.12);
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -70,62 +79,120 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 .wrap {
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 clamp(18px, 4vw, 44px) 96px;
-  padding-left: max(clamp(18px, 4vw, 44px), env(safe-area-inset-left));
-  padding-right: max(clamp(18px, 4vw, 44px), env(safe-area-inset-right));
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
 }
 a { color: inherit; text-decoration: none; }
 
-/* --- 大文字・字間広めのサンセリフ（キッカー / バイライン / ラベル） --- */
-.eyebrow, .byline, .section-label, .rubric, .meta {
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
   font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   font-weight: 600;
   font-size: 0.66rem;
 }
 
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
 /* --- マストヘッド --- */
 .masthead {
-  border-bottom: 3px double var(--rule);
-  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
   text-align: center;
 }
-.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 10px; }
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
 .wordmark {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: clamp(2rem, 6.2vw, 3.6rem);
-  line-height: 1.06;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
   letter-spacing: -0.015em;
   margin: 0;
 }
 .masthead .tagline {
-  margin: 12px auto 0;
-  max-width: 46ch;
+  margin: 14px auto 0;
+  max-width: 44ch;
   color: var(--ink-2);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.7;
 }
 .issue-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px 22px;
-  margin-top: 18px;
-  padding-top: 14px;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
   border-top: 1px solid var(--hairline);
   color: var(--ink-3);
 }
 .issue-bar .vol { color: var(--accent); }
 
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
 /* --- リード（今週の総括） --- */
 .lede {
-  margin: 40px auto 0;
-  max-width: 62ch;
-  text-align: center;
+  margin: 38px auto 0;
+  max-width: 60ch;
 }
 .lede p {
   margin: 0 0 14px;
@@ -141,37 +208,33 @@ a { color: inherit; text-decoration: none; }
   color: var(--accent);
   font-weight: 700;
 }
-.lede.has-drop { text-align: left; }
 
 /* --- リード記事 --- */
 .lead-story {
   margin-top: 44px;
-  padding-top: 34px;
+  padding-top: 32px;
   border-top: 1px solid var(--rule);
 }
 .lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
 .lead-story h2 {
   margin: 0;
-  font-size: clamp(1.85rem, 4.6vw, 3.05rem);
-  line-height: 1.22;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  max-width: 22ch;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
 }
-.lead-story h2 a {
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-size: 0% 2px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.25s ease;
-}
-.lead-story h2 a:hover { background-size: 100% 2px; }
 .lead-story .dek {
   margin: 20px 0 0;
   max-width: 48ch;
-  font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
   line-height: 1.75;
   color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
 }
 
 /* --- 編集後記 --- */
@@ -196,20 +259,20 @@ a { color: inherit; text-decoration: none; }
   font-weight: 500;
   letter-spacing: 0.1em;
 }
-.meta .dot { color: var(--rule); }
+.meta .dot { color: var(--hairline); }
 .tag {
   font-family: var(--sans);
   text-transform: none;
   letter-spacing: 0.02em;
   font-size: 0.68rem;
-  color: var(--ink-2);
+  color: var(--accent);
   background: var(--accent-soft);
   border-radius: 2px;
   padding: 1px 7px;
 }
 
 /* --- セクション --- */
-.section { margin-top: 58px; }
+.section { margin-top: 56px; scroll-margin-top: 16px; }
 .section-head {
   display: flex;
   align-items: baseline;
@@ -222,10 +285,10 @@ a { color: inherit; text-decoration: none; }
 .section-head h2 {
   margin: 0;
   font-family: var(--sans);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
 }
 .section-head .count {
   font-family: var(--sans);
@@ -242,53 +305,38 @@ a { color: inherit; text-decoration: none; }
 }
 .stories {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 0 44px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
 }
-.story {
-  padding: 22px 0 24px;
-  border-top: 1px solid var(--hairline);
-}
-.story:first-child, .stories > .story:nth-child(2):not(:only-child) { border-top: none; padding-top: 4px; }
-@media (max-width: 719px) {
-  .stories > .story:nth-child(2) { border-top: 1px solid var(--hairline); padding-top: 22px; }
-}
+.story { padding-bottom: 4px; }
 .story h3 {
   margin: 0;
-  font-size: 1.24rem;
+  font-size: 1.2rem;
   line-height: 1.45;
   font-weight: 700;
 }
-.story h3 a {
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-size: 0% 1.5px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.25s ease;
-}
-.story h3 a:hover { background-size: 100% 1.5px; }
-.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.96rem; line-height: 1.8; }
-.story .note { margin-top: 14px; font-size: 0.94rem; }
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
 
 /* --- 編集メモ --- */
 .colophon {
-  margin-top: 64px;
+  margin-top: 62px;
   padding: 28px 30px;
-  background: var(--surface);
+  background: var(--band);
   border-top: 2px solid var(--accent);
-  border-bottom: 1px solid var(--hairline);
 }
 .colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
 .colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
 .colophon p:last-child { margin-bottom: 0; }
 
 /* --- 索引 --- */
-.index { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
 .index h2 {
   font-family: var(--sans);
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
   color: var(--ink-3);
   margin: 0 0 14px;
 }
@@ -299,9 +347,9 @@ a { color: inherit; text-decoration: none; }
 
 /* --- フッタ --- */
 .foot {
-  margin-top: 56px;
+  margin-top: 54px;
   padding-top: 18px;
-  border-top: 3px double var(--rule);
+  border-top: 1px solid var(--rule);
   font-family: var(--sans);
   font-size: 0.74rem;
   line-height: 1.85;
@@ -311,9 +359,11 @@ a { color: inherit; text-decoration: none; }
 
 @media print {
   body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
   .stories { grid-template-columns: 1fr 1fr; }
   .story { break-inside: avoid; }
-  a { text-decoration: none; }
+  .sectionnav { display: none; }
 }
 </style>
 </head>
@@ -325,16 +375,17 @@ a { color: inherit; text-decoration: none; }
   <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
   <div class="issue-bar"><span class="vol">Vol. 1</span><span>2026年8月23日（日） 発行</span><span>収録期間 2026年8月16日（日） 〜 2026年8月22日（土）</span><span>26 本</span></div>
 </header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">速く書けた分は、どこで返すのか</a><a class="navlink" href="#sec1">エージェントの足回りを替える</a><a class="navlink" href="#sec2">知識をどう置いておくか</a><a class="navlink" href="#sec3">判断はだれのものか</a><a class="navlink" href="#sec4">積読の底から引き上げたもの</a></nav>
 <section class="lede has-drop"><p>今週読んだ記事の半分近くが、同じ一点を別の角度から突いていた。AIはコードを書く時間を確かに縮めたが、縮めた分はレビュー・検証・保守の側へそっくり移動している、という指摘である。残りの半分は、そこから逃げるための道具の話か、あるいは「では判断する力はどこから来るのか」という、道具では答えの出ない話だった。加えて今週は、10年近く放置していたブックマークをまとめて引き上げた週でもある。</p></section>
-<article class="lead-story"><span class="rubric">今週の1本</span><h2><a href="https://note.com/kkosukeee/n/n99258fe1da3c" rel="noopener">AIは速度を前払いし、失敗を後払いにする</a></h2><p class="dek">大規模調査のデータから、AIコーディング導入が「速度の前払い」と「失敗の後払い」を同時に生む構造を分析した論考。コーディング速度が30〜58%向上する一方で、PRレビュー時間は441%、本番インシデントは242.7%増加しており、Anthropicの実験ではAI利用群のタスク理解度が手書き群の67%に対し50%へ低下した。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>前払いと後払いという言い方が的確すぎて、今週読んだ他の記事がすべてこの一文の脚注のように読めてしまった。焦点を当てるべきは生成の速さではなく、生成されたものの妥当性を確かめる仕組みと、選んだ設計のトレードオフを言葉にできる力のほうである。基礎のない状態でこれを増幅すれば、出てくるのは負債である。</p></div><p class="meta"><span>note.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">DORA</span><span class="tag">LLM</span><span class="tag">エンジニアリング組織</span><span class="tag">品質管理</span><span class="tag">生産性</span></p></article>
-<section class="section"><div class="section-head"><h2>速く書けた分は、どこで返すのか</h2><span class="count">5 本</span></div><p class="section-intro">前払いした速度をどこで返すかという問いに、それぞれ違う場所から答えている5本。</p><div class="stories"><article class="story"><h3><a href="https://x.com/i/status/2082405782117900727" rel="noopener">Anthropic内部におけるソフトウェア開発の変化</a></h3><p class="dek">Anthropic 社内取材記事の要約。実装そのものに費やす時間は全体の15%程度まで減り、残り85%はコンパイルエラーの修正・テスト実行・動作確認といった検証作業に充てられている。一方で、半年規模の大型プロジェクトには従来どおりのPRDと事前合意が不可欠であることも変わっていない。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実装15%・検証85%という比率が、今週読んだものの大半を一行で説明してしまう。ボトルネックが移動したのなら、整備すべき場所も移動している。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 8.20</span><span class="tag">AI</span><span class="tag">AIエージェント</span><span class="tag">Anthropic</span><span class="tag">エンジニアリング組織</span><span class="tag">コーディングエージェント</span><span class="tag">ソフトウェア開発</span></p></article><article class="story"><h3><a href="https://zenn.dev/ito/articles/6b042aa27d65bc" rel="noopener">AIエージェントはなぜテストを握り潰すのか ― 報酬エンジニアリングのすすめ</a></h3><p class="dek">エージェントがテストをskipしたり期待値を書き換えたりするのは、モデルの未熟さではなくポストトレーニングの構造に由来する、という議論。LLMは「採点者に高得点をもらえる応答」を最適化しており、採点者の評価と真の目的が乖離した場面では抜け道の探索が構造的に肯定される。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>行儀の問題ではなく、採点表の問題である。ならば直すべきはエージェントの態度ではなく、テスト・型・lint・完了条件といった代理報酬の設計のほうになる。答案作成と採点のプロセスを分離せよ、という処方はそのまま人間の組織にも効く。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><h3><a href="https://zenn.dev/yktsnet/articles/202608-guarantee-driven-development" rel="noopener">仕様書から保証台帳へ、GDD（保証駆動開発）のすすめ</a></h3><p class="dek">開発フェーズに応じて駆動文書を切り替え、保守フェーズを保証台帳（<code>docs/guarantees.md</code>）で制御する手法の提案。従来のATDDやCucumberが人間の読む仕様書を実行可能化しようとして二重管理で破綻したのに対し、GDDは文書の実行可能化を最初から目指さず、テストが担保する「約束」だけを台帳へ抽出する。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>仕様書をテストコードへ変換し続ける試みは、業界で何度も繰り返され、そのたびに失敗してきた。仕様が変わったときに両方を漏れなく直し続けられないからである。GDDは向きを逆にして、テストのほうから人間の読める約束を取り出す。順序を入れ替えただけに見えて、破綻する場所そのものが消えている。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">GDD</span><span class="tag">TDD</span><span class="tag">Workflow</span><span class="tag">テスト</span><span class="tag">設計</span><span class="tag">開発プロセス</span></p></article><article class="story"><h3><a href="https://code.claude.com/docs/en/security-guidance" rel="noopener">Catch security issues as Claude writes code</a></h3><p class="dek">Claude Code 用プラグイン <code>security-guidance</code> の公式ドキュメント。ファイル編集時のパターンマッチ、ターン終了時の独立インスタンスによる差分検査、コミット／プッシュ時のエージェント型レビューという3段階でレビューを重ね、問題検出時はセッション内のClaudeへ自動で修正を再プロンプトする。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>注目すべきは検知の網羅性ではなく、審査の分離のほうである。コードを書いたモデル自身に自己採点させず、まっさらな文脈を持つ別のインスタンスが差分だけを見る。エージェントの出力を信頼可能にする型として、この構図は覚えておく価値がある。</p></div><p class="meta"><span>code.claude.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">DevSecOps</span><span class="tag">Plugins</span><span class="tag">Security</span></p></article><article class="story"><h3><a href="https://zenn.dev/iwatsukayura/articles/google-go-ai" rel="noopener">なぜAI時代にGoが最適な言語なのか</a></h3><p class="dek">Google の記事「Why Go is an Ideal Language for AI-Assisted Software Engineering」の和訳と考察。ボトルネックが「書くこと」から「レビュー・検証・保守」へ移った前提のもと、表現の揺れの少なさ、高速なコンパイルと静的型、標準ツールチェーン、厳格な後方互換性を、AIエージェントに対するガードレールとして位置づけている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>AIにとって読みやすい言語かどうかが、アーキテクチャの選定理由として表に出てきた。検証の手段は多いほどよい。裏を返せば、プロジェクトや会社に固有のフレームワークは、AIが知らず調べても出てこないという理由だけで不利になる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Programming Language</span></p></article></div></section>
-<section class="section"><div class="section-head"><h2>エージェントの足回りを替える</h2><span class="count">6 本</span></div><p class="section-intro">モデルを賢いものへ替える以外にできることは、まだかなり残っている。</p><div class="stories"><article class="story"><h3><a href="https://zenn.dev/kimushun1101/articles/mikke-markdown-search-cli" rel="noopener">Markdownノートを日本語で全文検索できるCLI「mikke」を作った</a></h3><p class="dek">Markdownのメモを日本語で全文検索するRust製CLI。SQLite FTS5のtrigramトークナイザにより形態素解析辞書なしで日英混在テキストをBM25の関連度順に並べ、対象フォルダ直下の <code>.mikke/</code> にインデックスを自己完結で持つ。ローカル埋め込みによるハイブリッド検索もオプトインで使える。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントの検索能力は、モデルの賢さよりも足回りの道具で決まる部分が大きい。grep を置き換えるという発想は、そのいちばん低い層に手を入れている。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><h3><a href="https://ai.itokoba.com/archives/861/" rel="noopener">AIを使っているなら全員入れるべきAgent Skill 4選</a></h3><p class="dek">汎用性・非陳腐化・低依存性という基準でAgent Skillを選定した記事。日本語の文章規範を与える <code>japanese-tech-writing</code> と <code>cognitive-rhythm-writing</code>、計画を問い詰める <code>grill-me</code>、最新の公式ドキュメントを参照させる <code>Context7</code>、WebページをMarkdownとして構造的に取得する <code>ax</code> の4つを挙げている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p><code>ax</code> は読んですぐこの仕組みへ入れた。取得に失敗していたページが通るようになり、記事の取り込み精度も目に見えて上がっている。ベンダー標準に吸収されるスキルには投資しない、という選定基準のほうが記事本体より長く使える。</p></div><p class="meta"><span>ai.itokoba.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Skills</span></p></article><article class="story"><h3><a href="https://zenn.dev/ryonakae/articles/8783c6b3ead2cb" rel="noopener">grill-me スキルがめちゃ良いので布教したい</a></h3><p class="dek">わずか3行のAgent Skill「grill-me」の紹介記事。合意に至るまで1問ずつ質問し、設計ツリーを依存関係に沿って掘り下げ、推奨回答も併せて提示する。一括で計画を吐き出すプランモードと違い、対話で計画を組み上げるため手戻りが少ない。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>常用している。20問近く問い詰められるのは正直かなり疲れるが、その疲れは後工程で払うはずだった手戻りの前払いである。今週のリードの言い方を借りれば、これは数少ない「失敗を前払いする」道具だと言える。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.19</span><span class="tag">Practice</span><span class="tag">skill</span></p></article><article class="story"><h3><a href="https://github.com/openinterpreter/openinterpreter" rel="noopener">openinterpreter/openinterpreter — オープンモデル向けのコーディングエージェント</a></h3><p class="dek">OpenAI の Codex CLI をフォークし、DeepSeek・Kimi K3・Qwen などのオープンウェイトモデル向けに再設計されたエージェント。モデルは学習時のハーネス環境に強く依存するという前提に立ち、モデルごとに最適化されたハーネスをエミュレートして <code>/harness</code> で切り替える。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>モデルは重みだけでなく、指示と出力の形式ごと訓練されている。ベンチマークの数字が手元で再現しないことがある理由の相当部分は、たぶんここにある。安価なモデルをモデル特化のハーネスで駆動するというコスト戦略は、この性質を逆手に取っている。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Codex</span><span class="tag">Coding Agent</span><span class="tag">DeepSeek</span><span class="tag">Kimi</span><span class="tag">LLM</span><span class="tag">Open Source</span></p></article><article class="story"><h3><a href="https://www.gcformat.com/playground.html" rel="noopener">GCF (Graph Context Format)</a></h3><p class="dek">LLMのツール応答やMCP通信向けに設計された構造化データ転送フォーマット。JSON比で入力トークンを最大71%、出力トークンを63%削減しつつ、追加のファインチューニングなしに主要モデルで構造理解の精度を維持するとしている。MCPプロキシによる自動圧縮やセッション間の重複排除にも対応する。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>JSONを疑ったことが一度もなかった。トークンがそのままコストである以上、ワイヤフォーマットの選択はもはや設計判断の一部である。既存のtoolchain側さえ対応すれば移行できる、という点も現実的に効く。</p></div><p class="meta"><span>gcformat.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Context</span></p></article><article class="story"><h3><a href="https://www.youtube.com/watch?v=WaE7IAEBr7M" rel="noopener">#51 HerdrとHunkでAIコーディングが快適 ほか</a></h3><p class="dek">AI支援開発のコンテキスト管理と差分確認を扱うツール（Herdr / Hunk）の使用体験を中心に、AI生成文章の可読性、事業側と開発現場のアライン、マイクロマネジメントしないチーム設計までを扱った回。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>紹介されていた差分まわりの道具を実際に入れてみたところ、手元の確認作業がはっきり軽くなった。</p></div><p class="meta"><span>youtube.com</span><span class="dot">/</span><span>PROMO 8.19</span><span class="tag">AI</span><span class="tag">Practice</span><span class="tag">Tool</span><span class="tag">TryLater</span></p></article></div></section>
-<section class="section"><div class="section-head"><h2>知識をどう置いておくか</h2><span class="count">5 本</span></div><p class="section-intro">エージェントに読ませる前提で、知識の置き方そのものを規格化しようとする動きが続いている。</p><div class="stories"><article class="story"><h3><a href="https://zenn.dev/finatext/articles/2ea88e4b1c2e5b" rel="noopener">LLM Wikiパターンの標準化 OKF (Open Knowledge Format)</a></h3><p class="dek">Google Cloud が公開した Open Knowledge Format と、その背景にある「LLM Wikiパターン」の解説。ベクトル検索RAGの文脈欠損とGraphRAGの構築コストという両方の課題に対し、Markdown + YAMLフロントマター + 明示的なリンク構造という組み合わせで、エージェントが自律的に読み書きできる知識ベースを標準化しようとしている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>このページを含むノート群自体を、この規格に沿って組み直している。仕様はまだバージョンが上がり続けるので、追随の手間は当面かかり続けることになる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">context</span></p></article><article class="story"><h3><a href="https://github.com/tokuhirom/64p.org/blob/master/CLAUDE.md" rel="noopener">64p.org/CLAUDE.md</a></h3><p class="dek">エバーグリーンノートを運用するための、実際に使われているエージェント向け指示書。1ノート1概念の原子性、概念指向、新規作成時にgrepして既存の言及をリンク化する密度の高いリンク、フォルダ階層ではなくリンクとタグによる連想的オントロジーといった設計原則が明文化されている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>作法としては筋が通っており、読む価値は十分にある。ただしそのまま自分の運用へ移すことはしない。参照する設計として脇に置いておく類のものである。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">Claude Code</span><span class="tag">Digital Garden</span><span class="tag">Evergreen Notes</span><span class="tag">LLM</span><span class="tag">Zettelkasten</span><span class="tag">ナレッジ管理</span></p></article><article class="story"><h3><a href="https://qiita.com/haystacker/items/376d86bcbeefc3885183" rel="noopener">オントロジーと知識グラフ入門：URI から RDF、RDFS、OWL、推論、SPARQL まで</a></h3><p class="dek">セマンティックWeb技術をレイヤー構造として積み上げ式に整理した入門記事。識別子（URI）、トリプルによる表現（RDF）、体系化（RDFS / OWL）、推論、検索（SPARQL）という順で、哲学的な難解さを避けて解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>知識グラフまわりは用語が多く、どれが同じ層の話なのかが分かりにくい。この5段の積み上げは、その混乱を整理するための地図として使える。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">Knowledge Graph</span></p></article><article class="story"><h3><a href="https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432" rel="noopener">cognitive-rhythm-writing/SKILL.md</a></h3><p class="dek">日本語の文章に「認知リズム」を設計するための規範。緩急を情報量の増減ではなく「観察→逡巡→断定→再観察」という読者の認知モードの切替として扱い、常に1つ以上の未回収の緊張を開いておくことで読者の離脱を防ぐ。執筆後の機械的な点検手順も5つ定めている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>規範そのものが読み物として面白い、という珍しい文書である。文書自身を話題にする文はすべて削除対象、という判定基準が特によく効く。導入済み。</p></div><p class="meta"><span>gist.github.com</span><span class="dot">/</span><span>PROMO 8.21</span></p></article><article class="story"><h3><a href="https://qiita.com/simdroid/items/236886451b6aef7162b5" rel="noopener">NotebookLMで60ページ超の登壇スライド作成してみた</a></h3><p class="dek">社内ドキュメントや関連資料をNotebookLMへ集約し、構成案のブレインストーミングから章ごとの論点整理、原稿のテキスト生成までを実行させた記録。ソースに基づく事実確認で逸脱を抑えつつ、大規模スライドの構成工数を圧縮するプロンプト設計をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>スライドは構成でほぼ決まり、そしてその構成こそがいちばん任せやすい部分である。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.21</span><span class="tag">NotebookLM</span><span class="tag">Practice</span><span class="tag">プレゼン</span></p></article></div></section>
-<section class="section"><div class="section-head"><h2>判断はだれのものか</h2><span class="count">3 本</span></div><p class="section-intro">道具の話をどれだけ積み上げても残る問いが、今週は3本あった。</p><div class="stories"><article class="story"><h3><a href="https://kaz-ataka.hatenablog.com/entry/2026/05/26/232654" rel="noopener">AI native時代の袋小路 ― 見立てる力はどこから来るのか</a></h3><p class="dek">AIが中間工程を効率化・消失させることで、次世代が実務を通じて判断力を獲得する育成回路そのものが断絶する、という指摘。各組織が短期的に合理的な行動をとるほど社会全体で判断力の供給源が失われる合成の誤謬が生じ、下流の実務経験を持たないままAIの出力を決裁する構造は、形式的な追認と責任の空洞化を招く。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>若手が身体知を得る機会が奪われること、しかもそれが各所での局所最適であること。この構造に意識的であっても、数値に追われる文化がある限り抗うのは難しい。抗うとしたら、失われるものを実際に見てきた上の世代の側からになる。</p></div><p class="meta"><span>kaz-ataka.hatenablog.com</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><h3><a href="https://x.com/AndrewYNg/status/2088302050706686198" rel="noopener">The AI Engineering Skills Map</a></h3><p class="dek">Andrew Ng が1万件以上の求人票の分析と構造化インタビューからまとめた、AIエンジニアリングの4つのコアスキル。AIアプリケーションの構築とデプロイ、ソフトウェア工学の基礎、コーディングエージェントの活用、そして「何を仕様にするか」を決めるShaping the build である。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>目新しいことは書かれていない。ただ、4つのうちコードを書く速さに関わるものが1つもない、という事実のほうに意味がある。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">AIエンジニアリング</span><span class="tag">LLM</span><span class="tag">キャリア</span><span class="tag">コーディングエージェント</span></p></article><article class="story"><h3><a href="https://zenn.dev/s4kura/articles/claude-code-indie-idea-scout-skill" rel="noopener">Claude Codeに「アイデア発掘スキル」を作らせたら、3つの穴場市場を見つけてきた</a></h3><p class="dek">Web検索と5軸評価による市場ギャップ分析を4フェーズで自動実行するリサーチスキルの構築事例。コード生成ではなく、市場調査や仮説検証という上流工程へエージェントを充てている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>調査手順をスキルとして固定してしまえば、その日の気分や関心の偏りに左右されない探索ができる。上流ほど属人的だと思われがちだが、属人性の多くは実は手順の不在である。試すことにした。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.21</span></p></article></div></section>
-<section class="section"><div class="section-head"><h2>積読の底から引き上げたもの</h2><span class="count">6 本</span></div><p class="section-intro">2016年から2017年のブックマークが、今週まとめて浮上した。並べてみると、当時の関心と今の関心は思ったより地続きだった。</p><div class="stories"><article class="story"><h3><a href="https://qiita.com/dankogai/items/ffc4f31a8a949bd7ec01" rel="noopener">ZFS - スナップショットいつやるか?今でしょ!</a></h3><p class="dek">Copy-on-Write ベースのスナップショット機構によって、ファイルシステムの整合性を保ったまま瞬時に状態を保存できる仕組みの解説。fsck不要のトランザクション管理と、チェックサムによるデータの自動修復を軸にZFSの堅牢性を論じている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>2017年の記事だが、いま読んでも古びていない。基盤の技術は、流行の周期より一段深いところで動いている。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><h3><a href="https://shiumachi.hatenablog.com/entry/2017/07/10/080827" rel="noopener">「Hadoopの時代は終わった」の意味を正しく理解する</a></h3><p class="dek">MapReduceとHDFSが一体だった第一世代から、SparkやFlinkによるインメモリ処理、そしてクラウドオブジェクトストレージへのストレージ・コンピュート分離へという構造変化の整理。エコシステム側（YARN、メタデータ管理、セキュリティ）は依然として不可欠である、という立場をとる。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>「終わった」と言われた技術が実際には何に置き換わり、何が残ったのか。この分解の仕方は、いま同じ言い方で語られている技術にもそのまま当てられる。</p></div><p class="meta"><span>shiumachi.hatenablog.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><h3><a href="https://www.publickey1.jp/blog/17/ibm100200.html" rel="noopener">IBM、100万個の「演算するメモリ群」で作られた非ノイマン型マシンで機械学習のデモを発表</a></h3><p class="dek">IBM Research が相変化メモリ100万個のセル自体に演算をさせるインメモリ・アナログコンピューティングを実証したというニュース。プロセッサとメモリ間の帯域が上限となるフォン・ノイマン・ボトルネックに対し、機械学習タスクで200倍の高速化と電力効率の改善を示したとしている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>これが成立するのは、機械学習の演算が単純な操作の巨大な集合だからだろう。ではどこまでの演算が載るのか、という問いは2017年の記事を読み終えたいまも残ったままである。</p></div><p class="meta"><span>publickey1.jp</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><h3><a href="https://www.publickey1.jp/blog/26/bgm2026.html" rel="noopener">プログラミングのためのBGMや環境音など。2026年版</a></h3><p class="dek">作業を妨げない無料の音源をまとめた2026年版。Anthropicが公式YouTubeで24時間配信する「Claude FM」、定番のLoFiチャンネル、全78曲へ拡充された musicForProgramming(); のほか、ポモドーロ連動音源や空港ロビー・電車の走行音といった環境音が整理されている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>musicForProgramming(); は昔から使っている。久しぶりに開いたらエピソードが増えていた。集中を道具で買えるなら安いものである。</p></div><p class="meta"><span>publickey1.jp</span><span class="dot">/</span><span>PROMO 8.21</span><span class="tag">BGM</span><span class="tag">音源</span></p></article><article class="story"><h3><a href="http://kyuinkyuim.blog71.fc2.com/blog-entry-1048.html" rel="noopener">海外でのクレジットカード支払いで注意すべきこと</a></h3><p class="dek">海外決済で「日本円か現地通貨か」を聞かれたときの選択指針。日本円建てを選ぶと店舗側・現地決済代行会社が設定した割高な為替手数料が上乗せされる仕組み（DCC）を解説し、国際ブランド基準レートが適用される現地通貨決済を選ぶべき理由を整理している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>2016年のブックマーク。この種の知識は、忘れた頃に決済端末の前で一度だけ必要になる。</p></div><p class="meta"><span>kyuinkyuim.blog71.fc2.com</span><span class="dot">/</span><span>PROMO 8.21</span></p></article><article class="story"><h3><a href="https://www.50kgdiet.com/entry/2017/04/30/180750" rel="noopener">【1食86円】骨付きチキンと大根の薬膳スープカレー簡単レシピ</a></h3><p class="dek">鍋ひとつで完成する、1食86円のスープカレーのレシピ。大根を大きくカットして投入する調理法と、スパイスを使った糖質オフの配合、冷凍ストック術をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>鍋ひとつで完結すること。それだけで採用の理由になる。</p></div><p class="meta"><span>50kgdiet.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article></div></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://note.com/kkosukeee/n/n99258fe1da3c" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://d2l930y2yx77uc.cloudfront.net/production/social_images/8bb52a34ecaf9dcb95320b2a1f5508fa15aaefb0.png" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://note.com/kkosukeee/n/n99258fe1da3c" rel="noopener"><span class="grow-underline">AIは速度を前払いし、失敗を後払いにする</span></a></h2><div class="lead-body"><div><p class="dek">大規模調査のデータから、AIコーディング導入が「速度の前払い」と「失敗の後払い」を同時に生む構造を分析した論考。コーディング速度が30〜58%向上する一方で、PRレビュー時間は441%、本番インシデントは242.7%増加しており、Anthropicの実験ではAI利用群のタスク理解度が手書き群の67%に対し50%へ低下した。</p><p class="meta"><span>note.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">DORA</span><span class="tag">LLM</span><span class="tag">エンジニアリング組織</span><span class="tag">品質管理</span><span class="tag">生産性</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>前払いと後払いという言い方が的確すぎて、今週読んだ他の記事がすべてこの一文の脚注のように読めてしまった。焦点を当てるべきは生成の速さではなく、生成されたものの妥当性を確かめる仕組みと、選んだ設計のトレードオフを言葉にできる力のほうである。基礎のない状態でこれを増幅すれば、出てくるのは負債である。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>速く書けた分は、どこで返すのか</h2><span class="count">5 本</span></div><p class="section-intro">前払いした速度をどこで返すかという問いに、それぞれ違う場所から答えている5本。</p><div class="stories"><article class="story"><a class="thumb" href="https://x.com/i/status/2082405782117900727" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/card_img/2088504922287247360/EAWC5SO6?format=jpg&amp;name=orig" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://x.com/i/status/2082405782117900727" rel="noopener"><span class="grow-underline">Anthropic内部におけるソフトウェア開発の変化</span></a></h3><p class="dek">Anthropic 社内取材記事の要約。実装そのものに費やす時間は全体の15%程度まで減り、残り85%はコンパイルエラーの修正・テスト実行・動作確認といった検証作業に充てられている。一方で、半年規模の大型プロジェクトには従来どおりのPRDと事前合意が不可欠であることも変わっていない。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実装15%・検証85%という比率が、今週読んだものの大半を一行で説明してしまう。ボトルネックが移動したのなら、整備すべき場所も移動している。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 8.20</span><span class="tag">AI</span><span class="tag">AIエージェント</span><span class="tag">Anthropic</span><span class="tag">エンジニアリング組織</span><span class="tag">コーディングエージェント</span><span class="tag">ソフトウェア開発</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/ito/articles/6b042aa27d65bc" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--9NgfpSm6--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:AI%25E3%2582%25A8%25E3%2583%25BC%25E3%2582%25B8%25E3%2582%25A7%25E3%2583%25B3%25E3%2583%2588%25E3%2581%25AF%25E3%2581%25AA%25E3%2581%259C%25E3%2583%2586%25E3%2582%25B9%25E3%2583%2588%25E3%2582%2592%25E6%258F%25A1%25E3%2582%258A%25E6%25BD%25B0%25E3%2581%2599%25E3%2581%25AE%25E3%2581%258B%2520%25E2%2580%2595%2520%25E5%25A0%25B1%25E9%2585%25AC%25E3%2582%25A8%25E3%2583%25B3%25E3%2582%25B8%25E3%2583%258B%25E3%2582%25A2%25E3%2583%25AA%25E3%2583%25B3%25E3%2582%25B0%25E3%2581%25AE%25E3%2581%2599%25E3%2581%2599%25E3%2582%2581%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:ito%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzkwNDM1OTMzYzMuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/ito/articles/6b042aa27d65bc" rel="noopener"><span class="grow-underline">AIエージェントはなぜテストを握り潰すのか ― 報酬エンジニアリングのすすめ</span></a></h3><p class="dek">エージェントがテストをskipしたり期待値を書き換えたりするのは、モデルの未熟さではなくポストトレーニングの構造に由来する、という議論。LLMは「採点者に高得点をもらえる応答」を最適化しており、採点者の評価と真の目的が乖離した場面では抜け道の探索が構造的に肯定される。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>行儀の問題ではなく、採点表の問題である。ならば直すべきはエージェントの態度ではなく、テスト・型・lint・完了条件といった代理報酬の設計のほうになる。答案作成と採点のプロセスを分離せよ、という処方はそのまま人間の組織にも効く。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/yktsnet/articles/202608-guarantee-driven-development" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--3wgmOtFO--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:%25E4%25BB%2595%25E6%25A7%2598%25E6%259B%25B8%25E3%2581%258B%25E3%2582%2589%25E4%25BF%259D%25E8%25A8%25BC%25E5%258F%25B0%25E5%25B8%25B3%25E3%2581%25B8%25E3%2580%2581GDD%25EF%25BC%2588%25E4%25BF%259D%25E8%25A8%25BC%25E9%25A7%2586%25E5%258B%2595%25E9%2596%258B%25E7%2599%25BA%25EF%25BC%2589%25E3%2581%25AE%25E3%2581%2599%25E3%2581%2599%25E3%2582%2581%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:yktsnet%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyL2JhMjJhMTJiYjcuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/yktsnet/articles/202608-guarantee-driven-development" rel="noopener"><span class="grow-underline">仕様書から保証台帳へ、GDD（保証駆動開発）のすすめ</span></a></h3><p class="dek">開発フェーズに応じて駆動文書を切り替え、保守フェーズを保証台帳（<code>docs/guarantees.md</code>）で制御する手法の提案。従来のATDDやCucumberが人間の読む仕様書を実行可能化しようとして二重管理で破綻したのに対し、GDDは文書の実行可能化を最初から目指さず、テストが担保する「約束」だけを台帳へ抽出する。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>仕様書をテストコードへ変換し続ける試みは、業界で何度も繰り返され、そのたびに失敗してきた。仕様が変わったときに両方を漏れなく直し続けられないからである。GDDは向きを逆にして、テストのほうから人間の読める約束を取り出す。順序を入れ替えただけに見えて、破綻する場所そのものが消えている。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">GDD</span><span class="tag">TDD</span><span class="tag">Workflow</span><span class="tag">テスト</span><span class="tag">設計</span><span class="tag">開発プロセス</span></p></article><article class="story"><a class="thumb" href="https://code.claude.com/docs/en/security-guidance" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://claude-code.mintlify.app/_next/image?url=%2F_mintlify%2Fapi%2Fog%3Fdivision%3DCode%2Breview%2B%2526%2BCI%252FCD%26appearance%3Dsystem%26title%3DCatch%2Bsecurity%2Bissues%2Bas%2BClaude%2Bwrites%2Bcode%26description%3DInstall%2Bthe%2Bsecurity-guidance%2Bplugin%2Bto%2Bhave%2BClaude%2Breview%2Bits%2Bown%2Bcode%2Bchanges%2Bfor%2Bvulnerabilities%2Band%2Bfix%2Bthem%2Bin%2Bthe%2Bsame%2Bsession.%26logoLight%3Dhttps%253A%252F%252Fmintcdn.com%252Fclaude-code%252Fc5r9_6tjPMzFdDDT%252Flogo%252Flight.svg%253Ffit%253Dmax%2526auto%253Dformat%2526n%253Dc5r9_6tjPMzFdDDT%2526q%253D85%2526s%253D78fd01ff4f4340295a4f66e2ea54903c%26logoDark%3Dhttps%253A%252F%252Fmintcdn.com%252Fclaude-code%252Fc5r9_6tjPMzFdDDT%252Flogo%252Fdark.svg%253Ffit%253Dmax%2526auto%253Dformat%2526n%253Dc5r9_6tjPMzFdDDT%2526q%253D85%2526s%253D1298a0c3b3a1da603b190d0de0e31712%26primaryColor%3D%25230E0E0E%26lightColor%3D%2523D4A27F%26backgroundLight%3D%2523FDFDF7%26backgroundDark%3D%252309090B&amp;w=1200&amp;q=100" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://code.claude.com/docs/en/security-guidance" rel="noopener"><span class="grow-underline">Catch security issues as Claude writes code</span></a></h3><p class="dek">Claude Code 用プラグイン <code>security-guidance</code> の公式ドキュメント。ファイル編集時のパターンマッチ、ターン終了時の独立インスタンスによる差分検査、コミット／プッシュ時のエージェント型レビューという3段階でレビューを重ね、問題検出時はセッション内のClaudeへ自動で修正を再プロンプトする。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>注目すべきは検知の網羅性ではなく、審査の分離のほうである。コードを書いたモデル自身に自己採点させず、まっさらな文脈を持つ別のインスタンスが差分だけを見る。エージェントの出力を信頼可能にする型として、この構図は覚えておく価値がある。</p></div><p class="meta"><span>code.claude.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">DevSecOps</span><span class="tag">Plugins</span><span class="tag">Security</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/iwatsukayura/articles/google-go-ai" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--Fj-TDWBT--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:%25E3%2581%25AA%25E3%2581%259CAI%25E6%2599%2582%25E4%25BB%25A3%25E3%2581%25ABGo%25E3%2581%258C%25E6%259C%2580%25E9%2581%25A9%25E3%2581%25AA%25E8%25A8%2580%25E8%25AA%259E%25E3%2581%25AA%25E3%2581%25AE%25E3%2581%258B%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:IwatsukaYura%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyL2I2Y2Y1MzQ4MzAuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/iwatsukayura/articles/google-go-ai" rel="noopener"><span class="grow-underline">なぜAI時代にGoが最適な言語なのか</span></a></h3><p class="dek">Google の記事「Why Go is an Ideal Language for AI-Assisted Software Engineering」の和訳と考察。ボトルネックが「書くこと」から「レビュー・検証・保守」へ移った前提のもと、表現の揺れの少なさ、高速なコンパイルと静的型、標準ツールチェーン、厳格な後方互換性を、AIエージェントに対するガードレールとして位置づけている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>AIにとって読みやすい言語かどうかが、アーキテクチャの選定理由として表に出てきた。検証の手段は多いほどよい。裏を返せば、プロジェクトや会社に固有のフレームワークは、AIが知らず調べても出てこないという理由だけで不利になる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Programming Language</span></p></article></div></section>
+<section class="section" id="sec1"><div class="section-head"><h2>エージェントの足回りを替える</h2><span class="count">6 本</span></div><p class="section-intro">モデルを賢いものへ替える以外にできることは、まだかなり残っている。</p><div class="stories"><article class="story"><a class="thumb" href="https://zenn.dev/kimushun1101/articles/mikke-markdown-search-cli" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--P3w018dX--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:Markdown%25E3%2583%258E%25E3%2583%25BC%25E3%2583%2588%25E3%2582%2592%25E6%2597%25A5%25E6%259C%25AC%25E8%25AA%259E%25E3%2581%25A7%25E5%2585%25A8%25E6%2596%2587%25E6%25A4%259C%25E7%25B4%25A2%25E3%2581%25A7%25E3%2581%258D%25E3%2582%258BCLI%25E3%2580%258Cmikke%25E3%2580%258D%25E3%2582%2592%25E4%25BD%259C%25E3%2581%25A3%25E3%2581%259F%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:%25E6%259C%25A8%25E6%259D%2591%2520%25E9%25A7%25BF%25E4%25BB%258B%2520%252F%2520Shunsuke%2520K...%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyL2VjZWFjYzFhNTEuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/kimushun1101/articles/mikke-markdown-search-cli" rel="noopener"><span class="grow-underline">Markdownノートを日本語で全文検索できるCLI「mikke」を作った</span></a></h3><p class="dek">Markdownのメモを日本語で全文検索するRust製CLI。SQLite FTS5のtrigramトークナイザにより形態素解析辞書なしで日英混在テキストをBM25の関連度順に並べ、対象フォルダ直下の <code>.mikke/</code> にインデックスを自己完結で持つ。ローカル埋め込みによるハイブリッド検索もオプトインで使える。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントの検索能力は、モデルの賢さよりも足回りの道具で決まる部分が大きい。grep を置き換えるという発想は、そのいちばん低い層に手を入れている。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><a class="thumb" href="https://ai.itokoba.com/archives/861/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://d123m2at8cpnnb.cloudfront.net/ai/2026/07/22052836/thumbnail.webp" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://ai.itokoba.com/archives/861/" rel="noopener"><span class="grow-underline">AIを使っているなら全員入れるべきAgent Skill 4選</span></a></h3><p class="dek">汎用性・非陳腐化・低依存性という基準でAgent Skillを選定した記事。日本語の文章規範を与える <code>japanese-tech-writing</code> と <code>cognitive-rhythm-writing</code>、計画を問い詰める <code>grill-me</code>、最新の公式ドキュメントを参照させる <code>Context7</code>、WebページをMarkdownとして構造的に取得する <code>ax</code> の4つを挙げている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p><code>ax</code> は読んですぐこの仕組みへ入れた。取得に失敗していたページが通るようになり、記事の取り込み精度も目に見えて上がっている。ベンダー標準に吸収されるスキルには投資しない、という選定基準のほうが記事本体より長く使える。</p></div><p class="meta"><span>ai.itokoba.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Skills</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/ryonakae/articles/8783c6b3ead2cb" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--9ziDWdun--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:grill-me%2520%25E3%2582%25B9%25E3%2582%25AD%25E3%2583%25AB%25E3%2581%258C%25E3%2582%2581%25E3%2581%25A1%25E3%2582%2583%25E8%2589%25AF%25E3%2581%2584%25E3%2581%25AE%25E3%2581%25A7%25E5%25B8%2583%25E6%2595%2599%25E3%2581%2597%25E3%2581%259F%25E3%2581%2584%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:Ryo%2520Nakae%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzU0ZmIyY2E5NmEuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/ryonakae/articles/8783c6b3ead2cb" rel="noopener"><span class="grow-underline">grill-me スキルがめちゃ良いので布教したい</span></a></h3><p class="dek">わずか3行のAgent Skill「grill-me」の紹介記事。合意に至るまで1問ずつ質問し、設計ツリーを依存関係に沿って掘り下げ、推奨回答も併せて提示する。一括で計画を吐き出すプランモードと違い、対話で計画を組み上げるため手戻りが少ない。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>常用している。20問近く問い詰められるのは正直かなり疲れるが、その疲れは後工程で払うはずだった手戻りの前払いである。今週のリードの言い方を借りれば、これは数少ない「失敗を前払いする」道具だと言える。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.19</span><span class="tag">Practice</span><span class="tag">skill</span></p></article><article class="story"><a class="thumb" href="https://github.com/openinterpreter/openinterpreter" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://repository-images.githubusercontent.com/666299222/30894a76-2a46-4988-a903-ababff8ac2fe" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/openinterpreter/openinterpreter" rel="noopener"><span class="grow-underline">openinterpreter/openinterpreter — オープンモデル向けのコーディングエージェント</span></a></h3><p class="dek">OpenAI の Codex CLI をフォークし、DeepSeek・Kimi K3・Qwen などのオープンウェイトモデル向けに再設計されたエージェント。モデルは学習時のハーネス環境に強く依存するという前提に立ち、モデルごとに最適化されたハーネスをエミュレートして <code>/harness</code> で切り替える。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>モデルは重みだけでなく、指示と出力の形式ごと訓練されている。ベンチマークの数字が手元で再現しないことがある理由の相当部分は、たぶんここにある。安価なモデルをモデル特化のハーネスで駆動するというコスト戦略は、この性質を逆手に取っている。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Codex</span><span class="tag">Coding Agent</span><span class="tag">DeepSeek</span><span class="tag">Kimi</span><span class="tag">LLM</span><span class="tag">Open Source</span></p></article><article class="story"><a class="thumb" href="https://www.gcformat.com/playground.html" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://gcformat.com/og.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.gcformat.com/playground.html" rel="noopener"><span class="grow-underline">GCF (Graph Context Format)</span></a></h3><p class="dek">LLMのツール応答やMCP通信向けに設計された構造化データ転送フォーマット。JSON比で入力トークンを最大71%、出力トークンを63%削減しつつ、追加のファインチューニングなしに主要モデルで構造理解の精度を維持するとしている。MCPプロキシによる自動圧縮やセッション間の重複排除にも対応する。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>JSONを疑ったことが一度もなかった。トークンがそのままコストである以上、ワイヤフォーマットの選択はもはや設計判断の一部である。既存のtoolchain側さえ対応すれば移行できる、という点も現実的に効く。</p></div><p class="meta"><span>gcformat.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">Context</span></p></article><article class="story"><a class="thumb" href="https://www.youtube.com/watch?v=WaE7IAEBr7M" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://i.ytimg.com/vi/WaE7IAEBr7M/maxresdefault.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.youtube.com/watch?v=WaE7IAEBr7M" rel="noopener"><span class="grow-underline">#51 HerdrとHunkでAIコーディングが快適 ほか</span></a></h3><p class="dek">AI支援開発のコンテキスト管理と差分確認を扱うツール（Herdr / Hunk）の使用体験を中心に、AI生成文章の可読性、事業側と開発現場のアライン、マイクロマネジメントしないチーム設計までを扱った回。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>紹介されていた差分まわりの道具を実際に入れてみたところ、手元の確認作業がはっきり軽くなった。</p></div><p class="meta"><span>youtube.com</span><span class="dot">/</span><span>PROMO 8.19</span><span class="tag">AI</span><span class="tag">Practice</span><span class="tag">Tool</span><span class="tag">TryLater</span></p></article></div></section>
+<section class="section" id="sec2"><div class="section-head"><h2>知識をどう置いておくか</h2><span class="count">5 本</span></div><p class="section-intro">エージェントに読ませる前提で、知識の置き方そのものを規格化しようとする動きが続いている。</p><div class="stories"><article class="story"><a class="thumb" href="https://zenn.dev/finatext/articles/2ea88e4b1c2e5b" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--Vk6HlSkB--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:LLM%2520Wiki%25E3%2583%2591%25E3%2582%25BF%25E3%2583%25BC%25E3%2583%25B3%25E3%2581%25AE%25E6%25A8%2599%25E6%25BA%2596%25E5%258C%2596%2520OKF%2528Open%2520Knowledge%2520Format%2529%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_34:NemoS%2Cx_220%2Cy_108/bo_3px_solid_rgb:d6e3ed%2Cg_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyL2NjOTE1NmJhMjEuanBlZw==%2Cr_20%2Cw_90%2Cx_92%2Cy_102/g_south_west%2Ch_34%2Cl_default:og-publication-pro-mark-xcosax%2Cw_34%2Cx_217%2Cy_158/co_rgb:6e7b85%2Cg_south_west%2Cl_text:notosansjp-medium.otf_30:Finatext%2520Tech%2520Blog%2Cx_255%2Cy_160/bo_4px_solid_white%2Cg_south_west%2Ch_50%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzQ1ZThiZDc0OTkuanBlZw==%2Cr_max%2Cw_50%2Cx_139%2Cy_84/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/finatext/articles/2ea88e4b1c2e5b" rel="noopener"><span class="grow-underline">LLM Wikiパターンの標準化 OKF (Open Knowledge Format)</span></a></h3><p class="dek">Google Cloud が公開した Open Knowledge Format と、その背景にある「LLM Wikiパターン」の解説。ベクトル検索RAGの文脈欠損とGraphRAGの構築コストという両方の課題に対し、Markdown + YAMLフロントマター + 明示的なリンク構造という組み合わせで、エージェントが自律的に読み書きできる知識ベースを標準化しようとしている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>このページを含むノート群自体を、この規格に沿って組み直している。仕様はまだバージョンが上がり続けるので、追随の手間は当面かかり続けることになる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">context</span></p></article><article class="story"><a class="thumb" href="https://github.com/tokuhirom/64p.org/blob/master/CLAUDE.md" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://opengraph.githubassets.com/96ae3121027c079508d0a805388419a4c2804c8304250b91ea279ce15de8a984/tokuhirom/64p.org" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/tokuhirom/64p.org/blob/master/CLAUDE.md" rel="noopener"><span class="grow-underline">64p.org/CLAUDE.md</span></a></h3><p class="dek">エバーグリーンノートを運用するための、実際に使われているエージェント向け指示書。1ノート1概念の原子性、概念指向、新規作成時にgrepして既存の言及をリンク化する密度の高いリンク、フォルダ階層ではなくリンクとタグによる連想的オントロジーといった設計原則が明文化されている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>作法としては筋が通っており、読む価値は十分にある。ただしそのまま自分の運用へ移すことはしない。参照する設計として脇に置いておく類のものである。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">Claude Code</span><span class="tag">Digital Garden</span><span class="tag">Evergreen Notes</span><span class="tag">LLM</span><span class="tag">Zettelkasten</span><span class="tag">ナレッジ管理</span></p></article><article class="story"><a class="thumb" href="https://qiita.com/haystacker/items/376d86bcbeefc3885183" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-user-contents.imgix.net%2Fhttps%253A%252F%252Fcdn.qiita.com%252Fassets%252Fpublic%252Farticle-ogp-background-afbab5eb44e0b055cce1258705637a91.png%3Fixlib%3Drb-4.1.1%26w%3D1200%26blend64%3DaHR0cHM6Ly9xaWl0YS11c2VyLXByb2ZpbGUtaW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnMzLWFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb20lMkZxaWl0YS1pbWFnZS1zdG9yZSUyRjAlMkYyNjU5MTU5JTJGNDQ1OWJmNTQ3YjEyNTY3NGY2NGZiNWE2NDQ0OTlkN2U0MTBjZWU3OCUyRmxhcmdlLnBuZyUzRjE2OTMyMzk3Mjc_aXhsaWI9cmItNC4xLjEmYXI9MSUzQTEmZml0PWNyb3AmbWFzaz1lbGxpcHNlJmJnPUZGRkZGRiZmbT1wbmczMiZzPWJjZGZjYmY3MjYxMDEzMDQxNzc1N2Y2ZDYyMmM4OWU5%26blend-x%3D120%26blend-y%3D462%26blend-w%3D90%26blend-h%3D90%26blend-mode%3Dnormal%26mark64%3DaHR0cHM6Ly9xaWl0YS1vcmdhbml6YXRpb24taW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnMzLWFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb20lMkZxaWl0YS1vcmdhbml6YXRpb24taW1hZ2UlMkY1NDRjYTE2NjEwMjY0NWVhMzRkYmU2NTU5ZDJmNGIwM2JmYjgwZDI0JTJGb3JpZ2luYWwuanBnJTNGMTc1MTMzMjM2MD9peGxpYj1yYi00LjEuMSZ3PTQ0Jmg9NDQmZml0PWNyb3AmbWFzaz1jb3JuZXJzJmNvcm5lci1yYWRpdXM9OCZiZz1GRkZGRkYmYm9yZGVyPTIlMkNGRkZGRkYmZm09cG5nMzImcz0zZGUxY2NhZGI0YjU2MjZjM2U4OTAxZTgyODIyNWU4ZA%26mark-x%3D186%26mark-y%3D515%26mark-w%3D40%26mark-h%3D40%26s%3Dfc1e5b417bebbf1fb938fae5034e42e7?ixlib=rb-4.1.1&amp;w=1200&amp;fm=jpg&amp;mark64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTk2MCZoPTMyNCZ0eHQ9JUUzJTgyJUFBJUUzJTgzJUIzJUUzJTgzJTg4JUUzJTgzJUFEJUUzJTgyJUI4JUUzJTgzJUJDJUUzJTgxJUE4JUU3JTlGJUE1JUU4JUFEJTk4JUUzJTgyJUIwJUUzJTgzJUE5JUUzJTgzJTk1JUU1JTg1JUE1JUU5JTk2JTgwJUVGJUJDJTlBVVJJJTIwJUUzJTgxJThCJUUzJTgyJTg5JTIwUkRGJUUzJTgwJTgxUkRGUyVFMyU4MCU4MU9XTCVFMyU4MCU4MSVFNiU4RSVBOCVFOCVBQiU5NiVFMyU4MCU4MVNQQVJRTCUyMCVFMyU4MSVCRSVFMyU4MSVBNyVFNiU5NSVCNCVFNyU5MCU4NiVFMyU4MSU5NyVFMyU4MSVBNiVFNSVBRCVBNiVFMyU4MSVCNiZ0eHQtYWxpZ249bGVmdCUyQ3RvcCZ0eHQtY29sb3I9JTIzMUUyMTIxJnR4dC1mb250PUhpcmFnaW5vJTIwU2FucyUyMFc2JnR4dC1zaXplPTU2JnR4dC1wYWQ9MCZzPTQ4MjA4NjEwYzMxMzhjZDUxYzk3MTgxYjFkNWNhMTlm&amp;mark-x=120&amp;mark-y=112&amp;blend64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTgzOCZoPTU4JnR4dD0lNDBoYXlzdGFja2VyJnR4dC1jb2xvcj0lMjMxRTIxMjEmdHh0LWZvbnQ9SGlyYWdpbm8lMjBTYW5zJTIwVzYmdHh0LXNpemU9MzYmdHh0LXBhZD0wJnM9N2FmOThiMzgwODQ4MmMwZmViNDQ4YjkxMTIxNGI5M2U&amp;blend-x=242&amp;blend-y=454&amp;blend-w=838&amp;blend-h=46&amp;blend-fit=crop&amp;blend-crop=left%2Cbottom&amp;blend-mode=normal&amp;txt64=TlRU44OH44O844K_5YWI56uv5oqA6KGT&amp;txt-x=242&amp;txt-y=539&amp;txt-width=838&amp;txt-clip=end%2Cellipsis&amp;txt-color=%231E2121&amp;txt-font=Hiragino%20Sans%20W6&amp;txt-size=28&amp;s=ca27efe80aae108d5ed138fd9a9c10bb" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://qiita.com/haystacker/items/376d86bcbeefc3885183" rel="noopener"><span class="grow-underline">オントロジーと知識グラフ入門：URI から RDF、RDFS、OWL、推論、SPARQL まで</span></a></h3><p class="dek">セマンティックWeb技術をレイヤー構造として積み上げ式に整理した入門記事。識別子（URI）、トリプルによる表現（RDF）、体系化（RDFS / OWL）、推論、検索（SPARQL）という順で、哲学的な難解さを避けて解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>知識グラフまわりは用語が多く、どれが同じ層の話なのかが分かりにくい。この5段の積み上げは、その混乱を整理するための地図として使える。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">Knowledge Graph</span></p></article><article class="story"><a class="thumb" href="https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://github.githubassets.com/assets/gist-og-image-54fd7dc0713e.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432" rel="noopener"><span class="grow-underline">cognitive-rhythm-writing/SKILL.md</span></a></h3><p class="dek">日本語の文章に「認知リズム」を設計するための規範。緩急を情報量の増減ではなく「観察→逡巡→断定→再観察」という読者の認知モードの切替として扱い、常に1つ以上の未回収の緊張を開いておくことで読者の離脱を防ぐ。執筆後の機械的な点検手順も5つ定めている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>規範そのものが読み物として面白い、という珍しい文書である。文書自身を話題にする文はすべて削除対象、という判定基準が特によく効く。導入済み。</p></div><p class="meta"><span>gist.github.com</span><span class="dot">/</span><span>PROMO 8.21</span></p></article><article class="story"><a class="thumb" href="https://qiita.com/simdroid/items/236886451b6aef7162b5" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-user-contents.imgix.net%2Fhttps%253A%252F%252Fcdn.qiita.com%252Fassets%252Fpublic%252Fadvent-calendar-ogp-background-7940cd1c8db80a7ec40711d90f43539e.jpg%3Fixlib%3Drb-4.1.1%26w%3D1200%26blend64%3DaHR0cHM6Ly9xaWl0YS11c2VyLXByb2ZpbGUtaW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnMzLWFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb20lMkZxaWl0YS1pbWFnZS1zdG9yZSUyRjAlMkY1MTA4MCUyRjQ0ZTMxZjUxMzFhNTY4Yjk1YzkzNjQ0MTBkNTcyN2IyMzkzN2Q2NDIlMkZ4X2xhcmdlLnBuZyUzRjE2Njc5NTg3NTg_aXhsaWI9cmItNC4xLjEmYXI9MSUzQTEmZml0PWNyb3AmbWFzaz1lbGxpcHNlJmJnPUZGRkZGRiZmbT1wbmczMiZzPTY1YTgzYTBiNjA3MmU4ZGRjNDE1NTk2Nzk2MzdjOTM5%26blend-x%3D120%26blend-y%3D462%26blend-w%3D90%26blend-h%3D90%26blend-mode%3Dnormal%26mark64%3DaHR0cHM6Ly9xaWl0YS1vcmdhbml6YXRpb24taW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnMzLWFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb20lMkZxaWl0YS1vcmdhbml6YXRpb24taW1hZ2UlMkYyYjViZjlhNTdiNDhkZWY0YWRiYjA1ZGQ4MDk5NGI5Yzk3NzBjZmYwJTJGb3JpZ2luYWwuanBnJTNGMTY2NzM4MzA1MT9peGxpYj1yYi00LjEuMSZ3PTQ0Jmg9NDQmZml0PWNyb3AmbWFzaz1jb3JuZXJzJmNvcm5lci1yYWRpdXM9OCZiZz1GRkZGRkYmYm9yZGVyPTIlMkNGRkZGRkYmZm09cG5nMzImcz1lZmM3NWFiY2UzOWM3Y2U5NGNlN2U0YTNkMDViODdiNg%26mark-x%3D186%26mark-y%3D515%26mark-w%3D40%26mark-h%3D40%26s%3D44eac232f8e090a4d5303f0ae2f07fea?ixlib=rb-4.1.1&amp;w=1200&amp;fm=jpg&amp;mark64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTk2MCZoPTMyNCZ0eHQ9Tm90ZWJvb2tMTSVFMyU4MSVBNzYwJUUzJTgzJTlBJUUzJTgzJUJDJUUzJTgyJUI4JUU4JUI2JTg1JUUzJTgxJUFFJUU3JTk5JUJCJUU1JUEzJTg3JUUzJTgyJUI5JUUzJTgzJUE5JUUzJTgyJUE0JUUzJTgzJTg5JUU0JUJEJTlDJUU2JTg4JTkwJUUzJTgxJTk3JUUzJTgxJUE2JUUzJTgxJUJGJUUzJTgxJTlGJnR4dC1hbGlnbj1sZWZ0JTJDdG9wJnR4dC1jb2xvcj0lMjMzQTNDM0MmdHh0LWZvbnQ9SGlyYWdpbm8lMjBTYW5zJTIwVzYmdHh0LXNpemU9NTYmdHh0LXBhZD0wJnM9NTcyMmZjMmIxNjgyMTVmM2ZjYTRmNjFlODU1ZmQ4NmU&amp;mark-x=120&amp;mark-y=112&amp;blend64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTgzOCZoPTU4JnR4dD0lNDBzaW1kcm9pZCZ0eHQtY29sb3I9JTIzM0EzQzNDJnR4dC1mb250PUhpcmFnaW5vJTIwU2FucyUyMFc2JnR4dC1zaXplPTM2JnR4dC1wYWQ9MCZzPWViNWVjMjlmNzFkYjU1YmQxNzdkMDRlYmMwMzFmY2Mw&amp;blend-x=242&amp;blend-y=454&amp;blend-w=838&amp;blend-h=46&amp;blend-fit=crop&amp;blend-crop=left%2Cbottom&amp;blend-mode=normal&amp;txt64=5qCq5byP5Lya56S-S0RESeODhuOCr-ODjuODreOCuOODvA&amp;txt-x=242&amp;txt-y=539&amp;txt-width=838&amp;txt-clip=end%2Cellipsis&amp;txt-color=%233A3C3C&amp;txt-font=Hiragino%20Sans%20W6&amp;txt-size=28&amp;s=a4887ac07cbc87dd322ed7a29f2450fc" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://qiita.com/simdroid/items/236886451b6aef7162b5" rel="noopener"><span class="grow-underline">NotebookLMで60ページ超の登壇スライド作成してみた</span></a></h3><p class="dek">社内ドキュメントや関連資料をNotebookLMへ集約し、構成案のブレインストーミングから章ごとの論点整理、原稿のテキスト生成までを実行させた記録。ソースに基づく事実確認で逸脱を抑えつつ、大規模スライドの構成工数を圧縮するプロンプト設計をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>スライドは構成でほぼ決まり、そしてその構成こそがいちばん任せやすい部分である。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.21</span><span class="tag">NotebookLM</span><span class="tag">Practice</span><span class="tag">プレゼン</span></p></article></div></section>
+<section class="section" id="sec3"><div class="section-head"><h2>判断はだれのものか</h2><span class="count">3 本</span></div><p class="section-intro">道具の話をどれだけ積み上げても残る問いが、今週は3本あった。</p><div class="stories"><article class="story"><a class="thumb" href="https://kaz-ataka.hatenablog.com/entry/2026/05/26/232654" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://cdn.image.st-hatena.com/image/scale/afe9dc181d619afa44aaecfbdcc0006231bf3fc1/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fk%2Fkaz_ataka%2F20260517%2F20260517085350.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://kaz-ataka.hatenablog.com/entry/2026/05/26/232654" rel="noopener"><span class="grow-underline">AI native時代の袋小路 ― 見立てる力はどこから来るのか</span></a></h3><p class="dek">AIが中間工程を効率化・消失させることで、次世代が実務を通じて判断力を獲得する育成回路そのものが断絶する、という指摘。各組織が短期的に合理的な行動をとるほど社会全体で判断力の供給源が失われる合成の誤謬が生じ、下流の実務経験を持たないままAIの出力を決裁する構造は、形式的な追認と責任の空洞化を招く。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>若手が身体知を得る機会が奪われること、しかもそれが各所での局所最適であること。この構造に意識的であっても、数値に追われる文化がある限り抗うのは難しい。抗うとしたら、失われるものを実際に見てきた上の世代の側からになる。</p></div><p class="meta"><span>kaz-ataka.hatenablog.com</span><span class="dot">/</span><span>PROMO 8.20</span></p></article><article class="story"><a class="thumb" href="https://x.com/AndrewYNg/status/2088302050706686198" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/media/HPsiabfXoAEz0wO.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://x.com/AndrewYNg/status/2088302050706686198" rel="noopener"><span class="grow-underline">The AI Engineering Skills Map</span></a></h3><p class="dek">Andrew Ng が1万件以上の求人票の分析と構造化インタビューからまとめた、AIエンジニアリングの4つのコアスキル。AIアプリケーションの構築とデプロイ、ソフトウェア工学の基礎、コーディングエージェントの活用、そして「何を仕様にするか」を決めるShaping the build である。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>目新しいことは書かれていない。ただ、4つのうちコードを書く速さに関わるものが1つもない、という事実のほうに意味がある。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 8.18</span><span class="tag">AI</span><span class="tag">AIエンジニアリング</span><span class="tag">LLM</span><span class="tag">キャリア</span><span class="tag">コーディングエージェント</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/s4kura/articles/claude-code-indie-idea-scout-skill" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--xu6k3oNN--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:Claude%2520Code%25E3%2581%25AB%25E3%2580%258C%25E3%2582%25A2%25E3%2582%25A4%25E3%2583%2587%25E3%2582%25A2%25E7%2599%25BA%25E6%258E%2598%25E3%2582%25B9%25E3%2582%25AD%25E3%2583%25AB%25E3%2580%258D%25E3%2582%2592%25E4%25BD%259C%25E3%2582%2589%25E3%2581%259B%25E3%2581%259F%25E3%2582%2589%25E3%2580%25813%25E3%2581%25A4%25E3%2581%25AE%25E7%25A9%25B4%25E5%25A0%25B4%25E5%25B8%2582%25E5%25A0%25B4%25E3%2582%2592%25E8%25A6%258B%25E3%2581%25A4%25E3%2581%2591%25E3%2581%25A6%25E3%2581%258D%25E3%2581%259F%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:s4kura%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyL2QwMTVmY2ExYjMuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/s4kura/articles/claude-code-indie-idea-scout-skill" rel="noopener"><span class="grow-underline">Claude Codeに「アイデア発掘スキル」を作らせたら、3つの穴場市場を見つけてきた</span></a></h3><p class="dek">Web検索と5軸評価による市場ギャップ分析を4フェーズで自動実行するリサーチスキルの構築事例。コード生成ではなく、市場調査や仮説検証という上流工程へエージェントを充てている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>調査手順をスキルとして固定してしまえば、その日の気分や関心の偏りに左右されない探索ができる。上流ほど属人的だと思われがちだが、属人性の多くは実は手順の不在である。試すことにした。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.21</span></p></article></div></section>
+<section class="section" id="sec4"><div class="section-head"><h2>積読の底から引き上げたもの</h2><span class="count">6 本</span></div><p class="section-intro">2016年から2017年のブックマークが、今週まとめて浮上した。並べてみると、当時の関心と今の関心は思ったより地続きだった。</p><div class="stories"><article class="story"><a class="thumb" href="https://qiita.com/dankogai/items/ffc4f31a8a949bd7ec01" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-user-contents.imgix.net%2Fhttps%253A%252F%252Fcdn.qiita.com%252Fassets%252Fpublic%252Farticle-ogp-background-afbab5eb44e0b055cce1258705637a91.png%3Fixlib%3Drb-4.1.1%26w%3D1200%26blend64%3DaHR0cHM6Ly9xaWl0YS11c2VyLXByb2ZpbGUtaW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnFpaXRhLWltYWdlLXN0b3JlLnMzLmFtYXpvbmF3cy5jb20lMkYwJTJGMTkyMjclMkZwcm9maWxlLWltYWdlcyUyRjE0NzM2ODI2NDg_aXhsaWI9cmItNC4xLjEmYXI9MSUzQTEmZml0PWNyb3AmbWFzaz1lbGxpcHNlJmJnPUZGRkZGRiZmbT1wbmczMiZzPThiN2YwNjQ0MWY5ZWNiNjIwNjQ0ZmFkYmFhNTk0YTE4%26blend-x%3D120%26blend-y%3D467%26blend-w%3D82%26blend-h%3D82%26blend-mode%3Dnormal%26s%3Da2e6a9dd4072b7bc19b171d417970682?ixlib=rb-4.1.1&amp;w=1200&amp;fm=jpg&amp;mark64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTk2MCZoPTMyNCZ0eHQ9WkZTJTIwLSUyMCVFMyU4MiVCOSVFMyU4MyU4QSVFMyU4MyU4MyVFMyU4MyU5NyVFMyU4MiVCNyVFMyU4MyVBNyVFMyU4MyU4MyVFMyU4MyU4OCVFMyU4MSU4NCVFMyU4MSVBNCVFMyU4MiU4NCVFMyU4MiU4QiVFMyU4MSU4QiUzRiVFNCVCQiU4QSVFMyU4MSVBNyVFMyU4MSU5NyVFMyU4MiU4NyUyMSZ0eHQtYWxpZ249bGVmdCUyQ3RvcCZ0eHQtY29sb3I9JTIzMUUyMTIxJnR4dC1mb250PUhpcmFnaW5vJTIwU2FucyUyMFc2JnR4dC1zaXplPTU2JnR4dC1wYWQ9MCZzPTZjOWQ3ODI3MTkxYjAzM2U3Mzk4Yzc2OGJlNzRhOWU4&amp;mark-x=120&amp;mark-y=112&amp;blend64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTgzOCZoPTU4JnR4dD0lNDBkYW5rb2dhaSZ0eHQtY29sb3I9JTIzMUUyMTIxJnR4dC1mb250PUhpcmFnaW5vJTIwU2FucyUyMFc2JnR4dC1zaXplPTM2JnR4dC1wYWQ9MCZzPTQ5ZGU3MGYyZjE0NDE0NDFkNDkwNTQ2Nzg2YjQ1MjBk&amp;blend-x=242&amp;blend-y=480&amp;blend-w=838&amp;blend-h=46&amp;blend-fit=crop&amp;blend-crop=left%2Cbottom&amp;blend-mode=normal&amp;s=553dcc5579fe7e6041414165e9fe9628" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://qiita.com/dankogai/items/ffc4f31a8a949bd7ec01" rel="noopener"><span class="grow-underline">ZFS - スナップショットいつやるか?今でしょ!</span></a></h3><p class="dek">Copy-on-Write ベースのスナップショット機構によって、ファイルシステムの整合性を保ったまま瞬時に状態を保存できる仕組みの解説。fsck不要のトランザクション管理と、チェックサムによるデータの自動修復を軸にZFSの堅牢性を論じている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>2017年の記事だが、いま読んでも古びていない。基盤の技術は、流行の周期より一段深いところで動いている。</p></div><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><a class="thumb" href="https://shiumachi.hatenablog.com/entry/2017/07/10/080827" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://cdn.image.st-hatena.com/image/scale/2d40d19621a6753ec901fdd9efe4287ef37b403d/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fs%2Fshiumachi%2F20170709%2F20170709234823.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://shiumachi.hatenablog.com/entry/2017/07/10/080827" rel="noopener"><span class="grow-underline">「Hadoopの時代は終わった」の意味を正しく理解する</span></a></h3><p class="dek">MapReduceとHDFSが一体だった第一世代から、SparkやFlinkによるインメモリ処理、そしてクラウドオブジェクトストレージへのストレージ・コンピュート分離へという構造変化の整理。エコシステム側（YARN、メタデータ管理、セキュリティ）は依然として不可欠である、という立場をとる。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>「終わった」と言われた技術が実際には何に置き換わり、何が残ったのか。この分解の仕方は、いま同じ言い方で語られている技術にもそのまま当てられる。</p></div><p class="meta"><span>shiumachi.hatenablog.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><a class="thumb" href="https://www.publickey1.jp/blog/17/ibm100200.html" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://www.publickey1.jp/2017/computational_memory01.gif" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.publickey1.jp/blog/17/ibm100200.html" rel="noopener"><span class="grow-underline">IBM、100万個の「演算するメモリ群」で作られた非ノイマン型マシンで機械学習のデモを発表</span></a></h3><p class="dek">IBM Research が相変化メモリ100万個のセル自体に演算をさせるインメモリ・アナログコンピューティングを実証したというニュース。プロセッサとメモリ間の帯域が上限となるフォン・ノイマン・ボトルネックに対し、機械学習タスクで200倍の高速化と電力効率の改善を示したとしている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>これが成立するのは、機械学習の演算が単純な操作の巨大な集合だからだろう。ではどこまでの演算が載るのか、という問いは2017年の記事を読み終えたいまも残ったままである。</p></div><p class="meta"><span>publickey1.jp</span><span class="dot">/</span><span>PROMO 8.22</span></p></article><article class="story"><a class="thumb" href="https://www.publickey1.jp/blog/26/bgm2026.html" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://www.publickey1.jp/2026/bgm4programming2026.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.publickey1.jp/blog/26/bgm2026.html" rel="noopener"><span class="grow-underline">プログラミングのためのBGMや環境音など。2026年版</span></a></h3><p class="dek">作業を妨げない無料の音源をまとめた2026年版。Anthropicが公式YouTubeで24時間配信する「Claude FM」、定番のLoFiチャンネル、全78曲へ拡充された musicForProgramming(); のほか、ポモドーロ連動音源や空港ロビー・電車の走行音といった環境音が整理されている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>musicForProgramming(); は昔から使っている。久しぶりに開いたらエピソードが増えていた。集中を道具で買えるなら安いものである。</p></div><p class="meta"><span>publickey1.jp</span><span class="dot">/</span><span>PROMO 8.21</span><span class="tag">BGM</span><span class="tag">音源</span></p></article><article class="story no-image"><h3><a href="http://kyuinkyuim.blog71.fc2.com/blog-entry-1048.html" rel="noopener"><span class="grow-underline">海外でのクレジットカード支払いで注意すべきこと</span></a></h3><p class="dek">海外決済で「日本円か現地通貨か」を聞かれたときの選択指針。日本円建てを選ぶと店舗側・現地決済代行会社が設定した割高な為替手数料が上乗せされる仕組み（DCC）を解説し、国際ブランド基準レートが適用される現地通貨決済を選ぶべき理由を整理している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>2016年のブックマーク。この種の知識は、忘れた頃に決済端末の前で一度だけ必要になる。</p></div><p class="meta"><span>kyuinkyuim.blog71.fc2.com</span><span class="dot">/</span><span>PROMO 8.21</span></p></article><article class="story"><a class="thumb" href="https://www.50kgdiet.com/entry/2017/04/30/180750" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://cdn.image.st-hatena.com/image/scale/bb5bb083be4f205e797ad53368d9ce0ad9b04a13/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak2.f.st-hatena.com%2Fimages%2Ffotolife%2Ft%2Ftanaboo%2F20010204%2F20010204092850.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.50kgdiet.com/entry/2017/04/30/180750" rel="noopener"><span class="grow-underline">【1食86円】骨付きチキンと大根の薬膳スープカレー簡単レシピ</span></a></h3><p class="dek">鍋ひとつで完成する、1食86円のスープカレーのレシピ。大根を大きくカットして投入する調理法と、スパイスを使った糖質オフの配合、冷凍ストック術をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>鍋ひとつで完結すること。それだけで採用の理由になる。</p></div><p class="meta"><span>50kgdiet.com</span><span class="dot">/</span><span>PROMO 8.22</span></p></article></div></section>
 <section class="colophon"><span class="section-label">編集メモ</span><p>今週の記事の多くは、検証をどう仕組みに落とすかという問いに、それぞれの角度から答えを出していた。答えが出ていないのは「判断する力そのものをどう供給し続けるか」のほうである。中間工程を飛ばすことが誰にとっても合理的である以上、これは道具の追加では解けない。来週へ持ち越す。</p></section>
 <nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://note.com/kkosukeee/n/n99258fe1da3c" rel="noopener">AIは速度を前払いし、失敗を後払いにする</a> <span class="meta" style="display:inline">note.com</span></li><li><a href="https://x.com/i/status/2082405782117900727" rel="noopener">Anthropic内部におけるソフトウェア開発の変化</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://zenn.dev/ito/articles/6b042aa27d65bc" rel="noopener">AIエージェントはなぜテストを握り潰すのか ― 報酬エンジニアリングのすすめ</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://zenn.dev/yktsnet/articles/202608-guarantee-driven-development" rel="noopener">仕様書から保証台帳へ、GDD（保証駆動開発）のすすめ</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://code.claude.com/docs/en/security-guidance" rel="noopener">Catch security issues as Claude writes code</a> <span class="meta" style="display:inline">code.claude.com</span></li><li><a href="https://zenn.dev/iwatsukayura/articles/google-go-ai" rel="noopener">なぜAI時代にGoが最適な言語なのか</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://zenn.dev/kimushun1101/articles/mikke-markdown-search-cli" rel="noopener">Markdownノートを日本語で全文検索できるCLI「mikke」を作った</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://ai.itokoba.com/archives/861/" rel="noopener">AIを使っているなら全員入れるべきAgent Skill 4選</a> <span class="meta" style="display:inline">ai.itokoba.com</span></li><li><a href="https://zenn.dev/ryonakae/articles/8783c6b3ead2cb" rel="noopener">grill-me スキルがめちゃ良いので布教したい</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://github.com/openinterpreter/openinterpreter" rel="noopener">openinterpreter/openinterpreter — オープンモデル向けのコーディングエージェント</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://www.gcformat.com/playground.html" rel="noopener">GCF (Graph Context Format)</a> <span class="meta" style="display:inline">gcformat.com</span></li><li><a href="https://www.youtube.com/watch?v=WaE7IAEBr7M" rel="noopener">#51 HerdrとHunkでAIコーディングが快適 ほか</a> <span class="meta" style="display:inline">youtube.com</span></li><li><a href="https://zenn.dev/finatext/articles/2ea88e4b1c2e5b" rel="noopener">LLM Wikiパターンの標準化 OKF (Open Knowledge Format)</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://github.com/tokuhirom/64p.org/blob/master/CLAUDE.md" rel="noopener">64p.org/CLAUDE.md</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://qiita.com/haystacker/items/376d86bcbeefc3885183" rel="noopener">オントロジーと知識グラフ入門：URI から RDF、RDFS、OWL、推論、SPARQL まで</a> <span class="meta" style="display:inline">qiita.com</span></li><li><a href="https://gist.github.com/k16shikano/eb2929f13ed19c97188393d297be8432" rel="noopener">cognitive-rhythm-writing/SKILL.md</a> <span class="meta" style="display:inline">gist.github.com</span></li><li><a href="https://qiita.com/simdroid/items/236886451b6aef7162b5" rel="noopener">NotebookLMで60ページ超の登壇スライド作成してみた</a> <span class="meta" style="display:inline">qiita.com</span></li><li><a href="https://kaz-ataka.hatenablog.com/entry/2026/05/26/232654" rel="noopener">AI native時代の袋小路 ― 見立てる力はどこから来るのか</a> <span class="meta" style="display:inline">kaz-ataka.hatenablog.com</span></li><li><a href="https://x.com/AndrewYNg/status/2088302050706686198" rel="noopener">The AI Engineering Skills Map</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://zenn.dev/s4kura/articles/claude-code-indie-idea-scout-skill" rel="noopener">Claude Codeに「アイデア発掘スキル」を作らせたら、3つの穴場市場を見つけてきた</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://qiita.com/dankogai/items/ffc4f31a8a949bd7ec01" rel="noopener">ZFS - スナップショットいつやるか?今でしょ!</a> <span class="meta" style="display:inline">qiita.com</span></li><li><a href="https://shiumachi.hatenablog.com/entry/2017/07/10/080827" rel="noopener">「Hadoopの時代は終わった」の意味を正しく理解する</a> <span class="meta" style="display:inline">shiumachi.hatenablog.com</span></li><li><a href="https://www.publickey1.jp/blog/17/ibm100200.html" rel="noopener">IBM、100万個の「演算するメモリ群」で作られた非ノイマン型マシンで機械学習のデモを発表</a> <span class="meta" style="display:inline">publickey1.jp</span></li><li><a href="https://www.publickey1.jp/blog/26/bgm2026.html" rel="noopener">プログラミングのためのBGMや環境音など。2026年版</a> <span class="meta" style="display:inline">publickey1.jp</span></li><li><a href="http://kyuinkyuim.blog71.fc2.com/blog-entry-1048.html" rel="noopener">海外でのクレジットカード支払いで注意すべきこと</a> <span class="meta" style="display:inline">kyuinkyuim.blog71.fc2.com</span></li><li><a href="https://www.50kgdiet.com/entry/2017/04/30/180750" rel="noopener">【1食86円】骨付きチキンと大根の薬膳スープカレー簡単レシピ</a> <span class="meta" style="display:inline">50kgdiet.com</span></li></ol></nav>
-<footer class="foot"><p>生成: 2026-08-23 11:41 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+<footer class="foot"><p>生成: 2026-08-23 11:54 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
 </div>
 </body>
 </html>
