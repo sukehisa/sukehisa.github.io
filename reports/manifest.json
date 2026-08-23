@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T11:23:07+09:00",
+  "generated_at": "2026-08-23T11:38:56+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -44,6 +44,20 @@
           "title": "2026-08-21: AIエージェント・個人開発エコシステムにおける穴場市場の特定",
           "date": "2026-08-21",
           "bytes": 46364
+        }
+      ]
+    },
+    {
+      "slug": "weekly-news",
+      "title": "週刊ニュースページ (Weekly Promo Dispatch)",
+      "description": "その週に「掘り下げる」と決めた記事だけを編集した、個人ナレッジベース発の週刊ダイジェスト。",
+      "icon": "📰",
+      "reports": [
+        {
+          "file": "2026-08-23_weekly_news.html",
+          "title": "Weekly Promo Dispatch Vol.1 — 2026年8月23日号",
+          "date": "2026-08-23",
+          "bytes": 46172
         }
       ]
     }
