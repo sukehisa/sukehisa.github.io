@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T22:22:14+09:00",
+  "generated_at": "2026-08-23T11:02:15+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -7,6 +7,12 @@
       "description": "バフェット流ファンダメンタル（Gate 1）× テクニカルシグナル（Gate 2）による日次の市場分析・売買プラン。",
       "icon": "📈",
       "reports": [
+        {
+          "file": "2026-08-23_daily_market_report.html",
+          "title": "株式市場分析 & 投資判断レポート (2026-08-23)",
+          "date": "2026-08-23",
+          "bytes": 283567
+        },
         {
           "file": "2026-08-22_daily_market_report.html",
           "title": "株式市場分析 & 投資判断レポート (2026-08-22)",
