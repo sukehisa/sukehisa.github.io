@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="Etsy Creativity Standards の自動削除に対する制作プロベナンス、2026年1月施行の取適法における発注書明示義務、エージェント経由決済の完走性という3つの変曲点から穴場ビジネス仮説を抽出し5軸評価した結果">
+<title>2026-08-24: 制作証明・取適法・エージェント決済導線における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-24</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / marketplace-compliance / provenance / toritekiho</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-24">市場リサーチ &amp; 5軸評価レポート (2026-08-24)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">craft-proof</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 7 件（うち一次ソース 8 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">craft-proof</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">toriteki-lint</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">agent-checkout-probe</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>過去3回のレポート（2026-08-21 / 08-22 / 08-23）は、いずれもコーディングエージェント周辺の開発者向けツールを扱いました。 探索空間の同質化を避けるため、今回は開発者以外が金を払う領域を対象に、プラットフォーム規約と法制度の同時変更を軸として調査しました。</p><p>2026年の前半に、売り手側の義務を一段引き上げる変更が3つ重なっています。</p><p>第一に、Etsy が2026年1月に Creativity Standards を改定し、コンピュータ制御工具（Cricut、レーザー、3Dプリンタ）を使う商品について「購入したテンプレートではなく出品者自身のオリジナルデザインであること」を要求しました。 判定は自動化されており、削除後の立証責任は出品者側に置かれています。</p><p>第二に、2026年1月1日に下請法が「取適法（中小受託取引適正化法）」へ改正施行され、発注時の明示事項・支払期日・手形払い禁止・価格協議の各義務が拡張されました。 明示義務違反には50万円以下の罰金があり、勧告時には事業者名が公表されます。</p><p>第三に、エージェント経由の購買が実装段階へ入りました。 OpenAI の Instant Checkout が2026年2月16日に米国で稼働し、Google の Universal Commerce Protocol が2026年1月に公開されています。 Shopify と PayPal は自社経済圏の加盟店を吸い上げますが、自社構築ECはその外側に取り残されます。</p><p>この3つに共通するのは、<strong>判定側が自動化される一方で、立証・準拠のコストが売り手側へ一方的に移転している</strong>という構造です。 移転先が個人事業主や小規模事業者であるため、エンタープライズ向け GRC 製品の価格帯では受け皿になりません。 ここが今回の探索対象です。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-24)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-24)"><title>アイデア候補のポジショニングマップ (2026-08-24)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="515.6" cy="81.1" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="527.6" y="85.1" text-anchor="start" class="qpt-label">1</text><circle cx="515.6" cy="81.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Craft Proof 総合 21 / 25（Tier 1）" data-tv="Idea 1: Craft Proof" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="413.4" cy="149.3" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="425.4" y="153.3" text-anchor="start" class="qpt-label">2</text><circle cx="413.4" cy="149.3" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Toriteki Lint 総合 18 / 25（Tier 2）" data-tv="Idea 2: Toriteki Lint" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="311.1" cy="115.2" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="323.1" y="119.2" text-anchor="start" class="qpt-label">3</text><circle cx="311.1" cy="115.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Agent Checkout Probe 総合 18 / 25（Tier 2）" data-tv="Idea 3: Agent Checkout Probe" data-td="総合 18 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Craft Proof</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Toriteki Lint</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Agent Checkout Probe</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-craft-proof-制作過程プロベナンスの自動記録と異議申し立てドシエ生成">アイデア 1: <code>craft-proof</code> (制作過程プロベナンスの自動記録と異議申し立てドシエ生成)</h3><ul><li><strong>ターゲット</strong>: Etsy・Amazon Handmade・Creema 等で自作品を販売し、自動判定による出品削除・ショップ停止のリスクを負うハンドメイド作家および小規模ブランド。</li><li><strong>解決する課題</strong>: 自動システムに「転売者である」と誤判定されたとき、制作者側は自分が作ったことを証明する材料を後から掻き集めることになる。制作時点の素材・工程・仕入の記録が時系列で残っていないため、異議申し立てが通らず、出品と検索順位を失う。</li></ul><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>10万件超の販売実績を持つ出品者は、誤判定が繰り返されていることと、立証責任の置かれ方そのものを問題として述べています。</p><blockquote class="voice"><p>"This is the THIRD time that Etsy's automated systems have wrongly triggered" — ThePinPrick, <a href="https://www.valueaddedresource.net/etsy-creativity-standards-takedowns-no-appeal/" target="_blank" rel="noopener noreferrer">Value Added Resource</a></p></blockquote><blockquote class="voice"><p>"The onus should be on Etsy to prove that I am a reseller...not to put me on the backfoot" — ThePinPrick, <a href="https://www.valueaddedresource.net/etsy-creativity-standards-takedowns-no-appeal/" target="_blank" rel="noopener noreferrer">Value Added Resource</a></p></blockquote><p>同記事は、EC コンサルタントであり自身も出品者である Cindy Baldassi のケースとして、制作動画と仕入画像を提出したにもかかわらず審査側がそれらを参照しなかったこと、および異議申し立てが定型文で却下されたことを記述しています。</p><p>異議申し立ての実務ガイドは、必要となる証拠を具体的に列挙しています。 これはそのまま、記録すべき対象の仕様書になります。</p><blockquote class="voice"><p>"video or still images of you or your shop members making the item" — <a href="https://www.tumblr.com/cindylouwho-2/763557724079505408/etsy-listing-removals-under-the-creativity" target="_blank" rel="noopener noreferrer">Etsy Listing Removals Under The Creativity Standards - How To Appeal</a></p></blockquote><blockquote class="voice"><p>"proof of supply purchases - invoices, photos or video of labelled supplies" — 同上</p></blockquote><blockquote class="voice"><p>"the original photos before you cropped or otherwise changed them" — 同上</p></blockquote><p>最も重要なのは、この分野で最も詳しい解説者自身が、現行の手段では解決しきれないと明言している点です。</p><blockquote class="voice"><p>"there is currently no <strong>guaranteed</strong> way to force Etsy to look at your evidence their bots erred." — 同上</p></blockquote><p>既存の出品スキャナ側も、自らの守備範囲の外側を認めています。</p><blockquote class="voice"><p>"It doesn't display your overall risk score. Etsy uses internal metrics to evaluate shop health, but these aren't visible to sellers." — <a href="https://www.shieldmyshop.com/blog/2026-06-01-etsy-policy-violations-page-manage-ip-strikes-appeals-2026" target="_blank" rel="noopener noreferrer">ShieldMyShop</a></p></blockquote><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 2. コミュニティ特化型 ＋ 5. 規制・プラットフォーム変更対応型 ＋ 3. 価格破壊・ローカルファースト型</li><li><strong>既存が解決済みの範囲</strong>: 出品テキストと画像の事前スキャン。ShieldMyShop と Listing Compliance Shield は商標（500〜900ブランド）・禁止商品・キーワード詰め込みを検出する。すなわち「出品物が他者の権利を侵していないか」は解決済み。</li><li><strong>既存が解決していない範囲</strong>: 「あなたがそれを作った」ことの、制作時点で成立した記録。スキャナは出品ページを読むだけであり、作業机の上で何が起きたかを知らない。</li><li><strong>Why Now</strong>: 2026年1月の Creativity Standards 改定でオリジナルデザイン要件が発効し、年央時点でも出品削除の最多理由であり続けている。同時に、C2PA によるカメラ署名が Samsung Galaxy S26・Canon EOS R5 Mark II・Nikon Z8/Z9 等へ降りてきており、Apple も2026年秋の iOS 20 で対応を予告している。作家が普段使うスマートフォンで撮った工程写真が、撮影時点で署名済みの証拠になる環境が今年になって揃った。</li></ul><hr><h3 id="アイデア-2-toriteki-lint-取適法4条明示事項の発注書リンタ">アイデア 2: <code>toriteki-lint</code> (取適法4条明示事項の発注書リンタ)</h3><ul><li><strong>ターゲット</strong>: フリーランスや小規模事業者へ継続的に業務委託する、日本の中小企業・制作会社・個人事業主（発注側）。</li><li><strong>解決する課題</strong>: 2026年1月施行の取適法は発注時の明示事項と支払期日の書き方を細かく定めたが、多くの現場では従来の発注書テンプレートが使い回されている。違反は書面の文言レベルで発生しており、気付く手段が弁護士レビューしかない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>公正取引委員会の Q&amp;A は、支払期日の記載方法について、機械判定できる粒度で違反例を挙げています。</p><blockquote class="voice"><p>受領後60日以内の期間内に定めることとされている — <a href="https://www.jftc.go.jp/toriteki/toriteki_qa.html" target="_blank" rel="noopener noreferrer">よくある質問コーナー(取適法) Q67 | 公正取引委員会</a></p></blockquote><p>同 Q&amp;A は「○月○日」のような具体的日付を要求し、「○月○日まで」や「納品後○日以内」という書き方を不適とします。 既存の発注書テンプレートで多用されている表現が、そのまま違反箇所になります。</p><p>書面交付の時期についても、解釈の余地を残さない書き方がなされています。</p><blockquote class="voice"><p>「直ちに」とは「すぐに」という意味である — <a href="https://www.jftc.go.jp/toriteki/toriteki_qa.html" target="_blank" rel="noopener noreferrer">同 Q50</a></p></blockquote><p>手形払いは、支払期日の議論ではなく支払遅延として扱われます。</p><blockquote class="voice"><p>代金の支払について手形の交付をした場合は、支払遅延となり — <a href="https://www.jftc.go.jp/toriteki/toriteki_qa.html" target="_blank" rel="noopener noreferrer">同 Q83</a></p></blockquote><p>価格協議についても、応じない場合の該当性が明示されています。</p><blockquote class="voice"><p>必要な説明若しくは情報の提供をせず、一方的に代金の額を決定することは、協議に応じない一方的な代金決定として、本法違反となる — <a href="https://www.jftc.go.jp/toriteki/toriteki_qa.html" target="_blank" rel="noopener noreferrer">同 Q134</a></p></blockquote><p>制度側の広報は、紙の約束手形・小切手が2027年3月末までに廃止される前提であることを示しています（<a href="https://mirasapo-plus.go.jp/infomation/30416/" target="_blank" rel="noopener noreferrer">中小企業庁</a>）。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 5. 規制・プラットフォーム変更対応型 ＋ 7. 海外タイムラグ・言語障壁アービトラージ型（日本固有制度への密結合）</li><li><strong>既存が解決済みの範囲</strong>: 発注・契約・請求の一元管理。freee 業務委託管理やクラウドサインが、取引フロー全体を自社サービス内へ取り込む形で提供している。</li><li><strong>既存が解決していない範囲</strong>: 既存フローを変えずに、いま手元にある発注書1枚が適法かどうかを判定すること。SaaS への移行を伴わない検査だけの受け皿がない。</li><li><strong>Why Now</strong>: 施行から8ヶ月が経過し、最初の勧告・公表事例が出始める時期に入る。制度変更直後の「そもそも知らない」フェーズから、「対応したつもりの書面が実は不備」というフェーズへ需要が移る。</li></ul><hr><h3 id="アイデア-3-agent-checkout-probe-自社ec向け-エージェント完走性の診断">アイデア 3: <code>agent-checkout-probe</code> (自社EC向け エージェント完走性の診断)</h3><ul><li><strong>ターゲット</strong>: Shopify を使わない自社構築EC・WooCommerce・国内カート事業者を利用する中小EC事業者。</li><li><strong>解決する課題</strong>: AI エージェント経由の購買が始まったが、自社サイトの購入導線がエージェントの通過を前提に作られていない。どこで止まるかを知る手段がないまま、流入だけが増えていく。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>業界のレディネス調査は、ボトルネックがカタログ側ではなく決済導線側にあると明言しています。</p><blockquote class="voice"><p>"Catalogue exposure has been a solved problem in commerce for years. The 2026 constraint is whether an agent can carry a session through cart, address, shipping, tax, and payment without the platform forcing a redirect." — <a href="https://elogic.co/blog/agentic-commerce-readiness-index/" target="_blank" rel="noopener noreferrer">Agentic Commerce Readiness Index 2026, Elogic</a></p></blockquote><p>同調査は、制約が意欲ではなく運用成熟度にあるとしています。</p><blockquote class="voice"><p>"The real constraint is operational maturity, not enthusiasm for AI. Most companies may be experimenting, but far fewer are structurally ready to scale AI-driven commerce workflows." — 同上</p></blockquote><p>プラットフォーム側の対応が自動的に効くわけではないことも、同じ調査が認めています。</p><blockquote class="voice"><p>"Composable architecture makes agent operability achievable; it does not make it the default." — 同上</p></blockquote><p>なお Amazon は2026年3月4日付で BSA に Agent Policy（Section 19）を追加し、自動化ソフトウェアに自己識別と即時アクセス停止への応諾を求めています。 ただし適用範囲の閾値は示されておらず、出品者コミュニティは曖昧さを指摘しています（<a href="https://ppc.land/amazons-new-ai-agent-rules-shake-up-sellers-before-march-4-deadline/" target="_blank" rel="noopener noreferrer">PPC Land</a>）。 エージェント側の行儀を規定する動きが始まった一方、受け入れる店舗側の設計指針は空白のままです。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 1. 新APIラッパー型 ＋ 4. ワークフロー糊付け・連携型</li><li><strong>既存が解決済みの範囲</strong>: 商品フィードの構造化。Google Merchant Center の診断、schema.org 検証ツール、PIM ベンダーがすでに担っている。</li><li><strong>既存が解決していない範囲</strong>: 購入導線をエージェント視点で通しで走らせ、ログイン必須・CAPTCHA・別ドメインへのリダイレクト・JavaScript 依存フォームといった停止要因を列挙すること。</li><li><strong>Why Now</strong>: Instant Checkout（2026年2月）と UCP（2026年1月）の稼働により、対応の有無が売上差として現れ始める最初の年末商戦が目前にある。</li></ul><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>craft-proof</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>toriteki-lint</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>agent-checkout-probe</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname">1. タイミング / 市場規模</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">2. 技術的実現可能性 / MVP工数</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">3. 収益性 / 課金モデル</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">4. 競合優位性 / ギャップ</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">5. 個人開発適性 / 運用持続性</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-craft-proof-21点-tier-1">Idea 1: <code>craft-proof</code> — 21点 (Tier 1)</h4><ul><li><strong>タイミング 5</strong>: 規約改定が2026年1月に発効し、年央時点でも出品削除の最多理由であり続けている。ショップ停止は事業消滅を意味するため、支払い動機が「便利さ」ではなく「損失回避」に立つ。他2案と違い、被害が既に発生した状態の顧客が存在する点で優る。<strong>減点材料</strong>: 対象作家の多くは月商が小さく、可処分予算は月$10前後が上限になる。</li><li><strong>実現可能性 5</strong>: 監視フォルダの変更検知、SHA-256、OpenTimestamps または RFC3161 タイムスタンプ、PDF ドシエ生成で成立し、機械学習を必要としない。C2PA マニフェストは既存ライブラリで読み取れる。<strong>減点材料</strong>: Etsy API 連携（OAuth 承認が必要）は初版に載せられず、出品との紐付けは手動またはCSV取り込みから始まる。</li><li><strong>収益性 4</strong>: 隣接プレイヤーの ProvenMaker が $9 / $25 / $199 の3階層で提供しており、価格帯が実市場で検証済みである。100人 × $10 で月約15万円の粗利に届く。<strong>減点材料</strong>: 恐怖が動機であるため、削除騒動が沈静化すると解約されやすい。継続課金より買い切り＋年次更新の方が実態に合う可能性がある。</li><li><strong>競合優位性 3</strong>: ProvenMaker が「証拠は必要になる前に集める」という同じ主張を既に掲げており、正面から隣接する。差分は、同社が手動アップロードと運営チームによる人手審査を前提とするのに対し、本案は制作中に自動で記録し、ローカル完結で人手審査を挟まない点にある。<strong>減点材料</strong>: この差分は実装上の選択であり、参入障壁ではない。同社が自動取り込みを追加すれば数ヶ月で消える。</li><li><strong>個人開発適性 4</strong>: ローカル実行が基本でサーバー運用もAPI原価も不要。<strong>減点材料</strong>: 顧客が非技術者であるためサポート負荷は開発者向けCLIより重く、外部タイムスタンプ局への依存も残る。</li></ul><h4 id="idea-2-toriteki-lint-18点-tier-2">Idea 2: <code>toriteki-lint</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 施行済みで罰則と公表制度が動いており、需要の存在は確実である。<strong>減点材料</strong>: 施行から8ヶ月が経過し、締切駆動の初動需要のピークは過ぎている。</li><li><strong>実現可能性 4</strong>: 判定ロジック自体は Q&amp;A の記載から機械化でき、支払期日の表現チェックなどは正規表現の範囲に収まる。<strong>減点材料</strong>: 実務の困難は判定ではなく入力側にある。PDF・Excel・メール本文と多様な発注書から項目を抽出する処理に時間を取られ、2〜3週間を要する。</li><li><strong>収益性 3</strong>: 国内中小向け単機能ツールの相場は月額1,000〜2,000円で、粗利を作るには数百社が必要になる。<strong>減点材料</strong>: freee が同種の解説記事を無料公開して自社機能へ誘導しており、単体課金の天井が低い。</li><li><strong>競合優位性 3</strong>: 「乗り換え不要の検査専用ツール」という位置取りは空白である。<strong>減点材料</strong>: 会計・契約SaaS が既存顧客に対して同等のチェックを無償機能として追加するのが最も自然な展開であり、防ぎようがない。</li><li><strong>個人開発適性 4</strong>: ローカル完結の設計が可能で、インフラ費用は生じない。<strong>減点材料</strong>: 法改正の追随義務と、法的助言と受け取られないための文言設計が継続的な負荷になる。</li></ul><h4 id="idea-3-agent-checkout-probe-18点-tier-2">Idea 3: <code>agent-checkout-probe</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 5</strong>: 主要プロトコルが2026年1〜2月に相次いで稼働し、対応差が売上差として現れる最初の年末商戦を控えている。<strong>減点材料</strong>: エージェント経由売上を計測する手段が事業者側に乏しく、投資対効果を説明しにくい。</li><li><strong>実現可能性 4</strong>: ヘッドレスブラウザで自社の購入導線を走らせ、停止要因を分類して出力する構成で成立する。<strong>減点材料</strong>: 診断の反復実行を提供するとブラウザ実行基盤の運用が発生し、ゼロインフラでは終わらない。</li><li><strong>収益性 3</strong>: 月額$19〜$29 のセルフサーブが想定できる。<strong>減点材料</strong>: 支払うのは診断結果ではなく改修工事であり、価値の大部分が制作会社側へ流れる。単発診断で終わる懸念が強い。</li><li><strong>競合優位性 3</strong>: カタログ側は飽和しているが、決済導線の完走性診断はまだ空白である。<strong>減点材料</strong>: Shopify と Stripe が自社経済圏の加盟店向けに同等の診断を出せば、残る市場は非Shopify勢に限定される。除外フィルタの「Big Tech 正面衝突」に接近している。</li><li><strong>個人開発適性 3</strong>: 対象は自社サイトのみであり、規約上の問題は生じない。<strong>減点材料</strong>: 常時稼働のクロール基盤とサイト固有の例外対応が積み上がり、運用が軽くならない。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-craft-proof-のリスクと対策">1. <code>craft-proof</code> のリスクと対策</h3><p>最大のリスクは、<strong>証拠を揃えても審査が見ない</strong>ことです。 実務ガイドは、証拠をボットの誤りとして審査させる確実な方法は現時点で存在しないと明言しています。 この前提が正しい場合、ドシエの品質を上げても異議申し立ての成功率は改善せず、製品の価値主張が崩れます。</p><p>対策は、価値の重心を「異議申し立ての勝率」から手前へずらすことです。 すなわち、削除される前の予防（テンプレート由来のデザイン、ストック画像のモックアップ、AI 利用時の表記、製造パートナー開示の欠落といった、規約側が明示している危険因子の検出）を主機能に据え、ドシエ生成を従機能とします。 予防は自社で完結し、他社の審査運用に成否を依存しません。</p><p>次点のリスクは ProvenMaker による吸収です。 同社は既に $9 の価格帯で市場に存在し、証拠の事前収集という主張も共有しています。 差別化を「自動記録・ローカル完結・人手審査なし」に置く以上、この3点を同時に満たす設計（作業フォルダとスマートフォン写真の自動取り込み、クラウドへ工房写真を上げない、審査待ち時間ゼロ）を初版から崩さないことが条件になります。 1つでも妥協すると、機能の劣る後発品になります。</p><p>第三のリスクは C2PA への過信です。 署名は撮影機器と時刻を示しますが、被写体を誰がデザインしたかは証明しません。 製品の説明文で「自作の証明」と言い切ると、実効性を超えた主張になります。 提供するのは記録の連続性であり、判定ではない、という線引きを文言レベルで維持します。</p><h3 id="2-toriteki-lint-のリスクと対策">2. <code>toriteki-lint</code> のリスクと対策</h3><p>法規制対応ツールに共通するリスクとして、利用者が「通過＝適法」と誤解する問題があります。 発注書の文言チェックが通っても、実際の運用（受領日の起算、価格協議の実施記録）が伴わなければ違反は成立します。</p><p>対策として、出力を「判定」ではなく「条文との対応表」の形式にします。 各指摘に Q&amp;A の該当項番と原文リンクを併記し、判断の主体を利用者側に残します。</p><p>事業リスクとしては、単体課金の天井が低いことが本質的です。 月額1,000円のツールを数百社へ売る営業工数は個人開発の範囲を超えます。 販路を税理士・社会保険労務士・行政書士へのリセール、または商工会議所のセミナー配布物に置き換えられるかが、着手可否の分岐点になります。</p><h3 id="3-agent-checkout-probe-のリスクと対策">3. <code>agent-checkout-probe</code> のリスクと対策</h3><p>最大のリスクは、診断結果が行動につながらないことです。 「ログイン必須が障害である」と示されても、それを外す判断は経営判断であり、ツールの領分を超えます。 結果として、読まれて終わるレポートになります。</p><p>対策は、診断と同時に代替導線の実装案（ゲスト購入の有効化、配送料APIの露出、決済ページの同一ドメイン化）を、使用中のカートシステム別の具体的手順として出力することです。 汎用的な推奨ではなく、対象システムの設定画面の場所まで書ければ、実行率が上がります。</p><p>もう一つのリスクは、計測不能性です。 エージェント経由の売上が分離できない限り、事業者は改修の効果を検証できません。 リファラやユーザーエージェントからエージェント流入を分離する簡易計測を無料で先に配り、改善余地が数字で見えた事業者だけを有料診断へ誘導する順序が現実的です。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最高スコアの <code>craft-proof</code> について、14日間の想定仕様を示します。</p><div class="tw"><table><thead><tr><th>期間</th><th>フェーズ</th><th>想定スコープ</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。Etsy コミュニティと Value Added Resource の削除事例を30件収集し、(a) 削除理由の内訳、(b) 異議申し立てが通った事例で提出された証拠の型、(c) 予防で回避できた割合を分類する。異議申し立ての勝率改善が見込めない場合、主機能を予防側へ寄せる判断をここで確定する。</td></tr><tr><td class="tk">Day 3-5</td><td>記録エンジン</td><td>指定フォルダの変更を監視し、追加された画像・動画・デザインソース（<code>.svg</code> / <code>.psd</code> / <code>.ai</code> / <code>.3mf</code>）をハッシュ化して台帳へ追記する。EXIF と C2PA マニフェストを読み取り、撮影時刻と署名の有無を記録する。</td></tr><tr><td class="tk">Day 6-7</td><td>タイムスタンプ</td><td>台帳のダイジェストを OpenTimestamps へ定期アンカーし、外部検証可能な存在証明を得る。オフライン時はキューへ退避する。</td></tr><tr><td class="tk">Day 8-10</td><td>事前リスク診断</td><td>出品情報（CSV取り込み）に対し、規約が明示する危険因子を検査する。テンプレート由来を示唆する記述、製造パートナー未開示、AI 利用時の表記漏れ、モックアップ画像の使用を列挙し、条文リンクを併記する。</td></tr><tr><td class="tk">Day 11-12</td><td>ドシエ生成</td><td>出品IDを指定すると、制作工程の時系列、素材の仕入記録、ハッシュとタイムスタンプの検証手順を含む PDF を出力する。異議申し立てガイドが列挙する証拠区分に見出しを揃える。</td></tr><tr><td class="tk">Day 13</td><td>検証手順の外部化</td><td>第三者が台帳の改竄有無を検証できる単体コマンドと手順書を用意し、証拠の信頼性を自社主張に依存させない。</td></tr><tr><td class="tk">Day 14</td><td>公開と検証</td><td>Etsy コミュニティフォーラムの該当スレッド、r/EtsySellers、ハンドメイド作家向け日本語コミュニティへ公開する。削除経験者に無償配布し、実際の異議申し立てで使われた件数を追跡する。</td></tr></tbody></table></div><p>課金設計は、記録エンジンと事前リスク診断を含む本体を買い切り $39（1年間の更新付き）とし、複数ショップ管理と月次の規約差分レポートを月額 $9 とする二層構成を想定します。 工房の写真を外部へ送らないことを前提条件とし、これを価格ではなく設計上の約束として明示します。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>craft-proof</code></strong>（総合21点）を最優先候補として選定しました。当事者の解説者自身が「ボットの誤りを審査させる確実な方法は存在しない」と認めており、未解決性が一次ソースで裏付けられています。ただし隣接する ProvenMaker が同じ主張で先行しているため、自動記録・ローカル完結・人手審査なしという3点を同時に満たすことが参入の前提条件です。</li><li><strong><code>toriteki-lint</code></strong>（総合18点）は法的な強制力が需要を担保する一方、単価の低さと会計SaaSによる無償機能化の可能性が上限を作ります。直販ではなく士業経由の販路を確保できるかが分岐点です。</li><li><strong><code>agent-checkout-probe</code></strong>（総合18点）はタイミングが最も良い一方、除外フィルタの「Big Tech 正面衝突」に接近しています。非Shopify勢に対象を限定し、診断ではなく改修手順の提供まで踏み込めるかが条件になります。</li></ul><div class="callout c-important"><div class="hd"><span aria-hidden="true">❗</span><span>Important</span></div><p><strong>意思決定ルール</strong>: 本レポートは市場動向と5軸評価に基づくAIエージェントの探索結果であり、<strong>ユーザーが内容を精査し、実際に着手を決定した場合にのみ <code>TODOs/TODO.md</code> へ開発・検証タスクが追加されます</strong>。</p></div><hr><h2 id="関連リンク">関連リンク</h2><ul><li>5軸評価リサーチフレームワーク</li><li>前回レポート (2026-08-23): エージェント指示ファイルのドリフト・スキルサプライチェーン・EU AI Act Article 50</li><li>Side Hustle プロジェクトトップ</li><li>Side Hustle プロジェクト タスク管理 (TODO.md)</li><li>indie-idea-scout スキル</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.valueaddedresource.net/etsy-creativity-standards-takedowns-no-appeal/" target="_blank" rel="noopener noreferrer">Etsy Sellers Face Creativity Standards Takedowns From Stolen Photos With No Appeal</a><span class="u">https://www.valueaddedresource.net/etsy-creativity-standards-takedowns-no-appeal/</span></li><li><a href="https://www.tumblr.com/cindylouwho-2/763557724079505408/etsy-listing-removals-under-the-creativity" target="_blank" rel="noopener noreferrer">Etsy Listing Removals Under The Creativity Standards - How To Appeal</a><span class="u">https://www.tumblr.com/cindylouwho-2/763557724079505408/etsy-listing-removals-under-the-creativity</span></li><li><a href="https://www.shieldmyshop.com/blog/2026-06-01-etsy-policy-violations-page-manage-ip-strikes-appeals-2026" target="_blank" rel="noopener noreferrer">Etsy&#x27;s Policy Violations Page: How to Track, Appeal, and Prevent IP Strikes in 2026</a><span class="u">https://www.shieldmyshop.com/blog/2026-06-01-etsy-policy-violations-page-manage-ip-strikes-appeals-2026</span></li><li><a href="https://www.provenmaker.com/" target="_blank" rel="noopener noreferrer">ProvenMaker — Verified Handmade Seller Protection</a><span class="u">https://www.provenmaker.com/</span></li><li><a href="https://www.jftc.go.jp/toriteki/toriteki_qa.html" target="_blank" rel="noopener noreferrer">よくある質問コーナー(取適法) | 公正取引委員会</a><span class="u">https://www.jftc.go.jp/toriteki/toriteki_qa.html</span></li><li><a href="https://mirasapo-plus.go.jp/infomation/30416/" target="_blank" rel="noopener noreferrer">【2026年1月1日施行】受注者を守る法！手形払い禁止など「取適法」がもたらす変化 | 中小企業庁</a><span class="u">https://mirasapo-plus.go.jp/infomation/30416/</span></li><li><a href="https://elogic.co/blog/agentic-commerce-readiness-index/" target="_blank" rel="noopener noreferrer">Agentic Commerce Readiness Index 2026</a><span class="u">https://elogic.co/blog/agentic-commerce-readiness-index/</span></li><li><a href="https://ppc.land/amazons-new-ai-agent-rules-shake-up-sellers-before-march-4-deadline/" target="_blank" rel="noopener noreferrer">Amazon&#x27;s new AI agent rules shake up sellers before March 4 deadline</a><span class="u">https://ppc.land/amazons-new-ai-agent-rules-shake-up-sellers-before-march-4-deadline/</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-24_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T11:55:47+09:00",
+  "generated_at": "2026-08-24T03:18:41+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -27,6 +27,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-08-24_market_research_report.html",
+          "title": "2026-08-24: 制作証明・取適法・エージェント決済導線における穴場市場の特定",
+          "date": "2026-08-24",
+          "bytes": 70010
+        },
         {
           "file": "2026-08-23_market_research_report.html",
           "title": "2026-08-23: エージェント指示ファイルのドリフト・スキルサプライチェーン・EU AI Act Article 50 における穴場市場の特定",
