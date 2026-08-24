@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="米国州法のアプリストア年齢保証義務、2026年9月11日に発火するEU CRAの24時間報告義務、2026年10月のShopify Storefront API 2024-10 サンセットという3つの期限から穴場ビジネス仮説を抽出し5軸評価した結果">
+<title>2026-08-25: アプリストア年齢保証法・CRA24時間報告・Shopify API サンセットにおける穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-25</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / age-assurance / app-store-accountability / cyber-resilience-act</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-25">市場リサーチ &amp; 5軸評価レポート (2026-08-25)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">sigchange-audit</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 8 件（うち一次ソース 12 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">sigchange-audit</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">cra-clock</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">cart-parity</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>過去4回のレポートのうち、08-21 から 08-23 はコーディングエージェント周辺、08-24 はマーケットプレイスと国内法制を扱いました。 今回は、<strong>開発者自身が名宛人になる期限付きの義務</strong>を軸に調査しました。 「誰かがいずれ困る」ではなく「特定の日付を過ぎると自分が違反者になる」という構造だけを探索対象にしています。</p><p>この観点で、2026年に3つの期限が並んでいます。</p><p>第一に、米国州のアプリストア年齢保証法が実際に稼働しました。 テキサス SB2420 は第5巡回区控訴裁判所が仮差止を停止したことで発効し、Apple は2026年6月4日からテキサスの新規アカウントに対する年齢区分の提供を開始しています。 ユタは2026年5月6日からシグナル提供が始まり、ルイジアナは2026年7月に続きます。 重要なのは、義務がアプリストアだけでなく<strong>アプリ開発者側にも独立して課されている</strong>点です。</p><p>第二に、EU サイバーレジリエンス法（CRA）の報告義務が <strong>2026年9月11日</strong>に発火します。 本レポート執筆時点で17日後です。 悪用が確認された脆弱性を認知してから24時間以内に早期警告を出す義務であり、EU市場へ製品を出す小規模ベンダも名宛人に含まれます。</p><p>第三に、Shopify Storefront API の 2024-10 が <strong>2026年10月</strong>にサンセットします。 割引の計算構造が変わる破壊的変更であり、カスタム構成の改修見積もりは $8,000〜$40,000 と報じられています。</p><p>この3つに共通するのは、<strong>義務の中身が「機能の実装」ではなく「判断と記録」に寄っている</strong>という点です。 API は各プラットフォームが提供します。 しかし、その API をいつ呼ぶべきか、自分の変更が義務の発火条件に当たるのか、変更後も挙動が同じかを判定する層は、どのベンダも供給していません。 ここが今回の探索対象です。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-25)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-25)"><title>アイデア候補のポジショニングマップ (2026-08-25)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="481.5" cy="84.0" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="493.5" y="88.0" text-anchor="start" class="qpt-label">1</text><circle cx="481.5" cy="84.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Sigchange Audit 総合 21 / 25（Tier 1）" data-tv="Idea 1: Sigchange Audit" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="345.2" cy="132.2" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="357.2" y="136.2" text-anchor="start" class="qpt-label">2</text><circle cx="345.2" cy="132.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: CRA Clock 総合 18 / 25（Tier 2）" data-tv="Idea 2: CRA Clock" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="299.8" cy="172.0" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="311.8" y="176.0" text-anchor="start" class="qpt-label">3</text><circle cx="299.8" cy="172.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Cart Parity 総合 17 / 25（Tier 2）" data-tv="Idea 3: Cart Parity" data-td="総合 17 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Sigchange Audit</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: CRA Clock</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Cart Parity</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-sigchange-audit-アプリストア年齢保証法における-重大な変更-判定と実装監査">アイデア 1: <code>sigchange-audit</code> (アプリストア年齢保証法における「重大な変更」判定と実装監査)</h3><ul><li><strong>ターゲット</strong>: 米国向けに iOS / Android アプリを配信する個人開発者、小規模スタジオ、および複数の受託アプリを抱える開発会社。</li><li><strong>解決する課題</strong>: 年齢区分の取得と保護者同意のUIはプラットフォームが提供する。しかし「今回のリリースが法律上の重大な変更に当たるか」は開発者が自分で判定しなければならず、判定を誤ると同意の再取得を怠ったことになる。加えて、シグナル取得の失敗時やAPI未対応OSでの挙動が仕様化されておらず、実装が正しいかを確かめる手段がない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>義務の所在について、Apple 自身が開発者へ丸投げすることを明記しています。</p><blockquote class="voice"><p>"As a reminder, it's the developer's responsibility to determine when there's a significant change to their app." — Apple, <a href="https://developer.apple.com/news/?id=sg176nne" target="_blank" rel="noopener noreferrer">Update for Apps Distributed in Texas</a>（2026年6月3日）</p></blockquote><p>同じ文書が、テキサス法の発効日を確定させています。</p><blockquote class="voice"><p>"Due to a recent court ruling lifting an injunction on Texas law SB 2420, new Apple Accounts in Texas are now subject to the law... These changes will go into effect starting June 4, 2026." — 同上</p></blockquote><p>Apple 公式フォーラムでは、開発者が数日かけて条文を読んだうえで、なお結論に達していない状態が公開されています。</p><blockquote class="voice"><p>"I've spent the last few days researching the upcoming laws in Texas and other US states, and how these laws will impact on developers around the world." — jwcarr, <a href="https://developer.apple.com/forums/thread/810754" target="_blank" rel="noopener noreferrer">Guidance on implementing Declared Age Range API in response to Texas SB2420</a></p></blockquote><blockquote class="voice"><p>"it remains unclear whether this solution is actually legally compliant, since the law specifically mandates that apps must implement logic to respond to signals from the platform." — 同上</p></blockquote><blockquote class="voice"><p>"although there is still a lack of documentation on certain edge cases and it's difficult to test... it's unclear what you need to do if you're still supporting &lt; iOS 26.2." — 同上</p></blockquote><p>失敗時の扱いについても、結論が出ていません。</p><blockquote class="voice"><p>"Relatedly, what should we do if the methods throw an error? Should we assume the user is a child and restrict access? My current plan is to treat the two API calls differently... However, I do not know if this is appropriate and I am open to other suggestions." — 同上</p></blockquote><p>最も重要なのは、<strong>時間が足りないという理由で、義務の一部を意図的に落とす判断が公開の場で行われている</strong>ことです。</p><blockquote class="voice"><p>"my new plan is to drop the App Store age rating check (for now), and use age 18 for the age gate parameter. My primary reason for this is because I don't have much time to properly investigate the PermissionKit stuff and the significant changes stuff" — 同上</p></blockquote><p>別の開発者は、アクセス遮断の実装がApp Reviewと衝突した実例を挙げています。</p><blockquote class="voice"><p>"In the past, some of our Apps had a <code>Decline</code> button on the Terms of Service (ToS) screen that terminated the app, but App Review flagged that behavior as a Crash and blocked our app submission." — jarrodlombardo-eventbase, 同上</p></blockquote><p>法律事務所側は、開発者に記録の保持まで求めています。</p><blockquote class="voice"><p>開発者は「a method to track age verification and parental consent to provide clear records of compliance」を構築する必要がある。 — <a href="https://www.wiley.law/alert-State-App-Store-Accountability-Acts-Introduce-New-Obligations-for-App-Developers" target="_blank" rel="noopener noreferrer">Wiley: State App Store Accountability Acts Introduce New Obligations for App Developers</a></p></blockquote><p>テキサス法の「重大な変更」の定義は広く、通常のリリースが該当し得ます。</p><blockquote class="voice"><p>"changing how or what personal data is collected or used, changing the rating assigned to the software application or the content or element that led to the rating, adding monetization features, or materially altering the functionality or user experience." — <a href="https://www.mofo.com/resources/insights/251111-texas-targets-app-stores-with-new-accountability-law" target="_blank" rel="noopener noreferrer">Morrison Foerster</a></p></blockquote><p>州ごとに義務が食い違う点も、Future of Privacy Forum が整理しています。</p><blockquote class="voice"><p>"Utah relies solely on a PRA for enforcement", "Texas only allows a PRA through incorporated references to the Deceptive Trade Practices Act", "Louisiana is the only law that does not include a PRA" — <a href="https://fpf.org/blog/comparing-enacted-app-store-accountability-acts/" target="_blank" rel="noopener noreferrer">Comparing Enacted App Store Accountability Acts</a></p></blockquote><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 5. 規制・プラットフォーム変更対応型 ＋ 6. マイクロDevExツール型</li><li><strong>既存が解決済みの範囲</strong>: 年齢区分の配信と同意ダイアログ。Apple の Declared Age Range API / PermissionKit / StoreKit の年齢レーティングプロパティ / App Store Server Notifications と、Google の Play Age Signals API がここを担う。k-ID は州ごとの年齢区分定義の違いを吸収し、カテゴリ値を数値レンジへ変換する。つまり「シグナルをどう受け取り、どう解釈するか」は解決済みである。</li><li><strong>既存が解決していない範囲</strong>: 二つある。一つは、<strong>自分のリリースが「重大な変更」に当たるかの判定</strong>である。これはシグナルの受信側ではなく差分の側にあり、k-ID の資料にもこの概念は登場しない。もう一つは、<strong>実装が義務を満たしているかの検査</strong>である。エラー時・タイムアウト時・API 未対応OS での分岐が正しいかを確認する手段が、Apple のサンドボックス以外に存在しない。</li><li><strong>Why Now</strong>: テキサスは2026年6月4日に実効化し、ユタは2026年5月6日からシグナルが流れ始め、ルイジアナが2026年7月に続いた。同意の再取得が必要になるリリースは、実効化後に初めて発生する。つまり判定を迫られる場面は今この瞬間から積み上がっており、フォーラムの投稿がその現在進行形の記録になっている。</li></ul><hr><h3 id="アイデア-2-cra-clock-eu-cra-第14条-24時間報告の起動判定と証跡管理">アイデア 2: <code>cra-clock</code> (EU CRA 第14条 24時間報告の起動判定と証跡管理)</h3><ul><li><strong>ターゲット</strong>: EU市場へソフトウェア製品・コネクテッド機器を出している小規模ベンダ、インディハードウェア事業者、および CRA 上の「メーカー」に該当することを自覚していない受託開発会社。</li><li><strong>解決する課題</strong>: 2026年9月11日から、悪用が確認された脆弱性を認知してから24時間以内に早期警告を出す義務が生じる。しかし「認知した」の起点は自社製品に載っている部品の話であり、SBOM と脅威情報を突き合わせなければ判定できない。既存の脆弱性スキャナは CVE の存在を教えるが、それが<strong>出荷済み製品に含まれ、かつ現に悪用されている</strong>かどうかまでは接続していない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>欧州委員会が期日と時限を確定させています。</p><blockquote class="voice"><p>"As of 11 September 2026, manufacturers are required to report actively exploited vulnerabilities and severe incidents." — <a href="https://digital-strategy.ec.europa.eu/en/policies/cra-reporting" target="_blank" rel="noopener noreferrer">European Commission: Cyber Resilience Act - Reporting obligations</a></p></blockquote><blockquote class="voice"><p>"Early warning within 24 hours of becoming aware", "Full notification within 72 hours", "Final report no later than 14 days after a corrective measure is available" — 同上</p></blockquote><p>提出先の窓口自体も、同じ日に立ち上がります。</p><blockquote class="voice"><p>"CRA Single Reporting Platform (SRP)" は "operational by 11 September 2026" — 同上</p></blockquote><p>準備状況を測った OpenSSF の調査は、対象者の側が制度を認識していないことを示しています。</p><blockquote class="voice"><p>世界のメーカー・開発者らの <strong>66%</strong> が CRA を "not familiar at all" または "only slightly familiar" と回答した。米国・カナダでは <strong>72%</strong> に達する。 — <a href="https://www.infosecurity-magazine.com/news/open-source-unaware-cyber/" target="_blank" rel="noopener noreferrer">Infosecurity Magazine: Two-Thirds of Open Source Community Unaware of Cyber Resilience Act</a></p></blockquote><p>同調査は、判定に必要な前提が揃っていないことも示しています。</p><blockquote class="voice"><p><strong>41%</strong> が規制が自社に適用されるかを判断できておらず、<strong>45%</strong> が期限を把握しておらず、<strong>54%</strong> が「メーカー」と「スチュワード」の役割の違いを理解していない。SBOM を全製品について生成しているメーカーは <strong>32%</strong> にとどまる。 — 同上</p></blockquote><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 5. 規制・プラットフォーム変更対応型 ＋ 3. 価格破壊・ローカルファースト型</li><li><strong>既存が解決済みの範囲</strong>: SBOM の生成と依存関係の脆弱性検出。Trivy、Dependabot、Snyk、safedep、sbomify が担う。脅威情報の配信も CISA KEV と EPSS が無償で提供している。</li><li><strong>既存が解決していない範囲</strong>: <strong>この2つを「出荷した製品バージョン」という単位で結合し、24時間の時計を起動する層</strong>である。スキャナはリポジトリを見ているのであって、どのバージョンをいつEU市場へ置いたかを知らない。CRA が求めるのはリポジトリの健全性ではなく、市場に置かれた製品に対する報告であり、粒度が一段ずれている。</li><li><strong>Why Now</strong>: 発効まで17日であり、提出窓口である SRP も同日に立ち上がる。制度の存在自体が知られていない段階なので、「自分が名宛人かどうか」を判定するところから需要が立つ。</li></ul><hr><h3 id="アイデア-3-cart-parity-shopify-storefront-api-バージョン間の割引計算差分検出">アイデア 3: <code>cart-parity</code> (Shopify Storefront API バージョン間の割引計算差分検出)</h3><ul><li><strong>ターゲット</strong>: Shopify のヘッドレス構成（Hydrogen 以外の Next.js / Nuxt / 自社フレームワーク）を保守する制作会社と、その案件を持つフリーランス。</li><li><strong>解決する課題</strong>: 2026年10月に 2024-10 がサンセットする。割引は cart 直下から行単位と配送グループへ分解され、フィールド名の置換だけでは合計金額が合わなくなる。既存の GraphQL リンタは廃止フィールドを指摘できるが、<strong>改修後の請求額が改修前と一致するか</strong>は誰も検査しない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>破壊の中身と期日が具体的に記述されています。</p><blockquote class="voice"><p>"The old 2024-10 API version sunsets in <strong>October 2026</strong>." — <a href="https://weaverse.io/blogs/shopify-editions-compass-2026-storefront-api-breaking-changes-developers" target="_blank" rel="noopener noreferrer">Weaverse: Shopify Editions Compass 2026</a></p></blockquote><blockquote class="voice"><p>"<strong><code>cart.discountAllocations</code> is gone.</strong> Use <code>cart.lines[].discountAllocations(lineLevelOnly: false)</code> for product discounts and <code>cart.deliveryGroups[].discountAllocations</code> for shipping discounts." — 同上</p></blockquote><p>自動化の限界が、記事側から明示されています。</p><blockquote class="voice"><p>"They won't fix custom discount logic — that's on you." — 同上（Hydrogen の codemod について）</p></blockquote><blockquote class="voice"><p>"If you're on a custom framework, you're on your own — and agency estimates for remediation land between <strong>$8,000 and $40,000</strong> depending on storefront complexity." — 同上</p></blockquote><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 4. ワークフロー糊付け・連携型 ＋ 3. 価格破壊型</li><li><strong>既存が解決済みの範囲</strong>: 廃止フィールドの静的検出。Shopify GraphQL Codegen とスキーマ連動のリンタが、バージョン間で消えたフィールドと非推奨フィールドを列挙する。Hydrogen 利用者には codemod も提供される。</li><li><strong>既存が解決していない範囲</strong>: <strong>計算結果の同値性</strong>である。リンタは「このフィールドは消えた」と言えるが、「行単位へ分解した結果、複数割引が重なるカートで小計が127円ずれた」とは言えない。壊れ方が名前ではなく構造にあるため、静的検査では捕まえられない。</li><li><strong>Why Now</strong>: 残り約2ヶ月であり、改修見積もりが $8,000〜$40,000 という金額で公然と提示されている。数百ドルの検証ツールが正当化される価格差がすでに市場側に存在する。</li></ul><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>sigchange-audit</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>cra-clock</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>cart-parity</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname">1. タイミング / 市場規模</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">2. 技術的実現可能性 / MVP工数</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">3. 収益性 / 課金モデル</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">4. 競合優位性 / ギャップ</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr><th scope="row" class="axname">5. 個人開発適性 / 運用持続性</th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-sigchange-audit-21点-tier-1">Idea 1: <code>sigchange-audit</code> — 21点 (Tier 1)</h4><ul><li><strong>タイミング 5</strong>: テキサスが2026年6月4日に実効化し、ユタとルイジアナが続いた。義務の名宛人に開発者本人が含まれ、判定を迫られる場面がリリースのたびに発生する。他2案と違い、当事者が公式フォーラムで結論を出せずに立ち往生している様子が公開の一次記録として残っている。<strong>減点材料</strong>: ユタの私的訴権は2027年5月まで行使できず、州によって切迫度が揃わない。危機感の温度差が販売サイクルを長くする。</li><li><strong>実現可能性 4</strong>: リリース差分の抽出（年齢レーティング、プライバシーマニフェストのデータ区分、IAP・広告SDKの増減、規約テキストの差分）と、州ごとの条文ルールへの照合で成立する。機械学習も外部インフラも不要である。<strong>減点材料</strong>: iOS と Android の双方に対応するとバイナリ・マニフェストの解析系が二重になり、1〜2週間には収まらない。初版はどちらか一方に絞る必要がある。</li><li><strong>収益性 4</strong>: 支払うのは趣味の個人開発者ではなく、受託で5〜50本のアプリを抱える制作会社である。案件ごとに「重大な変更に該当しない」旨の記録を納品物として請求できるため、アプリ単位 $49/年 や事業者単位 $99/月 が成立する。<strong>減点材料</strong>: 個人開発者層は法的リスクに支払わない傾向が強く、GitHub 経由の自然拡散が売上に直結しない。無償利用者ばかりが増える構造になりやすい。</li><li><strong>競合優位性 4</strong>: k-ID と Yoti は年齢シグナルの解釈と年齢推定を売っており、リリース差分の判定には踏み込んでいない。Apple と Google は「開発者の責任」と明言して線を引いており、この層を埋める動機がない。州ごとの条文差分をルール化した資産は、時間とともに厚くなる。<strong>減点材料</strong>: ルールの実体は公開条文の写経であり、法律事務所が無償のチェックリストを配れば見かけ上の価値は下がる。判定の正しさを主張するほど法的助言との境界が近づく点も、防壁ではなく制約として働く。</li><li><strong>個人開発適性 4</strong>: ローカル実行のCLIで完結し、ユーザーのソースコードもPIIも外部へ出さない。サーバー費用もAPI原価も発生しない。<strong>減点材料</strong>: 州法の追加・改正が続く限りルール更新をやめられず、更新を止めた瞬間に製品価値が失われる。運用の軽さは実行環境の話であって、維持コストの話ではない。</li></ul><h4 id="idea-2-cra-clock-18点-tier-2">Idea 2: <code>cra-clock</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 5</strong>: 発効まで17日であり、提出窓口も同日に立ち上がる。対象者の66%が制度を認識していないという調査結果があり、認知形成そのものが集客導線になる。<strong>減点材料</strong>: 報告義務が実際に発火するのは「自社製品に載る部品が現に悪用されている」ときだけであり、小規模ベンダでは年に0回で終わる年がある。何も起きないことが正常な製品は、継続課金の解約理由になりやすい。</li><li><strong>実現可能性 4</strong>: CycloneDX / SPDX の取り込み、CISA KEV と EPSS の定期取得、突き合わせ、第14条の様式に沿った下書き生成で構成でき、2週間の範囲に収まる。<strong>減点材料</strong>: 難所は照合ではなく台帳側にある。「どのバージョンをいつEU市場へ置いたか」をユーザーに登録させる工程が必要で、ここの入力負荷が導入障壁になる。</li><li><strong>収益性 3</strong>: 罰金の上限が €15M であるため、支払い動機の建前は強い。<strong>減点材料</strong>: 決定的な弱点として、マイクロ企業・小企業は24時間の早期警告の遅延について制裁金を科されない。つまり個人開発者に最も近い層ほど、この製品が回避する損失が小さい。支払い意思が最も高いのは中堅企業であり、その層は個人開発の製品を調達プロセスに載せにくい。</li><li><strong>競合優位性 3</strong>: SBOM 系ベンダ（sbomify、safedep、Cycode）は隣接しており、CRA 特化の文言を既に掲げている。差分は「リポジトリ単位ではなく出荷製品バージョン単位で時計を起動する」という粒度にある。<strong>減点材料</strong>: この粒度の差は設計上の選択にすぎず、既存ベンダが製品バージョン台帳を追加すれば消える。参入障壁として機能しない。</li><li><strong>個人開発適性 3</strong>: 突き合わせ処理自体はローカルで完結する。<strong>減点材料</strong>: 「24時間以内に知らせる」ことを商品にする以上、通知経路の可用性を約束することになる。取りこぼしが法的損害に直結するため、サポート負荷と説明責任が個人の手に余る。免責文言で逃げるほど、製品の主張が弱くなる。</li></ul><h4 id="idea-3-cart-parity-17点-tier-2">Idea 3: <code>cart-parity</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: サンセットまで約2ヶ月であり、$8,000〜$40,000 という改修見積もりが公開の場で提示されている。価格差が正当化の根拠になる。<strong>減点材料</strong>: 2026年10月を過ぎると需要が消える一過性の市場である。締切駆動の需要は立ち上がりも速いが、終わり方も確定している。</li><li><strong>実現可能性 4</strong>: 同一のカート操作列を 2024-10 と 2026-07 の双方に対して実行し、算出された小計・割引額・送料を突き合わせて差分を出す構成で成立する。<strong>減点材料</strong>: 検証には実データを持つ開発ストアと、対象案件の割引設定の再現が要る。ユーザー側のセットアップ負荷が高く、試用の途中で離脱されやすい。</li><li><strong>収益性 3</strong>: 制作会社が案件単位で $299 の買い切りを払う想定は現実的で、100案件で約450万円になる。<strong>減点材料</strong>: 案件が終われば再購入されない単発課金であり、継続収益にならない。移行が完了した顧客は二度と戻ってこない。</li><li><strong>競合優位性 3</strong>: 廃止フィールドの静的検出は既に埋まっているが、計算結果の同値性検査は空白である。<strong>減点材料</strong>: Shopify 自身が Hydrogen 向け codemod を持っており、これを検証コマンドへ拡張するのが最も自然な展開である。除外フィルタの「大手との正面衝突」には至らないものの、プラットフォーム提供元が上流にいる構図は変わらない。</li><li><strong>個人開発適性 3</strong>: 実行はローカルのCLIで済み、対象は顧客自身のストアであるため規約上の問題も生じない。<strong>減点材料</strong>: Shopify のバージョン公開サイクルに製品寿命が従属する。追随をやめれば終わり、追随を続けても市場が縮む。個人開発の資産として積み上がらない。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-sigchange-audit-のリスクと対策">1. <code>sigchange-audit</code> のリスクと対策</h3><p><strong>最大のリスクは、判定の必要性そのものが消えることです。</strong> 開発者が「毎回のリリースを重大な変更として扱い、常に同意を再取得する」という保守的な運用を選べば、判定ツールは不要になります。 実際、フォーラムの投稿者は年齢ゲートのパラメータを一律18歳に固定するという単純化を選んでいます。</p><p>これに対する反論は、保守的運用にはコストがあるという点です。 リリースのたびに保護者へ同意ダイアログを出せば、未成年ユーザーの離脱が発生します。 したがって判定の価値は「違反回避」ではなく「不要な同意要求を減らすこと」の側にあり、訴求の主軸をここへ置く必要があります。 この前提が成り立たなければ、製品としては成立しません。</p><p><strong>第二のリスクは、法的助言との境界です。</strong> 「このリリースは重大な変更に当たらない」と断定する製品は、実質的に法的判断を提供しています。 出力を判定ではなく<strong>根拠付きの分類と証跡</strong>に留め、条文の該当箇所と検出した差分を並べて提示する形式に限定します。</p><p><strong>第三のリスクは、州法の変動です。</strong> 連邦法案（H.R.3149）が成立すれば州ごとのルール資産の価値が下がり、逆に廃案や違憲判断が出れば市場自体が縮みます。 ルールを条文単位のデータとして外部ファイル化し、実行系と分離しておくことで、どちらに転んでも改修範囲を限定します。</p><h3 id="2-cra-clock-のリスクと対策">2. <code>cra-clock</code> のリスクと対策</h3><p><strong>最大のリスクは、小規模事業者に制裁が及ばないことです。</strong> マイクロ企業・小企業は24時間の早期警告の遅延について制裁金を免れます。 これは「個人開発者に近い層ほど支払い動機が弱い」ことを意味し、想定顧客層と支払い能力が逆相関する構造になっています。</p><p>対策は、訴求を制裁回避から<strong>取引条件への適合</strong>へ移すことです。 EU の顧客企業が調達要件として CRA 準拠の証跡を求め始めれば、罰則の有無と関係なく需要が立ちます。 ただしこれは仮説であり、事前に確かめない限り着手できません。</p><p><strong>第二のリスクは、通知の信頼性に対する期待です。</strong> 24時間を商品にする以上、見逃しは製品の存在意義を否定します。 KEV への収載自体が遅れるため、「悪用の認知」の起点を KEV だけに依存すると取りこぼします。 初版では通知の網羅性を約束せず、<strong>すでに認知した事象に対する報告書の下書きと期限管理</strong>へ機能を絞ります。</p><h3 id="3-cart-parity-のリスクと対策">3. <code>cart-parity</code> のリスクと対策</h3><p><strong>最大のリスクは、市場の消滅時期が確定していることです。</strong> 2026年10月を過ぎれば需要は消えます。 14日でMVPを作っても、販売期間は1ヶ月強しかありません。</p><p>対策は、対象を「Shopify の 2024-10 サンセット」から「バージョン付きコマースAPIの移行時の計算同値性検査」へ一段抽象化できるかを、着手前に判断することです。 抽象化できるならサンセットは最初の適用先にすぎず、できないなら今回は見送るべきです。 この判断を実装より先に置きます。</p><p><strong>第二のリスクは、セットアップ負荷です。</strong> 実ストアと実割引設定の再現が要るため、試用に到達する前に離脱されます。 代表的な割引構成（重ね掛け、送料無料、数量割引、自動割引）をあらかじめ用意したフィクスチャとして同梱し、自ストア接続なしで差分の性質を体験できる状態を先に作ります。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最高スコアの <code>sigchange-audit</code> について、14日間の想定仕様を示します。</p><div class="tw"><table><thead><tr><th>期間</th><th>フェーズ</th><th>想定スコープ</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。App Store / Google Play の上位アプリ50本について、2026年6月以降のリリースノートと年齢レーティング・プライバシー表示の変遷を収集し、(a) 実際に「重大な変更」に該当し得るリリースの発生頻度、(b) 保守的運用（毎回同意再取得）を選んでいる兆候の有無を数える。該当頻度が四半期あたり1回未満なら、判定機能ではなく実装監査の側を主機能に据える判断をここで確定する。</td></tr><tr><td class="tk">Day 3-4</td><td>差分抽出</td><td>iOS に絞り、連続する2つのビルドから <code>Info.plist</code>、<code>PrivacyInfo.xcprivacy</code> のデータ収集区分、StoreKit の商品定義、リンク済みSDK一覧を抽出して構造化差分を出す。App Store Connect の年齢レーティング値も取り込む。</td></tr><tr><td class="tk">Day 5-7</td><td>判定ルール</td><td>テキサス SB2420、ユタ SB142、ルイジアナの各条文から「重大な変更」の構成要件をYAMLのルールへ落とす。差分の各項目を条文の該当号へ写像し、該当・非該当・要人的判断の3値で返す。断定を避け、必ず条文の引用箇所を併記する。</td></tr><tr><td class="tk">Day 8-10</td><td>実装監査</td><td>ソースを静的に走査し、<code>AgeRangeService</code> / PermissionKit / Play Age Signals の呼び出し有無、戻り値の分岐、エラーとタイムアウトの処理、API 未対応OSでのフォールバックを検査する。フォーラムで未解決になっている分岐（例外時にどう倒すか、同意撤回通知の受け口があるか）を検査項目として明示的に列挙する。</td></tr><tr><td class="tk">Day 11-12</td><td>証跡出力</td><td>リリースごとに、差分・判定・根拠条文・実施した同意フローを1つのレポートへ束ね、ハッシュと日時を添えて追記型の台帳へ記録する。Wiley が挙げる「clear records of compliance」の粒度に見出しを揃える。</td></tr><tr><td class="tk">Day 13</td><td>CI 組み込み</td><td>GitHub Actions から実行し、判定が「該当」になったリリースでビルドを警告付きで止めるアクションを用意する。判定結果をPRコメントとして出す。</td></tr><tr><td class="tk">Day 14</td><td>公開と検証</td><td>Apple Developer Forums の該当スレッド、r/iOSProgramming、r/androiddev、および受託開発会社が集まる国内コミュニティへ公開する。フォーラムで立ち往生している開発者へ直接届けることを最優先とし、判定結果に対する反論を収集する。</td></tr></tbody></table></div><p>課金設計は、実装監査までを無償のCLIとして開放し、州ごとの判定ルールと証跡台帳をアプリ単位 $49/年、事業者単位 $99/月とする二層構成を想定します。 ソースコードを外部へ送信しないことを、価格ではなく設計上の約束として明示します。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>sigchange-audit</code></strong>（総合21点）を最優先候補として選定しました。Apple が「重大な変更の判定は開発者の責任」と明記し、当事者が公式フォーラムで結論を出せないまま義務の一部を落としている様子が一次記録として公開されています。未解決性の証明としてはこれ以上ない材料です。ただし、開発者が保守的運用へ逃げれば判定需要は消えるため、Day 1-2 の頻度調査で前提を確かめることが着手の条件になります。</li><li><strong><code>cra-clock</code></strong>（総合18点）は発効まで17日という切迫度が最も高い一方、小規模事業者が24時間遅延の制裁を免れるという制度設計が、想定顧客層の支払い動機を直接削いでいます。調達要件としての需要が実在するかを確認できない限り、着手すべきではありません。</li><li><strong><code>cart-parity</code></strong>（総合17点）は改修費用との価格差が明確ですが、2026年10月で市場が終わります。「バージョン付きコマースAPIの計算同値性検査」へ抽象化できるかどうかが唯一の分岐点であり、抽象化できないなら見送りが妥当です。</li></ul><div class="callout c-important"><div class="hd"><span aria-hidden="true">❗</span><span>Important</span></div><p><strong>意思決定ルール</strong>: 本レポートは市場動向と5軸評価に基づくAIエージェントの探索結果であり、<strong>ユーザーが内容を精査し、実際に着手を決定した場合にのみ <code>TODOs/TODO.md</code> へ開発・検証タスクが追加されます</strong>。</p></div><hr><h2 id="関連リンク">関連リンク</h2><ul><li>5軸評価リサーチフレームワーク</li><li>前回レポート (2026-08-24): 制作証明・取適法・エージェント決済導線</li><li>Side Hustle プロジェクトトップ</li><li>Side Hustle プロジェクト タスク管理 (TODO.md)</li><li>indie-idea-scout スキル</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://developer.apple.com/news/?id=sg176nne" target="_blank" rel="noopener noreferrer">Update for Apps Distributed in Texas (2026-06-03)</a><span class="u">https://developer.apple.com/news/?id=sg176nne</span></li><li><a href="https://developer.apple.com/news/?id=2ezb6jhj" target="_blank" rel="noopener noreferrer">Next steps for apps distributed in Texas (2025-11-04)</a><span class="u">https://developer.apple.com/news/?id=2ezb6jhj</span></li><li><a href="https://developer.apple.com/forums/thread/810754" target="_blank" rel="noopener noreferrer">Guidance on implementing Declared Age Range API in response to Texas SB2420 — Apple Developer Forums</a><span class="u">https://developer.apple.com/forums/thread/810754</span></li><li><a href="https://www.wiley.law/alert-State-App-Store-Accountability-Acts-Introduce-New-Obligations-for-App-Developers" target="_blank" rel="noopener noreferrer">State App Store Accountability Acts Introduce New Obligations for App Developers</a><span class="u">https://www.wiley.law/alert-State-App-Store-Accountability-Acts-Introduce-New-Obligations-for-App-Developers</span></li><li><a href="https://www.mofo.com/resources/insights/251111-texas-targets-app-stores-with-new-accountability-law" target="_blank" rel="noopener noreferrer">Update: Texas App Store Law Takes Effect After Fifth Circuit Stays Preliminary Injunction</a><span class="u">https://www.mofo.com/resources/insights/251111-texas-targets-app-stores-with-new-accountability-law</span></li><li><a href="https://fpf.org/blog/comparing-enacted-app-store-accountability-acts/" target="_blank" rel="noopener noreferrer">Comparing Enacted App Store Accountability Acts — Future of Privacy Forum</a><span class="u">https://fpf.org/blog/comparing-enacted-app-store-accountability-acts/</span></li><li><a href="https://product.k-id.com/p/u-s-app-store-accountability-acts-how-k-id-handles-platform-age-signals" target="_blank" rel="noopener noreferrer">U.S. App Store Accountability Acts: How k-ID Handles Platform Age Signals</a><span class="u">https://product.k-id.com/p/u-s-app-store-accountability-acts-how-k-id-handles-platform-age-signals</span></li><li><a href="https://digital-strategy.ec.europa.eu/en/policies/cra-reporting" target="_blank" rel="noopener noreferrer">Cyber Resilience Act - Reporting obligations | Shaping Europe&#x27;s digital future</a><span class="u">https://digital-strategy.ec.europa.eu/en/policies/cra-reporting</span></li><li><a href="https://www.infosecurity-magazine.com/news/open-source-unaware-cyber/" target="_blank" rel="noopener noreferrer">Two-Thirds of Open Source Community Unaware of Cyber Resilience Act</a><span class="u">https://www.infosecurity-magazine.com/news/open-source-unaware-cyber/</span></li><li><a href="https://www.jonesday.com/en/insights/2026/07/eu-cyber-resilience-act-24hour-reporting-duties-start-september-11-2026" target="_blank" rel="noopener noreferrer">EU Cyber Resilience Act: 24-Hour Reporting Duties Start September 11, 2026</a><span class="u">https://www.jonesday.com/en/insights/2026/07/eu-cyber-resilience-act-24hour-reporting-duties-start-september-11-2026</span></li><li><a href="https://weaverse.io/blogs/shopify-editions-compass-2026-storefront-api-breaking-changes-developers" target="_blank" rel="noopener noreferrer">Shopify Editions Compass 2026: 65 Updates, Storefront API Breaking Changes, Developer Guide</a><span class="u">https://weaverse.io/blogs/shopify-editions-compass-2026-storefront-api-breaking-changes-developers</span></li><li><a href="https://globalprivacyaudit.org/2026/california" target="_blank" rel="noopener noreferrer">webXray California Privacy Audit | A Legal Minefield that Puts Users at Risk</a><span class="u">https://globalprivacyaudit.org/2026/california</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-25_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
