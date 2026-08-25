@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-25T06:20:56+09:00",
+  "generated_at": "2026-08-26T03:22:58+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -39,6 +39,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-08-26_market_research_report.html",
+          "title": "2026-08-26: カスハラ措置義務・EAA執行フェーズ・Reddit Data API 収束における穴場市場の特定",
+          "date": "2026-08-26",
+          "bytes": 74144
+        },
         {
           "file": "2026-08-25_market_research_report.html",
           "title": "2026-08-25: アプリストア年齢保証法・CRA24時間報告・Shopify API サンセットにおける穴場市場の特定",

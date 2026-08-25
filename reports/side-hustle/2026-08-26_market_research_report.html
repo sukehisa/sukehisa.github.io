@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="2026年10月1日に全事業者へ課されるカスハラ措置義務、通知と制裁金が動き始めた欧州アクセシビリティ法の執行、Reddit Data API の Developer Platform 収束という3つの変化から穴場ビジネス仮説を抽出し5軸評価した結果">
+<title>2026-08-26: カスハラ措置義務・EAA執行フェーズ・Reddit Data API 収束における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-26</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / customer-harassment / accessibility / european-accessibility-act</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-26">市場リサーチ &amp; 5軸評価レポート (2026-08-26)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">kasuhara-ledger</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 8 件（うち一次ソース 10 件）</div></div><div class="fig">20<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">kasuhara-ledger</div><div class="val">20<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">a11y-dossier</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">devvit-bridge</div><div class="val">13<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（08-25）は「特定の日付を過ぎると自分が違反者になる」義務を探索軸に置きました。 今回はその軸を一段進め、<strong>義務が既に発生した後に何が問われるか</strong>を調査対象にしました。 施行前の市場では「対応した」という宣言が売れますが、施行後の市場で問われるのは「何をしてきたか」の記録です。 この差は、作るべきプロダクトの形を変えます。</p><p>この観点で、性質の異なる3つの変化が同時期に走っています。</p><p>第一に、日本のカスタマーハラスメント対策が <strong>2026年10月1日</strong>に事業主の措置義務となります。 本レポート執筆時点で36日後です。 労働者が1人でもいれば対象であり、企業規模による猶予はありません。</p><p>第二に、欧州アクセシビリティ法（EAA）が周知の段階を終え、苦情起点の執行段階へ入りました。 2026年は是正通知と制裁金が実際に動いた最初の年であり、争点が「準拠しているか」から「準拠へ向けて何をしてきたか」へ移っています。</p><p>第三に、Reddit の公開 Data API が Developer Platform へ収束します。 2026年5月30日に無認証の <code>.json</code> エンドポイントが 403 を返すようになり、8月5日には段階的制限の方針が開発者コミュニティへ通知されました。</p><p>三者に共通するのは、<strong>成果物が「機能」ではなく「継続的な記録」である</strong>という点です。 規程のひな形、アクセシビリティ検査エンジン、API クライアントは、いずれも既に供給されています。 供給されていないのは、日々発生する個別事象を義務の構成要件へ写像し、時系列の証跡として積み上げる層です。 ここが今回の探索対象です。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-26)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-26)"><title>アイデア候補のポジショニングマップ (2026-08-26)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="390.6" cy="89.6" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="402.6" y="93.6" text-anchor="start" class="qpt-label">1</text><circle cx="390.6" cy="89.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Kasuhara Ledger 総合 20 / 25（Tier 2）" data-tv="Idea 1: Kasuhara Ledger" data-td="総合 20 / 25（Tier 2）"/></g><g><circle cx="356.6" cy="152.1" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="368.6" y="156.1" text-anchor="start" class="qpt-label">2</text><circle cx="356.6" cy="152.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: A11y Dossier 総合 17 / 25（Tier 2）" data-tv="Idea 2: A11y Dossier" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="254.3" cy="228.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="266.3" y="232.8" text-anchor="start" class="qpt-label">3</text><circle cx="254.3" cy="228.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Devvit Bridge 総合 13 / 25（Tier 3）" data-tv="Idea 3: Devvit Bridge" data-td="総合 13 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Kasuhara Ledger</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: A11y Dossier</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Devvit Bridge</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-kasuhara-ledger-カスハラ措置義務の一次記録と体制点検">アイデア 1: <code>kasuhara-ledger</code> (カスハラ措置義務の一次記録と体制点検)</h3><ul><li><strong>ターゲット</strong>: 顧問先へ10月1日対応を求められている社会保険労務士事務所と、その顧問先である小規模事業者（店舗・クリニック・介護事業所・小規模コールセンターなど、専任の相談窓口を置けない事業者）。</li><li><strong>解決する課題</strong>: 義務の中身は「体制の整備」であり、履行の証明は記録に依存する。しかし小規模事業者の窓口は店長や総務担当の兼務であり、対応は口頭で完結して記録が残らない。加えて指針は該当性を個別判断に委ねているため、現場は「これはカスハラか、正当な申入れか」を毎回ゼロから考えることになる。</li></ul><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>指針は、記録を措置の一部として明示しています。</p><blockquote class="voice"><p>「必要に応じて事案の内容や対応経緯を記録し、個人情報の取扱いに留意して関係部門に共有し、再発防止に活用する」 — 厚生労働省指針（<a href="https://www.businesslawyers.jp/articles/1457" target="_blank" rel="noopener noreferrer">BUSINESS LAWYERS による引用</a>）</p></blockquote><p>同時に、該当性の判断を現場へ差し戻しています。</p><blockquote class="voice"><p>「個別の事案の状況等によって判断が異なる場合もあり得ること」 — 厚生労働省指針（<a href="https://www.nagashima.com/publications/publication20260305-1/" target="_blank" rel="noopener noreferrer">長島・大野・常松法律事務所の解説</a>）</p></blockquote><blockquote class="voice"><p>「職場におけるカスハラに該当するか否か微妙な場合」 — 同上</p></blockquote><p>対象範囲に例外はありません。</p><blockquote class="voice"><p>「労働者が1人でもいれば、事業主に該当する」 — <a href="https://www.businesslawyers.jp/articles/1457" target="_blank" rel="noopener noreferrer">BUSINESS LAWYERS</a></p></blockquote><p>社労士側は、中小企業の窓口が形式的にしか成立していないことを実務の言葉で書いています。</p><blockquote class="voice"><p>「中小企業の人事実務では社内業務の片手間でハラスメント担当者を「押し付けられている」ことが多く、その負担は少なくありません。」 — <a href="https://resus.jp/topics/405/" target="_blank" rel="noopener noreferrer">RESUS社会保険労務士事務所</a></p></blockquote><blockquote class="voice"><p>「十分な訓練も受けずに無理に押し付けられた業務で懲戒処分されたり、個人で賠償を負うのはたまったものではありません。」 — 同上</p></blockquote><blockquote class="voice"><p>「相談窓口としてあるべき公正性・中立性を担保されているとは言えません。」 — 同上</p></blockquote><p>同記事は、窓口が設置されていても使われていない事実を数値で示しています。</p><blockquote class="voice"><p>「社内相談窓口への相談が約３％」 — 同上</p></blockquote><p>被害の規模と、未対応事業者の割合は調査で確認できます。</p><ul><li>カスハラ被害があった企業は <strong>41.9%</strong>、対策未実施企業は <strong>34.6%</strong>。</li><li>被害があった企業では、1ヶ月以内の早期離職が <strong>36.7%</strong>（被害なし企業と17.9pt差）、メンタル不調による休職・退職が <strong>48.8%</strong>（同36.2pt差）。</li><li>出典: <a href="https://prtimes.jp/main/html/rd/p/000002360.000002955.html" target="_blank" rel="noopener noreferrer">マイナビ「アルバイト従業員へのカスタマーハラスメント実態調査（2026年版）」</a></li></ul><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 規制・プラットフォーム変更対応型（施行日が確定した義務）と、コミュニティ特化型（社労士という購買チャネル）の重ね合わせ。</li><li><strong>既存プレイヤーが解決済みの範囲</strong>: 方針の明確化と周知は、行政と社労士が配る規程ひな形で足りる。悪質な電話への対処は、通話録音や AI 応答を売るベンダが担う。店舗の抑止は録画・掲示で足りる。</li><li><strong>既存が解決していない範囲</strong>: 発生した個別事象を、指針が挙げる措置区分へ紐づけて記録し、体制が要件を満たしているかを点検する層。ひな形は「体制を作った」ことしか示さず、録音は「音声がある」ことしか示さない。監督署の助言・指導や労使紛争で問われる「相談を受け、事実を確認し、被害者へ配慮した」という一連の履行は、どちらからも出てこない。</li><li><strong>Why Now</strong>: 施行まで36日で、猶予期間が存在しない。34.6%が未対策のまま期限を迎える。加えて東京都は中小企業向けにカスハラ対策の支援事業を走らせており、対策への予算が付く導線が既にある。士業側は10月1日を締切として顧問先へ働きかけている最中であり、提案の窓が開いている。</li></ul><hr><h3 id="アイデア-2-a11y-dossier-eaa-是正努力の継続記録とアクセシビリティ声明の版管理">アイデア 2: <code>a11y-dossier</code> (EAA 是正努力の継続記録とアクセシビリティ声明の版管理)</h3><ul><li><strong>ターゲット</strong>: EU向けに販売する小規模EC・SaaS事業者と、それらのサイトを保守する制作会社。EU域外から EU 顧客へ売っている事業者を含む。</li><li><strong>解決する課題</strong>: 執行は苦情を起点に始まり、90日の是正期限付きで通知が来る。このとき求められるのは満点の準拠状態ではなく、継続的に検査し直してきた履歴と、実態に合った是正計画である。既存の自動検査は違反箇所の一覧を出すが、それを時系列の是正記録と公開文書へ変換しない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>執行が実際に動いた事例が記録されています。</p><blockquote class="voice"><p>"A fashion retailer received a formal complaint in September 2025, was given 90 days to remediate, then faced a €25,000 fine with additional daily penalties of €1,000 for continued non-compliance when only partial fixes were made." — <a href="https://www.plaintest.dev/blog/eu-accessibility-act-enforcement-2026/" target="_blank" rel="noopener noreferrer">Plaintest, EU Accessibility Act Is Now Enforced</a></p></blockquote><p>同記事は、迂回策が塞がっていることを明示しています。</p><blockquote class="voice"><p>"This is not limited to 'accessibility overlays' or bolt-on widgets. The EAA demands that accessibility is built into the product itself." — 同上</p></blockquote><blockquote class="voice"><p>"Automated tools will not catch every accessibility issue — they typically find 30-50% of WCAG violations." — 同上</p></blockquote><p>そして、公開文書そのものが証拠として扱われる段階に入っています。</p><blockquote class="voice"><p>"An honest statement with a remediation plan is defensible; an inaccurate one is evidence." — <a href="https://www.akoode.com/blog/uk-web-accessibility-eaa-wcag" target="_blank" rel="noopener noreferrer">Akoode, UK Web Accessibility 2026</a></p></blockquote><blockquote class="voice"><p>"the obligation is outcome-based, which means passing an automated scan is not a defence if a disabled user genuinely cannot complete your checkout." — 同上</p></blockquote><p>制裁金の水準は国ごとに幅があり、アイルランドの €60,000 からスウェーデンの約 €900,000 まで分布します（<a href="https://www.webyes.com/blogs/eaa-fines/" target="_blank" rel="noopener noreferrer">EAA Fines by Country</a>）。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: 規制対応型と価格破壊型の重ね合わせ。エンタープライズ価格帯の監査サービスから、記録と文書生成の部分だけを切り出す構図。</li><li><strong>既存プレイヤーが解決済みの範囲</strong>: 違反箇所の検出は axe-core と Lighthouse が無償で担う。全面監査は Level Access や Silktide がエンタープライズ価格で提供する。</li><li><strong>既存が解決していない範囲</strong>: 検査結果を捨てずに版として積み、手動検証の所見を同じ台帳へ合流させ、EN 301 549 の条項単位で「未達・是正中・是正済み」を追える形にする層。オーバーレイは欧州委員会に否定されており競合から外れ、スキャナは記録装置ではない。是正計画付きの声明が防御になるという前提が成立している以上、価値は検査精度ではなく履歴の一貫性の側にある。</li><li><strong>Why Now</strong>: 2026年に入って通知と制裁金が実際に動き、かつ争点が「準拠状態」ではなく「継続的な是正努力」であることが実務解説の水準で言語化された。事後に記録を作ることはできないため、需要は執行の波が広がるほど前倒しで発生する。</li></ul><hr><h3 id="アイデア-3-devvit-bridge-reddit-data-api-依存の外部データパイプライン移行ブリッジ">アイデア 3: <code>devvit-bridge</code> (Reddit Data API 依存の外部データパイプライン移行ブリッジ)</h3><ul><li><strong>ターゲット</strong>: Reddit のデータを自社データベースへ取り込んでいる小規模SaaS事業者と、Python でボットやリサーチ用パイプラインを運用している開発者。</li><li><strong>解決する課題</strong>: Reddit は Developer Platform（Devvit）への収束を進めているが、Devvit は Reddit 内で完結するアプリを想定しており、外部へデータを出す用途を想定していない。Python には移行先が存在しない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>言語の断絶が明示されています。</p><blockquote class="voice"><p>"Devvit apps are written in JavaScript/TypeScript. A Python-based bot or data pipeline has no direct migration path." — <a href="https://www.redditapis.com/blogs/reddit-developer-platform-migration-2026" target="_blank" rel="noopener noreferrer">Reddit's Data API Migration to the Developer Platform (2026)</a></p></blockquote><p>用途の断絶も同様です。</p><blockquote class="voice"><p>"built for apps that live inside the Reddit experience itself, moderation tools, games, interactive posts, not for a SaaS product that needs to pull Reddit data into its own database" — 同上</p></blockquote><blockquote class="voice"><p>"nothing in the stated roadmap addresses their use case directly" — 同上</p></blockquote><p>期限は二段構えです。</p><blockquote class="voice"><p>"September 30, 2026: Reddit is asking every app owner to register their app by that date specifically so their feedback on missing capabilities gets weighed in Reddit's roadmap planning." — 同上</p></blockquote><blockquote class="voice"><p>"Nothing in the public terms states that a non-participating app's Data API access is cut off on that date; the deadline governs the program, not the API itself." — 同上</p></blockquote><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><ul><li><strong>該当パターン</strong>: ワークフロー糊付け型。Devvit（TypeScript、Reddit内実行）と既存の Python パイプラインの間を埋める構図。</li><li><strong>既存プレイヤーが解決済みの範囲</strong>: Reddit 内で完結するモデレーションツールやゲームは Devvit が担い、当事者も改善として受け止めている。</li><li><strong>既存が解決していない範囲</strong>: Reddit 外へデータを出す経路。Reddit 自身が「external endpoints」を開発中の機能として挙げており、未出荷であることを認めている。</li><li><strong>Why Now</strong>: 登録期限が9月30日、移行プログラムの期限が12月31日であり、判断を迫られる時期に入っている。ただし後述のとおり、この空白は Reddit 自身が埋めると宣言している空白でもある。</li></ul><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>kasuhara-ledger</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>a11y-dossier</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>devvit-bridge</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">36日後施行・全事業者・猶予なし</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">執行は開始済みだが着弾は苦情次第</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">期限はあるが市場が小さい</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">記録と文書生成が中心</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">既存検査エンジンの上に構築</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">テンプレートと中継の実装</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">士業へ月額課金、単価は伸びにくい</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">罰金が来るまで払わない層が厚い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">開発者向けで無償期待が強い</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">労務SaaSの機能追加で正面衝突</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">発想の模倣が容易</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">プラットフォーム自身が埋めに来る</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル配布なら運用は軽い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">巡回とサポートが継続発生</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">規約変更で即死</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">20<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">13<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-kasuhara-ledger-20点-tier-2">Idea 1: <code>kasuhara-ledger</code> — 20点 (Tier 2)</h4><ul><li><strong>タイミング 5</strong>: 2026年10月1日施行で、労働者が1人でもいれば対象という一切の例外がない適用範囲を持つ。未対策企業が34.6%残っており、士業が顧問先へ働きかけている時期と重なる。東京都の支援事業という予算導線も既にある。<strong>減点材料</strong>: 期限が過ぎれば緊急性は急速に減衰し、需要は「新規開業時」という細い流れに戻る。四半期単位の窓であることを前提に置く必要がある。</li><li><strong>技術的実現可能性 4</strong>: 事象の記録、指針の措置区分への写像、点検レポートと規程差分の出力という構成であり、重い推論も外部インフラも要らない。<strong>減点材料</strong>: 価値の実体は指針・通達・裁判例を写した判定テンプレートであり、これを社労士の監修を得ながら整えるコストは実装より重い。2週間で出せるのは骨格までで、売れる状態にはならない。</li><li><strong>収益性 4</strong>: 買い手を社労士事務所に置けば、顧問先20社まで月額3,000〜5,000円という価格が成立する。100事務所で月30〜50万円の粗利が見込める。<strong>減点材料</strong>: 士業は行政の無償ひな形で済ませる選択肢を常に持っており、支払う理由は「顧問先への配布物として体裁が整うこと」に限られる。乗り換え障壁が薄く、単価を上げる筋が見えない。</li><li><strong>競合優位性 3</strong>: 現時点で「一次記録と措置証跡」を扱うプロダクトは空白であり、録音・AI応答・規程ひな形のいずれとも重ならない。<strong>減点材料</strong>: freee、マネーフォワード、jinjer のような労務SaaS が相談窓口機能を1機能として足せば正面衝突になる。防壁は士業チャネルと指針追随の速さだけで、技術的な参入障壁は無い。大手が3ヶ月で真似した場合、残るのは価格差だけになる。</li><li><strong>個人開発適性 4</strong>: 単一事業者内で完結する記録であり、ローカル実行またはシングルテナント配布にすればサーバー運用がほぼ発生しない。<strong>減点材料</strong>: 労務情報と個人情報を扱うため、問い合わせの一件あたりの重さが通常のツールより大きい。法令・指針の改定が続く限り、更新をやめられない。</li></ul><h4 id="idea-2-a11y-dossier-17点-tier-2">Idea 2: <code>a11y-dossier</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 2026年に是正通知と制裁金が実際に動き、争点が継続的な是正努力へ移ったことが実務解説の水準で言語化された。EU域外の事業者も射程に入る。<strong>減点材料</strong>: 執行が苦情起点である以上、事業者ごとの切迫度が揃わない。「まだ来ていない」という理由で先送りされる典型的な構造を持つ。</li><li><strong>技術的実現可能性 4</strong>: axe-core などの既存エンジンを土台に、走査結果の版管理、条項マッピング、声明生成を重ねる構成であり、2週間で骨格に届く。<strong>減点材料</strong>: 自動検査が拾えるのは違反の3〜5割であり、残りを手動所見として同じ台帳へ合流させる設計が価値の中心になる。この部分は自動化できず、UI 設計の難度が高い。</li><li><strong>収益性 3</strong>: EU中小事業者へ月額19〜39ユーロ、制作会社へは案件数に応じた上位プランという構成が組める。<strong>減点材料</strong>: この領域の支払い動機は罰則の到来に強く依存し、通知が来ていない事業者は払わない。獲得コストが高く、100社に到達するまでの距離が Idea 1 より長い。</li><li><strong>競合優位性 3</strong>: エンタープライズ監査は価格帯が違い、オーバーレイは欧州委員会に否定されて競合から外れ、無償スキャナは記録装置ではない。この隙間は現時点で空いている。<strong>減点材料</strong>: 土台が公開エンジンである以上、同じ発想の後発が短期間で並ぶ。蓄積されるのは条項マッピングの資産だけで、模倣コストは高くない。</li><li><strong>個人開発適性 3</strong>: 静的ホスティングと定期巡回で成立し、常時監視は要らない。<strong>減点材料</strong>: 顧客サイトへの巡回は認証・レート制限・SPA の描画待ちといった個別事情に当たり、そのたびに問い合わせが発生する。EN 301 549 の改訂（2026年に v4.1.1 が予定）へ追随する義務も続く。</li></ul><h4 id="idea-3-devvit-bridge-13点-tier-3">Idea 3: <code>devvit-bridge</code> — 13点 (Tier 3)</h4><ul><li><strong>タイミング 3</strong>: 9月30日と12月31日という期限があり、<code>.json</code> の停止で実害も出ている。<strong>減点材料</strong>: 市場が「Reddit データを外部へ出す小規模事業者」に限定され、絶対数が小さい。引用元自身が「非参加アプリの Data API が即座に切られるとは書かれていない」と留保しており、危機の輪郭がぼやけている。</li><li><strong>技術的実現可能性 4</strong>: Devvit のテンプレート、スケジューラ経由の収集、自前サーバーへの転送という構成で骨格は組める。<strong>減点材料</strong>: Devvit の実行制約（ストレージ上限、実行時間、審査）の調査に時間を取られ、制約次第では成立しない機能が出る。</li><li><strong>収益性 2</strong>: 買い手は開発者であり、この層は移行支援に金を払う習慣が薄い。有償化するならホスト型の中継を提供することになるが、そこには原価が乗る。<strong>減点材料</strong>: 中継を有償にした瞬間、利用者は「自分で書けば無料」という代替を持つ。価格を主張できる根拠が無い。</li><li><strong>競合優位性 2</strong>: 現在は空白だが、その空白は Reddit が「external endpoints」として開発中と明言している領域である。<strong>減点材料</strong>: プラットフォームが自ら埋めると宣言している隙間を埋める投資であり、成功するほど早く消える。</li><li><strong>個人開発適性 2</strong>: Reddit の規約・審査・レート制限に全面的に依存する。<strong>減点材料</strong>: 規約変更が一度あれば運用が止まる。中継サーバーは可用性の要求が高く、休日に落ちれば顧客のデータ収集が欠測する。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-kasuhara-ledger-のリスクと対策">1. <code>kasuhara-ledger</code> のリスクと対策</h3><p><strong>最大のリスクは、記録が発生しないことです。</strong> このプロダクトは「現場で起きた事象が入力される」ことを前提にしていますが、社内相談窓口への相談が約3%という数値は、そもそも事象が窓口へ上がってこない現実を示しています。 入力が無ければ台帳は空のまま残り、点検レポートは「実績なし」としか出力しません。</p><p>この前提が崩れる形は二つあります。 一つは、従業員が報告しないまま現場で処理してしまう場合です。 もう一つは、事業主が「規程を作った」時点で対応を完了とみなし、運用へ進まない場合です。</p><p>対策は、入力の起点を相談ではなく日常業務に寄せることです。 「相談する」という心理的な段差を越えさせるのではなく、クレーム対応の記録として日次で残る形にし、そのうち指針の要件に当たるものを後から抽出します。 入力は30秒で終わる粒度に固定し、判断を求めないことを設計の制約とします。</p><p><strong>二つ目のリスクは、法的判断への接近です。</strong> 「これはカスハラに当たる」と出力すれば、それは法的評価に近づきます。 指針自身が個別判断としている領域へツールが断定を持ち込むと、誤りの責任が開発者へ跳ね返ります。</p><p>対策として、出力は該当性の判定ではなく、<strong>指針の措置区分に対する記録の充足状況</strong>に限定します。 「この事案には事実確認の記録が無い」「配慮措置の記載が無い」という欠落の指摘に留め、該当性は人が決める前提を明示します。</p><h3 id="2-a11y-dossier-のリスクと対策">2. <code>a11y-dossier</code> のリスクと対策</h3><p><strong>最大のリスクは、通知が来ない事業者が買わないことです。</strong> 苦情起点の執行では、大多数の事業者が「自分にはまだ来ていない」状態に留まります。 罰則の存在を訴求しても、確率の低い事象への保険として認識され、購買が先送りされます。</p><p>対策は、購買の主体を事業者から制作会社へ移すことです。 制作会社は複数案件を抱えており、通知が来る確率は案件数に比例して上がります。 また、EU顧客を持つ案件では「アクセシビリティ声明の維持」を保守契約の項目として売れるため、支払いの理由が保険ではなく納品物になります。</p><p><strong>二つ目のリスクは、記録の価値が検証されていないことです。</strong> 「是正計画付きの声明は防御になる」という前提は実務解説に基づくものであり、実際の執行手続でどの粒度の記録が評価されたかは公開されていません。 粒度を誤れば、作った記録が役に立ちません。</p><p>対策として、記録の様式を EN 301 549 の条項番号に直接固定し、独自の分類体系を作らないことにします。 評価者が参照する単位と同じ単位で残せば、少なくとも読み替えのコストは発生しません。</p><h3 id="3-devvit-bridge-のリスクと対策">3. <code>devvit-bridge</code> のリスクと対策</h3><p><strong>このアイデアは Tier 3 (DROP) として却下します。</strong> 理由は、埋めようとしている空白がプラットフォーム自身のロードマップに載っているためです。 Reddit は external endpoints を開発中の機能として挙げており、これが出荷された時点でブリッジの存在理由は消えます。</p><p>加えて、収益化の根拠が立ちません。 買い手である開発者は「自分で書けば無料」という代替を常に持ち、移行支援は一度きりの需要です。 継続課金の対象になるのはホスト型の中継ですが、そこは原価と可用性の負担を個人が背負う領域であり、除外フィルタの「重厚インフラ・24/7運用」に接近します。</p><p>記録として残す価値はあります。 プラットフォームの収束が言語の断絶を生む構図（TypeScript のみ、Python は対象外）は、今後も他のプラットフォームで繰り返されます。 その際、<strong>断絶が「未実装」なのか「非対象」なのか</strong>を見分けることが、参入可否の分岐点になります。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>kasuhara-ledger</code> について、14日間の想定を置きます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。社労士5〜10者へ接触し、(a) 顧問先から10月1日対応の相談が実際に来ているか、(b) 現在何を配っているか（行政ひな形か自作か）、(c) 顧問先で事象の記録が残っているかを聞く。記録が残っていないことが確認できたら、入力の起点を「相談」ではなく「日次のクレーム記録」に置く設計をここで確定する。逆に、士業が行政ひな形の配布で完結していると分かった場合は、買い手を士業から事業者本人へ切り替える判断をここで行う。</td></tr><tr><td class="tk">Day 3-4</td><td>記録モデル</td><td>指針が挙げる措置区分（方針の明確化と周知、相談体制、事後対応、抑止措置、併行措置）を台帳のスキーマへ落とす。1件の事象に対し、発生日時・場所・対応者・顧客の言動・実施した対応・被害者への配慮・共有先を記録する形式を定める。該当性の判定欄は置かない。</td></tr><tr><td class="tk">Day 5-7</td><td>入力導線</td><td>スマートフォンから30秒で1件を記録できる入力画面を作る。選択肢は指針の分類語に寄せ、自由記述は最小にする。オフラインでも入力でき、後から同期する構成にする。</td></tr><tr><td class="tk">Day 8-10</td><td>体制点検</td><td>蓄積された記録に対し、措置区分ごとの欠落を検出する。事実確認の記録が無い、配慮措置の記載が無い、方針の周知記録が1年以上更新されていない、といった欠落を一覧で返す。断定は避け、指針の該当箇所を併記する。</td></tr><tr><td class="tk">Day 11-12</td><td>出力</td><td>顧問先1社あたりの年次点検レポート（PDF）と、規程・周知文の差分案を出力する。監督署の助言・指導や労使紛争で提示できる粒度に見出しを揃え、記録にはハッシュと日時を付す。</td></tr><tr><td class="tk">Day 13</td><td>士業向け画面</td><td>1つの事務所が複数の顧問先を横断し、未対応の措置区分を持つ顧問先を一覧できる画面を作る。士業が営業材料として使える形にする。</td></tr><tr><td class="tk">Day 14</td><td>公開と検証</td><td>Day 1-2 で接触した社労士へ戻し、顧問先1社での試用を依頼する。同時に、東京都の支援事業を利用している事業者層へ届く経路（商工会・業界団体）を探る。</td></tr></tbody></table></div><p>課金設計は、事業者単体での利用を月額980円、社労士事務所向けを顧問先20社まで月額3,900円とする二層構成を想定します。 記録データは事業者の資産であり、解約後もエクスポートできることを前提条件に置きます。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>kasuhara-ledger</code></strong>（総合20点、Tier 2）を最有力候補として選定しました。施行日が確定しており、対象に例外がなく、未対策が34.6%残っているという条件は揃っています。ただし Tier 1 に届かなかった理由は明確で、<strong>技術的な参入障壁が存在しない</strong>ことと、<strong>買い手の支払い意欲が構造的に低い</strong>ことの二点です。着手の条件は Day 1-2 の士業ヒアリングであり、そこで「記録が残っていない」ことが確認できなければ前提が崩れます。</li></ul><ul><li><strong><code>a11y-dossier</code></strong>（総合17点、Tier 2）は、市場の存在は確かで、争点が「準拠状態」から「継続的な是正努力」へ移ったという構造の変化も明確です。しかし苦情が来るまで買わない層が厚く、単独で立ち上げるには獲得コストが重いと判断しました。制作会社の保守契約へ組み込む形であれば成立の余地があります。</li></ul><ul><li><strong><code>devvit-bridge</code></strong>（総合13点、Tier 3）は却下しました。プラットフォーム自身が埋めると宣言している空白であり、成功するほど早く消えます。</li></ul><ul><li><strong>今回、Tier 1 に到達した案はありません。</strong> 過去5回のレポートはいずれも21点の Tier 1 を1案ずつ出していますが、今回はどの案も競合優位性の軸で3点を超えませんでした。3案とも「規制や仕様の変更を、記録の形へ変換する」という同じ構図であり、この構図は着想が容易で技術的な参入障壁を作りにくいという共通の弱点を持ちます。採点を甘くして Tier 1 を作ることはせず、この結果をそのまま残します。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-25)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.nagashima.com/publications/publication20260305-1/" target="_blank" rel="noopener noreferrer">厚生労働省、カスハラ指針を公表―企業に求められる実務対応とは―（長島・大野・常松法律事務所）</a><span class="u">https://www.nagashima.com/publications/publication20260305-1/</span></li><li><a href="https://www.businesslawyers.jp/articles/1457" target="_blank" rel="noopener noreferrer">2026年10月カスハラ対策が義務化！企業が講ずべき措置を解説（BUSINESS LAWYERS）</a><span class="u">https://www.businesslawyers.jp/articles/1457</span></li><li><a href="https://prtimes.jp/main/html/rd/p/000002360.000002955.html" target="_blank" rel="noopener noreferrer">マイナビ「アルバイト従業員へのカスタマーハラスメント実態調査（2026年版）」</a><span class="u">https://prtimes.jp/main/html/rd/p/000002360.000002955.html</span></li><li><a href="https://resus.jp/topics/405/" target="_blank" rel="noopener noreferrer">【2026最新版】ハラスメント相談窓口の外部委託ガイド｜中小企業が知るべき義務と対応策（RESUS社会保険労務士事務所）</a><span class="u">https://resus.jp/topics/405/</span></li><li><a href="https://www.tokyo-kosha.or.jp/support/jutaku/customerharassment/index.html" target="_blank" rel="noopener noreferrer">カスタマーハラスメント対策に向けた経営支援事業（東京都中小企業振興公社）</a><span class="u">https://www.tokyo-kosha.or.jp/support/jutaku/customerharassment/index.html</span></li><li><a href="https://www.plaintest.dev/blog/eu-accessibility-act-enforcement-2026/" target="_blank" rel="noopener noreferrer">EU Accessibility Act Is Now Enforced: What Happened to Companies That Weren&#x27;t Ready</a><span class="u">https://www.plaintest.dev/blog/eu-accessibility-act-enforcement-2026/</span></li><li><a href="https://www.akoode.com/blog/uk-web-accessibility-eaa-wcag" target="_blank" rel="noopener noreferrer">UK Web Accessibility 2026: EAA, WCAG &amp; What Actually Fails</a><span class="u">https://www.akoode.com/blog/uk-web-accessibility-eaa-wcag</span></li><li><a href="https://www.webyes.com/blogs/eaa-fines/" target="_blank" rel="noopener noreferrer">EAA Fines, Penalties and Sanctions for Each EU Country (2026)</a><span class="u">https://www.webyes.com/blogs/eaa-fines/</span></li><li><a href="https://www.redditapis.com/blogs/reddit-developer-platform-migration-2026" target="_blank" rel="noopener noreferrer">Reddit&#x27;s Data API Migration to the Developer Platform (2026)</a><span class="u">https://www.redditapis.com/blogs/reddit-developer-platform-migration-2026</span></li><li><a href="https://news.ycombinator.com/item?id=46345827" target="_blank" rel="noopener noreferrer">Ask HN: What developer tool do you wish existed in 2026?</a><span class="u">https://news.ycombinator.com/item?id=46345827</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-26_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
