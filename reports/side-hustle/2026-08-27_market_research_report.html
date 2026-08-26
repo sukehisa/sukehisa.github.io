@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="OSSと社内レビューを同時に飽和させたAI寄与プルリクエストの奔流、2026年10月に予定される賃金要件撤廃で週20時間判定へ一本化される社会保険適用拡大、900万ユーザー規模で露見したブラウザ拡張のAIチャット窃取という3つの変化から穴場ビジネス仮説を抽出し5軸評価した結果">
+<title>2026-08-27: AI寄与PRの審査崩壊・106万円の壁撤廃・AIチャット窃取拡張における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-27</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / ai-slop / code-review / social-insurance</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-27">市場リサーチ &amp; 5軸評価レポート (2026-08-27)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">repro-gate</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 9 件（うち一次ソース 12 件）</div></div><div class="fig">17<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">repro-gate</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">hoken-borderline</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">ext-chat-audit</div><div class="val">10<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="2 / 5 点" aria-label="1. タイミング / 市場規模 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="1 / 5 点" aria-label="3. 収益性 / 課金モデル 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（08-26）は「義務が発生した後に何が問われるか」を探索軸に置き、成果物が記録である市場を調べました。 その結果は3案とも競合優位性が3点止まりで、Tier 1 が出ませんでした。 原因は明確で、「規制の変更を記録の形へ変換する」という構図が着想しやすく、技術的な参入障壁を作れないためです。</p><p>そこで今回は軸を変え、<strong>供給側の生産量が急増した結果、受け取る側の処理能力が先に壊れた市場</strong>を探索対象にしました。 記録の市場では価値の実体が判定テンプレートという模倣容易な資産になりますが、処理能力が壊れた市場では価値の実体が「機械的に検証された事実」になります。 後者は模倣しても同じ検証を走らせる必要があるため、成果物の形そのものが差別化を担う可能性があります。</p><p>この観点で、性質の異なる3つの変化を調べました。</p><p>第一に、コード寄与の審査経路が実際に閉じ始めました。 curl はバグバウンティを2026年1月31日で終了し、Python の共同管理組織 Jazzband は2026年3月14日に解散を発表しています。 tldraw は2026年1月から外部プルリクエストの自動クローズへ移行しました。 GitHub 自身も2026年2月にプルリクエストの受付停止・共同編集者限定という設定を出し、続いて投稿数の上限を導入しています。</p><p>第二に、日本の社会保険の加入判定が「金額」から「時間」へ一本化されます。 2025年6月に成立した年金制度改正法により、短時間労働者の賃金要件（月額8.8万円、いわゆる106万円の壁）が撤廃されます。 撤廃後に残る門は週20時間の労働時間要件のみで、施行は2026年10月と広く解説されています。</p><p>第三に、ブラウザ拡張による生成AIの会話窃取が、規模の分かる形で露見しました。 2026年1月に2件の拡張（累計90万インストール）が、会話内容と全タブのURLを30分ごとに外部サーバーへ送信していたと報告されています。 いずれも Chrome ウェブストアの推奨バッジを持っていました。</p><p>三者に共通するのは、<strong>「本物らしく見えるもの」を選り分ける工程が人間の目視に残されている</strong>という点です。 量を絞る仕組みは既に供給されました。 供給されていないのは、一件ごとの主張が事実かどうかを、判断ではなく実行によって確かめる層です。 ここが今回の探索対象です。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-27)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-27)"><title>アイデア候補のポジショニングマップ (2026-08-27)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="367.9" cy="135.1" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="379.9" y="139.1" text-anchor="start" class="qpt-label">1</text><circle cx="367.9" cy="135.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Repro Gate 総合 17 / 25（Tier 2）" data-tv="Idea 1: Repro Gate" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="271.4" cy="123.7" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="283.4" y="127.7" text-anchor="start" class="qpt-label">2</text><circle cx="271.4" cy="123.7" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Hoken Borderline 総合 16 / 25（Tier 2）" data-tv="Idea 2: Hoken Borderline" data-td="総合 16 / 25（Tier 2）"/></g><g><circle cx="225.9" cy="251.5" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="237.9" y="255.5" text-anchor="start" class="qpt-label">3</text><circle cx="225.9" cy="251.5" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Ext Chat Audit 総合 10 / 25（Tier 3）" data-tv="Idea 3: Ext Chat Audit" data-td="総合 10 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Repro Gate</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Hoken Borderline</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Ext Chat Audit</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-repro-gate-主張の再現をciで強制するプルリクエスト受付ゲート">アイデア 1: <code>repro-gate</code> (主張の再現をCIで強制するプルリクエスト受付ゲート)</h3><ul><li><strong>ターゲット</strong>: 外部からのバグ修正プルリクエストを受け付け続けたいOSSメンテナと、社内のプルリクエストの過半がエージェント起票になった開発チーム。</li><li><strong>解決する課題</strong>: 現行のスロップ対策は投稿者の振る舞い（アカウント年齢、投稿速度、多リポジトリへの同時投稿）で判別する。この方式は「下手な乱射」を落とせるが、時間をかけて1本だけ投げてくる、体裁の整った誤りには効かない。残った負荷は結局メンテナの目視に戻る。</li></ul><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>curl の Daniel Stenberg は、バグバウンティ終了の理由として、明白なスロップだけが問題ではないことを書いています。</p><blockquote class="voice"><p>"We saw an explosion in AI slop reports combined with a lower quality even in the reports that were not obvious slop"</p><p class="cite">— <a href="https://daniel.haxx.se/blog/2026/01/26/the-end-of-the-curl-bug-bounty/" target="_blank" rel="noopener noreferrer">The end of the curl bug-bounty</a></p></blockquote><p>同記事は、確認済み脆弱性の比率が崩れたことを数字で示しています。</p><blockquote class="voice"><p>"Previous years we have had a rate of somewhere north of 15% of the submissions ending up confirmed vulnerabilities. Starting 2025, the confirmed-rate plummeted to below 5%."</p></blockquote><p>そして、プラットフォーム側の設定では防げなかったと明言しています。</p><blockquote class="voice"><p>"The reputation system and available program settings were not sufficient for us to prevent sand from getting into the machine."</p></blockquote><p>Jazzband の解散告知は、審査能力の限界が組織形態を壊したと述べています。</p><blockquote class="voice"><p>"GitHub's slopocalypse – the flood of AI-generated spam PRs and issues – has made Jazzband's model of open membership and shared push access untenable."</p><p class="cite">— <a href="https://jazzband.co/news/2026/03/14/sunsetting-jazzband" target="_blank" rel="noopener noreferrer">Sunsetting Jazzband</a></p></blockquote><p>Jazzband は84プロジェクト・約93,000スターを抱え、月1億5,000万回以上ダウンロードされるソフトウェアを出荷していました。 <code>pip-tools</code> や <code>django-debug-toolbar</code> を含みます。</p><p>判断の基準そのものは、curl のポリシーが簡潔に言語化しています。</p><blockquote class="voice"><p>"The golden rule is that a contribution should be worth more to the project than the time it takes to review it, which is usually not the case if large parts of your PR were written by LLMs."</p><p class="cite">— curl（<a href="https://github.com/melissawm/open-source-ai-contribution-policies" target="_blank" rel="noopener noreferrer">open-source-ai-contribution-policies</a> 収録）</p></blockquote><p>同リポジトリには300以上のプロジェクトのAI寄与ポリシーが集まっていますが、それらを機械的に強制する仕組みは収録されていません。 存在するのは AGENTS.md、プルリクエストのテンプレート、そして目視のレビューです。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p><code>market-analysis-patterns.md</code> の <strong>6. マイクロDevExツール型</strong> に該当し、<strong>4. ワークフロー糊付け型</strong>（GitHub Actions への寄生）を併せ持ちます。</p><p>参入余地の根拠は、既存プレイヤーが自ら引いた線にあります。 Open Slop は、自分がコードを見ないことを設計方針として明示しています。</p><blockquote class="voice"><p>"We don't use AI to fight AI. We don't scan code for 'AI fingerprints' (which doesn't work anyway)."</p><p class="cite">— <a href="https://github.com/marketplace/actions/open-slop" target="_blank" rel="noopener noreferrer">Open Slop</a></p></blockquote><p>同 Action が拠り所にするのは "the one thing a spammer can't fake: Time and Behavior" であり、速度・多リポジトリ投稿・アカウントの新しさの3信号です。 CodeRabbit のスロップ検出も、判定の帰結を人間に戻します。</p><blockquote class="voice"><p>"Slop Detection does not block merges. When a PR is classified as slop, a note is added to the PR Walkthrough comment."</p><p class="cite">— <a href="https://docs.coderabbit.ai/pr-reviews/slop-detection" target="_blank" rel="noopener noreferrer">CodeRabbit Docs</a></p></blockquote><p>同ドキュメントは、自動クローズの要望に対して現時点では対応せず、精度の調整中であると記しています。</p><p>GitHub 側の対策は量の制御です。 2026年2月にプルリクエストの受付停止と共同編集者限定の設定が入り、続いて1利用者あたりの同時投稿数に上限を設ける機能が導入されました。 InfoWorld はメンテナ側の反対意見も併せて報じています。</p><blockquote class="voice"><p>AI-based review tools are "prone to hallucinations, forcing the maintainer to go through each line of code anyways"</p><p class="cite">— <a href="https://www.infoworld.com/article/4127156/github-eyes-restrictions-on-pull-requests-to-rein-in-ai-based-code-deluge-on-maintainers.html" target="_blank" rel="noopener noreferrer">InfoWorld</a></p></blockquote><p><strong>解決済みの範囲と未解決の範囲の境界線は、ここで引けます。</strong> 解決済みなのは、乱射型の投稿を投稿者の振る舞いから落とすことと、受付総量を絞ることです。 未解決なのは、振る舞いのフィルタを通過し、体裁も整っていて、しかし主張が誤っている一件を、目視以外の手段で落とすことです。 LLM に品質を判定させる方向はメンテナ自身が拒んでおり、幻覚のリスクが目視を減らさないという理由も明示されています。</p><p><code>repro-gate</code> はこの帯域だけを狙います。 「不具合を直した」と主張するプルリクエストに対し、<strong>ベースコミットで失敗し、ヘッドコミットで成功するテスト</strong>の提出を受付条件にします。 CI はそのテストを両コミットで実行し、結果をプルリクエストへ返します。 判定は「このコードは良いか」ではなく「主張した不具合が実在し、この変更で消えたか」であり、出力はテストランナーのログという反証可能な成果物です。 寄与者がテストを出せない場合、プルリクエストは待機ラベルへ移り、メンテナの受信箱には現れません。</p><p>これはメンテナのレビュー負荷をCIの実行時間へ振り替える操作です。 curl の黄金律をそのまま機械化したものとも言えます。</p><h4 id="リスク・反証分析の要点">リスク・反証分析の要点</h4><p>最大のリスクは、<strong>買い手がOSSメンテナである限り金を払わない</strong>ことです。 Anti-Slop、Slopper、Open Slop はいずれも無償のGitHub Actionとして公開済みで、CodeRabbit はスロップ検出を既存製品へ同梱しています。 無償の代替が4つ並ぶ市場で、OSSメンテナから月額を取る筋はありません。 対策は、買い手を「エージェント起票が社内キューの過半を占める企業」へ寄せ、必須ステータスチェックとして売ることです。 その前提が成立するかは Day 1-2 で検証します。</p><p>第二のリスクは、<strong>適用できるプルリクエストが限られる</strong>ことです。 再現テストを要求できるのは不具合修正に限られ、リファクタリング、ドキュメント、依存更新、新機能には使えません。 プロジェクトにテストハーネスが無ければ最初から成立しません。 対策は、対象を「テストが既に整備されたプロジェクトの不具合修正」に絞り、それ以外は既存の振る舞いフィルタへ委ねる設計にすることです。</p><p>第三のリスクは、<strong>寄与者が再現テストもエージェントに書かせる</strong>ことです。 生成されたテストがヘッドでのみ通るよう調整されていれば、ゲートは通過します。 ただしこの場合、通過に必要な作業量は「ベースで確実に失敗する条件を特定すること」まで上がり、curl の黄金律の観点では受け入れてよい寄与に近づきます。 ゲートの目的は排除ではなく、レビューの費用対効果を投稿側へ移すことだと位置づけます。</p><hr><h3 id="アイデア-2-hoken-borderline-週20時間の実績超過を追跡する社会保険加入判定ウォッチャ">アイデア 2: <code>hoken-borderline</code> (週20時間の実績超過を追跡する社会保険加入判定ウォッチャ)</h3><ul><li><strong>ターゲット</strong>: シフト制のパート・アルバイトを抱える中小事業者（小売、飲食、介護、クリニック）と、その顧問先を月次で見る社会保険労務士事務所。</li><li><strong>解決する課題</strong>: 賃金要件が撤廃されると、加入の可否は週20時間の1点で決まる。ところが所定労働時間と実績が乖離した場合の判定は「連続する2ヶ月で週20時間以上、かつ継続見込み」という時系列の条件であり、月次の給与ソフトの画面では見えない。見落とすと遡及加入になり、保険料を遡って納めることになる。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>判定の曖昧さがトラブルの原因になることは、実務解説がそのまま書いています。</p><blockquote class="voice"><p>「シフトの都合でこの時間をまたいで変動していると、加入義務が曖昧になってトラブルの原因になります。」</p><p class="cite">— <a href="https://www.roudoukeiyaku.net/kansa/shifthoken.html" target="_blank" rel="noopener noreferrer">シフト制の社会保険加入はどう判定する？</a></p></blockquote><p>判定の条件は次のとおりです。</p><blockquote class="voice"><p>「実際の労働時間が連続する2月において週20時間以上となった場合で、引き続き同様の状態が続いている又は続くことが見込まれる場合は、実際の労働時間が週20時間以上となった月の3月目の初日に被保険者の資格を取得します。」</p></blockquote><p>見落としたときの結果も明示されています。</p><blockquote class="voice"><p>「調査等で指摘を受けて、さかのぼって資格取得・資格喪失の手続きをすると、雇用保険や社会保険の保険料の負担や給付に関して、トラブルになることがあります。」</p></blockquote><p>現場が何に詰まるかについては、自作で自動化を試みている解説記事が具体的に挙げています。</p><blockquote class="voice"><p>「<strong>チェック頻度の低下</strong>：月次で全従業員の労働時間を確認するのが負担になり、繁忙期は後回しになる」</p><p>「<strong>「2ヶ月連続」の見落とし</strong>：先月・今月のデータを別々に見ていて、連続性の判定を忘れる」</p><p class="cite">— <a href="https://genai-ai.co.jp/ai-kanri/blog/cc-shakaihoken-20jikan/" target="_blank" rel="noopener noreferrer">週20時間の労働時間で社会保険の加入は変わる？</a></p></blockquote><p>同記事は従来の選択肢を「社労士に月次で確認を依頼する」ことだったと述べ、「数ヶ月単位で傾向を追いかける、というのがまさに手作業では続けにくいポイント」と指摘しています。 そのうえで、勤怠データと雇用契約データを突き合わせてボーダーライン付近の従業員を列挙する作業を Claude Code に渡す手順を紹介しています。 <strong>手作業の代替として汎用エージェントを使う記事が書かれている状態は、専用ツールが空席であることの傍証</strong>です。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p><code>market-analysis-patterns.md</code> の <strong>5. 規制・プラットフォーム変更対応型</strong> と <strong>3. ローカルファースト型</strong> の複合です。</p><p>「2ヶ月連続」の判定ルール自体は現行制度にも存在します。 今回の変曲点は、判定を受ける母集団が跳ね上がることです。 現在は月額8.8万円という賃金の門があるため、週20時間を時々超える低時給の短時間労働者は、時間の条件に触れても賃金の条件で外れます。 賃金要件が撤廃されると、この保護が消えて時間だけが門になります。 結果、これまで判定の対象ですらなかった層が、まとめて毎月の境界判定に乗ります。</p><p>企業規模要件の撤廃は2027年10月から2035年10月にかけて段階的に進む見込みで、対象事業者は今後10年にわたり増え続けます。 一度きりの駆け込み需要ではなく、母集団が拡大し続ける構造です。</p><p><strong>解決済みの範囲と未解決の範囲の境界線</strong>は次のとおりです。 解決済みなのは、雇用契約上の所定労働時間に基づく加入判定と、加入後の保険料計算です。 これは給与ソフト・勤怠SaaSが標準で持ちます。 未解決なのは、<strong>実績が所定から乖離した状態を複数月にまたいで追跡し、資格取得日が発生する前に警告すること</strong>です。 月次で完結する画面設計では、連続性の条件は表現されません。</p><h4 id="リスク・反証分析の要点-1">リスク・反証分析の要点</h4><p>最大のリスクは、<strong>施行日が政令に委ねられている</strong>ことです。 賃金要件撤廃の時期は、法律の公布（2025年6月20日）から3年以内という枠の中で、最低賃金の水準を見極めて決めるとされています。 実務解説の大半は2026年10月として書いていますが、施行日を確定した一次資料は今回の調査では確認できませんでした。 時期がずれれば「10月に間に合わせる」という購買動機は消えます。 対策は、Day 1 で厚生労働省・日本年金機構の告示と政令を直接確認し、確定していなければ<strong>訴求を「施行日対応」ではなく「遡及加入の防止」へ切り替える</strong>ことです。 遡及リスクは現行制度でも発生しているため、この訴求なら施行日に依存しません。</p><p>第二のリスクは、<strong>勤怠SaaSが1機能として実装する</strong>ことです。 必要なデータは勤怠SaaSの内部に既にあり、週次集計と2ヶ月連続の判定はロジックとして単純です。 差別化の余地は、複数の勤怠フォーマットを跨げること、社労士が顧問先を横断して見られること、そして給与データを外に出さずローカルで完結することの3点に限られます。 いずれも技術的な障壁ではありません。</p><p>第三のリスクは、<strong>社会保険労務士法との線引き</strong>です。 資格取得届の作成代行は社労士の業務であり、ツールが「加入させるべき」と断定すると領域に触れます。 対策は、出力を「週20時間を超えた週数と連続月数」という事実の提示に留め、判定と手続きは人間に残すことです。</p><hr><h3 id="アイデア-3-ext-chat-audit-aiチャット閲覧権限を持つブラウザ拡張の棚卸し">アイデア 3: <code>ext-chat-audit</code> (AIチャット閲覧権限を持つブラウザ拡張の棚卸し)</h3><ul><li><strong>ターゲット</strong>: ChatGPT・Claude・Gemini を業務で日常的に使う個人と小規模チーム。</li><li><strong>解決する課題</strong>: AI関連のブラウザ拡張が会話内容を外部へ送信していても、利用者には検知手段がない。ストアの審査バッジも根拠にならない。</li></ul><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>窃取の内容と規模は監査レポートに記載があります。</p><blockquote class="voice"><p>"Stolen data sent to the threat actor's C2 server includes: AI Conversation Data... Browsing Activity: Complete URLs from all Chrome tabs"</p><p class="cite">— <a href="https://www.ox.security/blog/malicious-chrome-extensions-steal-chatgpt-deepseek-conversations/" target="_blank" rel="noopener noreferrer">900K Users Compromised（OX Security）</a></p></blockquote><p>対象は2件の拡張で、それぞれ60万・30万、合計90万インストールでした。 拡張は「匿名の非識別分析データ」の収集として同意を求めながら、会話全文を送信していました。</p><p>審査が機能していない点も記録されています。 1件目は Google の "Featured" バッジを保持し、ストアの表示は "Follows recommended practices for Chrome extensions" でした。 開示時点で <strong>"Both extensions remain live and actively downloadable on the Chrome Web Store"</strong> と報告されています。</p><p>2026年5月11日の調査では、累計700万ユーザーを超える7件の拡張が、AIチャットの内容を送信中か、指令で送信可能な構成を持っていたとされています。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p><strong>3. 価格破壊・ローカルファースト型</strong>に該当します。 ただし後述のとおり、本案は却下します。</p><h4 id="リスク・反証分析の要点-2">リスク・反証分析の要点</h4><p>このアイデアは <strong>Tier 3 (DROP)</strong> として却下します。</p><p>理由は3つあります。</p><p>第一に、<strong>課金が成立しません</strong>。 個人向けのセキュリティ点検は無償が前提の領域であり、月額を払う動機が構造的にありません。 企業向けに寄せると LayerX や Seraphic のような拡張ガバナンス製品と正面衝突し、個人開発の射程を外れます。</p><p>第二に、<strong>技術的に踏み込めません</strong>。 静的な解析で分かるのは、マニフェストが要求する権限と、バンドルされたコードに含まれる送信先の候補までです。 拡張が実際に何を送信しているかは、拡張の通信を外部から観測できない以上、確実には言えません。 サーバー側から指令で挙動を切り替える構成であれば、静的解析は素通りします。 「送信していない」と言えないツールは、利用者の判断材料になりません。</p><p>第三に、<strong>Googleが埋めに来る領域です</strong>。 継続的な挙動監査の欠如は Chrome ウェブストア自身の課題として指摘されており、プラットフォームが対策を強化するほど、外付けツールの存在意義は薄れます。 除外フィルタの「Big Tech 正面衝突」に該当します。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>repro-gate</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>hoken-borderline</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>ext-chat-audit</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">審査崩壊は進行中だが買い手が無償層</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">母集団が拡大、ただし施行日が未確定</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">注目度は高いが購買動機がない</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub Action で完結、実行はCIに委譲</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">週次集計と連続判定は単純</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">静的解析の射程が短い</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">無償の代替が4つ並ぶ</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">社労士事務所への月額が成立</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">無料が当たり前の領域</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">発想は模倣容易、CodeRabbitが最短距離</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">勤怠SaaSの1機能で消える</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">プラットフォーム自身と衝突</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">言語・ビルド環境の多様性がサポートを生む</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">給与データと法改正追随の重さ</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">拡張の更新追随と誤検知対応</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">10<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-repro-gate-17点-tier-2">Idea 1: <code>repro-gate</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 審査経路の閉鎖が実際に起きた年である。curl のバウンティ終了（1月31日）、Jazzband の解散（3月14日）、tldraw の外部PR自動クローズ（1月）、GitHub の受付制御（2月）と投稿上限が、すべて2026年に集中している。300以上のプロジェクトが既にAI寄与ポリシーを明文化しており、需要の存在は文書で確認できる。<strong>減点材料</strong>: 需要が最も濃い層はOSSメンテナであり、この層は評価軸1が求める「明確な課金動機」を持たない。金を払う層（社内キューが飽和した企業）は存在するが、痛みの証拠は伝聞に留まり、一次発言としては確認できていない。</li><li><strong>技術的実現可能性 4</strong>: 中核は「ベースとヘッドの2コミットで同一テストを実行し、失敗と成功の組を確認する」だけであり、新規の推論も独自インフラも要らない。利用者自身のGitHub Actions上で <code>pull_request</code> イベントとして動かせば、未検証コードの実行はGitHubのサンドボックスの責任範囲に収まり、こちらでランナーを持つ必要がない。2週間で JavaScript と Python の2エコシステム分は組める。<strong>減点材料</strong>: 「そのテストが本当にその不具合を突いているか」の確認は自動化できない。ベース失敗・ヘッド成功という形式だけを見るため、無関係なテストでも形式は満たせる。ゲートの強度は見た目より弱い。</li><li><strong>収益性 3</strong>: 企業の必須ステータスチェックとしてリポジトリ単位に月額20〜30ドルを置く筋はあり、CI ポリシー製品は実際に売れている価格帯である。<strong>減点材料</strong>: 同じ問題に対する無償のGitHub Actionが Anti-Slop、Slopper、Open Slop と3つ公開されており、CodeRabbit は有償製品へ同梱している。OSS側では価格を主張できず、企業側では既存のレビュー製品の予算枠と競合する。「誰がいくら払うか」を今の証拠で言い切れないため、4点は付けられない。</li><li><strong>競合優位性 3</strong>: 既存4製品はいずれも投稿者の振る舞いとメタデータで判別しており、Open Slop はコードを見ないことを設計方針として明記している。再現の実行という手段は現時点で空いている。<strong>減点材料</strong>: この空白は技術的な難しさによるものではなく、着眼点の違いにすぎない。CodeRabbit が既存のCI連携に「ベース失敗・ヘッド成功の確認」を足すのは1四半期の作業であり、その時点で残るのは価格差だけになる。蓄積される資産が無い。</li><li><strong>個人開発適性 3</strong>: GitHub Action として配布すればサーバーもデータベースも不要で、実行費用は利用者持ちになる。<strong>減点材料</strong>: 対応すべきビルド・テストランナーの組み合わせが言語ごとに際限なく増え、「うちのモノレポで動かない」という問い合わせが本体の作業を侵食する。OSS利用者は無償でこの負荷だけを持ち込む。</li></ul><h4 id="idea-2-hoken-borderline-16点-tier-2">Idea 2: <code>hoken-borderline</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 賃金要件の撤廃で判定の門が週20時間の1点に絞られ、これまで賃金要件で保護されていた層がまとめて境界判定へ乗る。企業規模要件の撤廃が2035年まで続くため、対象事業者は増え続ける。<strong>減点材料</strong>: 施行日を確定した一次資料を確認できていない。実務解説は2026年10月で揃っているが、法文上は公布から3年以内で最低賃金の水準を見極めて政令で定める建て付けである。「10月まで◯日」という訴求が使えない可能性が残る。</li><li><strong>技術的実現可能性 4</strong>: 勤怠CSVの取り込み、週単位の実績集計、連続2ヶ月の判定、資格取得日の算出、事業主負担の試算という一本道であり、外部APIも推論も要らない。ローカル実行のCLIまたは静的Webで完結する。<strong>減点材料</strong>: 勤怠データのフォーマットが事業者ごとに違い、「週」の切り方や休憩・深夜手当の扱いも揃わない。実装よりも取り込み層の個別対応が工数を食い、2週間で出せるのは1〜2フォーマット分に留まる。</li><li><strong>収益性 4</strong>: 買い手を社労士事務所に置けば、顧問先を横断する月次スキャンとして事務所あたり月額8,000〜12,000円が成立する。遡及加入は保険料の実損に直結するため、支払いの根拠を金額で説明できる。50事務所で月40〜60万円の粗利になる。<strong>減点材料</strong>: 事業者本人へ直販すると単価が月額1,000円台まで落ち、獲得コストが回収できない。士業チャネルに依存する構造であり、そのチャネルは開拓が遅い。</li><li><strong>競合優位性 2</strong>: 現時点で「実績の連続超過を跨月で追跡する」機能を前面に出した製品は見つからない。<strong>減点材料</strong>: 必要なデータは勤怠SaaSの内部に既に揃っており、判定ロジックは数十行で書ける。KING OF TIME、ジョブカン、freee、マネーフォワードのいずれかが法改正対応として実装すれば、本案の存在意義は消える。しかも法改正は各社が実装を宣伝する絶好の機会であり、実装される確率は高い。3ヶ月で真似された場合に残るものが無いため、2点とする。</li><li><strong>個人開発適性 2</strong>: ローカル実行にすれば給与データを預からずに済み、インフラは不要になる。<strong>減点材料</strong>: 扱う対象が保険料と加入資格であるため、問い合わせ1件あたりの重さが通常のツールと違う。法改正・通達・疑義解釈への追随をやめられず、社労士法との線引きの説明も継続的に求められる。休日に手を離せる種類の製品ではない。</li></ul><h4 id="idea-3-ext-chat-audit-10点-tier-3">Idea 3: <code>ext-chat-audit</code> — 10点 (Tier 3)</h4><ul><li><strong>タイミング 2</strong>: 90万インストール、累計700万ユーザーという規模の事案が2026年に複数報告され、認知は十分にある。<strong>減点材料</strong>: 認知と購買は別で、個人が自分のブラウザの安全性に月額を払う習慣がない。「無料の点検ページ」で終わる需要である。</li><li><strong>技術的実現可能性 3</strong>: インストール済み拡張のマニフェストを読み、要求権限と、バンドルされたコード中の送信先候補を列挙するところまではローカルで実装できる。<strong>減点材料</strong>: 難読化されたコードとサーバー指令型の挙動切替には静的解析が届かない。「危険」は言えても「安全」が言えないため、道具として片肺になる。</li><li><strong>収益性 1</strong>: 個人向けセキュリティ点検は無償が前提であり、この軸の1点の定義（無料が当たり前の領域）にそのまま当たる。<strong>減点材料</strong>: 有償化するなら企業向けの拡張ガバナンスへ行くしかないが、そこは専業ベンダーの領域である。</li><li><strong>競合優位性 2</strong>: 現在、AIチャットの閲覧権限に的を絞った個人向けの点検ツールは目立たない。<strong>減点材料</strong>: 継続的な挙動監査の欠如は Chrome ウェブストア自身の課題として指摘されており、Google が審査を強化するほど価値が減る。除外フィルタの「Big Tech 正面衝突」に該当する。</li><li><strong>個人開発適性 2</strong>: 単発の点検であれば静的配布で足りる。<strong>減点材料</strong>: 拡張は更新のたびに中身が変わるため、判定データの更新をやめられない。誤検知は開発者からの抗議に直結し、サポート負荷が予測できない。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-repro-gate-のリスクと対策">1. <code>repro-gate</code> のリスクと対策</h3><p><strong>最大のリスクは、金を払う買い手が実在しない可能性です。</strong></p><p>需要の証拠はすべてOSS側から出ています。 curl、Jazzband、tldraw、300以上のポリシー文書は、いずれも無償で運営されている側の悲鳴です。 一方、企業の社内キューが飽和しているという話は、The New Stack の "Enterprise teams are next." という見出しに代表される予測の形でしか確認できていません。 「次は企業だ」という記事が書かれることと、企業の予算が動くことは別です。</p><p>対策は、Day 1-2 を企業側の確認に充てることです。 社内のプルリクエストのうちエージェント起票が何割か、レビュー待ち時間が実際に伸びたか、必須ステータスチェックを1つ増やす意思決定が誰にできるかを、5〜10社に聞きます。 ここで「レビュー待ちは伸びていない」または「増やす判断が全社標準の変更を要する」と分かれば、この案は企業向けとして成立しません。 その場合はOSS向けの無償ツールとして公開し、収益化は諦めるという判断をこの時点で行います。</p><p><strong>第二のリスクは、ゲートが形式だけを見ることです。</strong></p><p>ベースで失敗しヘッドで成功するテストという条件は、無関係なテストでも満たせます。 たとえば <code>assert False</code> をベースで走らせ、ヘッドで削除すれば形式上は通過します。</p><p>対策は、テストの実行対象を変更されたファイルへ限定し、テストが触れるコードパスと差分の重なりをカバレッジで測ることです。 重なりがゼロなら通過させません。 この判定はカバレッジツールの出力に基づくため、LLM の判断を挟まずに済みます。</p><p><strong>第三のリスクは、対象範囲の狭さが価値を薄めることです。</strong></p><p>不具合修正にしか使えないゲートは、プルリクエスト全体の一部しか捌けません。 リファクタリングや新機能の負荷は残ります。</p><p>対策は、<code>repro-gate</code> を単独の解ではなく既存フィルタの後段として位置づけ、Open Slop などの振る舞いフィルタと併用する前提で設計することです。 併用を前提にすれば、競合ではなく補完として導入経路に乗れます。</p><h3 id="2-hoken-borderline-のリスクと対策">2. <code>hoken-borderline</code> のリスクと対策</h3><p><strong>最大のリスクは、施行日が確定していないことです。</strong></p><p>実務解説は2026年10月で一致していますが、これは法文の枠内での見込みです。 施行日が後ろへずれれば、「10月に備える」という訴求は使えません。</p><p>対策は、訴求を施行日から切り離すことです。 遡及加入とそれに伴う保険料の遡及納付は現行制度でも発生しており、<code>hoken-borderline</code> の価値はそこにもあります。 施行日が確定していれば「改正対応」として売り、確定していなければ「遡及リスクの検知」として売ります。 どちらの訴求でも同じ製品が成立するよう、機能の中心を「実績が週20時間を超えた週の記録」に置きます。</p><p><strong>第二のリスクは、勤怠SaaSによる機能追加です。</strong></p><p>これは対策で消せるリスクではありません。 判定ロジックが単純である以上、データを持っている側が実装すれば勝ちます。</p><p>とれる手は、勤怠SaaSが実装しにくい部分へ寄せることだけです。 具体的には、複数の勤怠SaaSを併用している事業者を跨いで見られること、社労士事務所が顧問先を横断して1画面で見られること、そして給与データを外部へ送らずローカルで完結することです。 いずれもSaaS本体の設計とは相性が悪く、しばらくは残ります。 ただしこれは時間稼ぎであり、長期のMoatにはなりません。 この案を Tier 2 に留めた最大の理由がここにあります。</p><p><strong>第三のリスクは、業務範囲の逸脱です。</strong></p><p>「この従業員を加入させるべき」と出力すると、社会保険労務士法が定める独占業務に接近します。</p><p>対策は、出力を事実の提示に限ることです。 「直近8週のうち週20時間以上が6週」「連続2ヶ月の条件に該当」までを表示し、資格取得日の断定と届出の作成は行いません。 士業向けプランでは、社労士が確認して確定する欄を明示的に設けます。</p><h3 id="3-ext-chat-audit-のリスクと対策">3. <code>ext-chat-audit</code> のリスクと対策</h3><p><strong>このアイデアは Tier 3 (DROP) として却下します。</strong></p><p>課金が成立せず、静的解析では「安全」を言えず、プラットフォーム自身が埋めに来る領域です。 3つのうち1つでも解ければ再考の余地がありますが、いずれも設計の工夫で解けるものではありません。</p><p>記録として残す価値があるのは、<strong>認知度の高さと市場性が無関係である</strong>という例証としてです。 90万インストールの被害と Featured バッジという素材は記事の題材としては強く、一見すると有望に見えます。 しかし評価軸3を当てた時点で1点であり、除外フィルタにも触れます。 話題性から入ると誤るという確認のため、本レポートに残します。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>repro-gate</code> について、14日間の想定を置きます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) エージェント起票が社内キューの過半を占める企業5〜10社に接触し、レビュー待ち時間が実際に伸びたか、必須ステータスチェックを1つ増やす決裁が誰にできるかを聞く。(b) 300件のAI寄与ポリシーのうち、不具合修正に再現手順を求めている記述がいくつあるかを数え、要求として既に言語化されているかを確認する。(c) 企業側に痛みが確認できなければ、収益化を諦めてOSS向け無償公開へ切り替える判断をここで行う。</td></tr><tr><td class="tk">Day 3-4</td><td>ゲートの定義</td><td>「主張の再現」を機械が判定できる形式へ落とす。プルリクエストが不具合修正であることの申告方法、提出するテストの指定方法、ベース失敗・ヘッド成功の判定条件、カバレッジによる差分との重なり判定の閾値を決める。ここで形式だけの通過（ベースで <code>assert False</code>）を落とす条件を確定させる。</td></tr><tr><td class="tk">Day 5-7</td><td>実行基盤</td><td>GitHub Action として実装する。<code>pull_request</code> イベントで起動し、ベースコミットとヘッドコミットの双方で指定テストを実行する。未検証コードの実行はGitHubのサンドボックス内に収め、自前のランナーは持たない。対応は pytest と vitest の2つに限定する。</td></tr><tr><td class="tk">Day 8-9</td><td>判定と表示</td><td>実行結果をプルリクエストへ返す。返すのは判定語ではなく、ベースでの失敗ログ、ヘッドでの成功ログ、差分とテストのカバレッジの重なりという3つの事実である。通過しなかったプルリクエストには待機ラベルを付け、メンテナの通知から外す。</td></tr><tr><td class="tk">Day 10-11</td><td>ドッグフーディング</td><td>自分が保守しているリポジトリと、協力を得られたOSSプロジェクト1件へ導入する。過去3ヶ月のクローズ済みプルリクエストへ遡って適用し、実際に落ちたはずの件数と、誤って落とすはずだった件数を数える。誤って落とす率が高ければ閾値を戻す。</td></tr><tr><td class="tk">Day 12-13</td><td>併用設計</td><td>Open Slop など振る舞いフィルタとの併用手順をドキュメント化する。競合ではなく後段として位置づけ、「振る舞いで乱射を落とし、再現で誤りを落とす」という2段構成を明示する。</td></tr><tr><td class="tk">Day 14</td><td>公開と検証</td><td>GitHub Marketplace へ公開し、Day 1-2 で接触した企業へ試用を依頼する。同時に、AI寄与ポリシーを明文化済みのプロジェクトへ導入を打診する。1週間の導入数ではなく、「通過しなかったプルリクエストのうち、メンテナが後から見て妥当だと判断した割合」を成功指標に置く。</td></tr></tbody></table></div><p>課金設計は、公開リポジトリを無償、非公開リポジトリを1つあたり月額25ドルとする二層構成を想定します。 無償の代替が既に複数あるため、有償側の価値は「再現の実行」という機能そのものではなく、必須ステータスチェックとしての運用（監査ログ、例外の承認履歴、組織横断の設定）に置きます。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>repro-gate</code></strong>（総合17点、Tier 2）を最有力候補として選定しました。既存の対策が投稿者の振る舞いとメタデータに限られ、Open Slop が「コードは見ない」と明記し、CodeRabbit が「マージを止めない」と明記していることから、<strong>主張の真偽を実行で確かめる帯域は現時点で空いています</strong>。Tier 1 に届かなかった理由は、無償の代替が4つ並ぶ市場構造と、金を払う買い手の痛みが一次発言として確認できていないことの二点です。着手の条件は Day 1-2 の企業ヒアリングであり、そこで痛みが確認できなければ収益化は諦める前提とします。</li></ul><ul><li><strong><code>hoken-borderline</code></strong>（総合16点、Tier 2）は、市場の存在と支払いの根拠（遡及加入の実損）が明確で、買い手（社労士事務所）も特定できています。しかし判定ロジックが単純すぎ、データを持つ勤怠SaaSが法改正対応として実装すれば消えます。加えて施行日が政令に委ねられており、訴求の前提が固まっていません。<strong>先に確認すべきは施行日の一次資料であり、ここが確定するまで着手の判断は保留とします。</strong></li></ul><ul><li><strong><code>ext-chat-audit</code></strong>（総合10点、Tier 3）は却下しました。素材の話題性は高いものの、課金が成立せず、静的解析では「安全」を証明できず、Google 自身が埋めに来る領域です。</li></ul><ul><li><strong>今回も Tier 1 に到達した案はありません。</strong>前回（08-26）に続き2回連続です。前回の総括では「規制の変更を記録の形へ変換する」構図が参入障壁を作れないと書き、今回は探索軸を「処理能力が壊れた市場」へ変えました。軸を変えても競合優位性は3点止まりでした。共通する原因は、<strong>着想から実装までの距離が短いアイデアばかりを拾っていること</strong>です。2週間で作れるものは、資金を持つ競合なら1四半期で作れます。次回は探索軸に「実装は短いが、蓄積に時間がかかる資産（データセット、判定履歴、チャネル）を伴うか」という条件を加えて再探索します。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-26)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://daniel.haxx.se/blog/2026/01/26/the-end-of-the-curl-bug-bounty/" target="_blank" rel="noopener noreferrer">The end of the curl bug-bounty (daniel.haxx.se)</a><span class="u">https://daniel.haxx.se/blog/2026/01/26/the-end-of-the-curl-bug-bounty/</span></li><li><a href="https://jazzband.co/news/2026/03/14/sunsetting-jazzband" target="_blank" rel="noopener noreferrer">Sunsetting Jazzband (jazzband.co)</a><span class="u">https://jazzband.co/news/2026/03/14/sunsetting-jazzband</span></li><li><a href="https://github.com/melissawm/open-source-ai-contribution-policies" target="_blank" rel="noopener noreferrer">melissawm/open-source-ai-contribution-policies（300以上のOSSプロジェクトのAI寄与ポリシー一覧）</a><span class="u">https://github.com/melissawm/open-source-ai-contribution-policies</span></li><li><a href="https://github.com/marketplace/actions/open-slop" target="_blank" rel="noopener noreferrer">Open Slop（GitHub Marketplace Action）</a><span class="u">https://github.com/marketplace/actions/open-slop</span></li><li><a href="https://docs.coderabbit.ai/pr-reviews/slop-detection" target="_blank" rel="noopener noreferrer">Slop Detection — CodeRabbit Docs</a><span class="u">https://docs.coderabbit.ai/pr-reviews/slop-detection</span></li><li><a href="https://www.infoworld.com/article/4127156/github-eyes-restrictions-on-pull-requests-to-rein-in-ai-based-code-deluge-on-maintainers.html" target="_blank" rel="noopener noreferrer">GitHub eyes restrictions on pull requests to rein in AI-based code deluge on maintainers（InfoWorld）</a><span class="u">https://www.infoworld.com/article/4127156/github-eyes-restrictions-on-pull-requests-to-rein-in-ai-based-code-deluge-on-maintainers.html</span></li><li><a href="https://thenewstack.io/ai-generated-code-crisis/" target="_blank" rel="noopener noreferrer">Open source maintainers are drowning in AI-generated pull requests. Enterprise teams are next.（The New Stack）</a><span class="u">https://thenewstack.io/ai-generated-code-crisis/</span></li><li><a href="https://www.roudoukeiyaku.net/kansa/shifthoken.html" target="_blank" rel="noopener noreferrer">シフト制の社会保険加入はどう判定する？週20時間・月8.8万円の計算ルール（なるほど労働契約法）</a><span class="u">https://www.roudoukeiyaku.net/kansa/shifthoken.html</span></li><li><a href="https://genai-ai.co.jp/ai-kanri/blog/cc-shakaihoken-20jikan/" target="_blank" rel="noopener noreferrer">週20時間の労働時間で社会保険の加入は変わる？超えたり超えなかったりする場合の判定基準を整理</a><span class="u">https://genai-ai.co.jp/ai-kanri/blog/cc-shakaihoken-20jikan/</span></li><li><a href="https://www.cells.co.jp/topics/20260713-shakaihoken" target="_blank" rel="noopener noreferrer">2026年10月の社会保険適用拡大｜加入条件の変更点と実務対応を解説（株式会社セルズ）</a><span class="u">https://www.cells.co.jp/topics/20260713-shakaihoken</span></li><li><a href="https://www.ox.security/blog/malicious-chrome-extensions-steal-chatgpt-deepseek-conversations/" target="_blank" rel="noopener noreferrer">900K Users Compromised: Chrome Extensions Steal ChatGPT and DeepSeek Conversations（OX Security）</a><span class="u">https://www.ox.security/blog/malicious-chrome-extensions-steal-chatgpt-deepseek-conversations/</span></li><li><a href="https://thehackernews.com/2026/01/two-chrome-extensions-caught-stealing.html" target="_blank" rel="noopener noreferrer">Two Chrome Extensions Caught Stealing ChatGPT and DeepSeek Chats from 900,000 Users（The Hacker News）</a><span class="u">https://thehackernews.com/2026/01/two-chrome-extensions-caught-stealing.html</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-27_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
