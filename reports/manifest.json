@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27T06:24:05+09:00",
+  "generated_at": "2026-08-28T03:23:12+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -51,6 +51,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-08-28_market_research_report.html",
+          "title": "2026-08-28: Cloudflare 9/15 デフォルト変更・Web Bot Auth の未収束・コミュニティ閉鎖における穴場市場の特定",
+          "date": "2026-08-28",
+          "bytes": 76005
+        },
         {
           "file": "2026-08-27_market_research_report.html",
           "title": "2026-08-27: AI寄与PRの審査崩壊・106万円の壁撤廃・AIチャット窃取拡張における穴場市場の特定",

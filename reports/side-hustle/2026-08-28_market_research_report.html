@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="広告表示ページ単位でAIボットを遮断する Cloudflare の新デフォルト、標準化前に本番投入され実装同士が食い違う Web Bot Auth、公開アーカイブを残さず消えるコミュニティフォーラムという3つの変化から穴場ビジネス仮説を抽出し5軸評価した結果">
+<title>2026-08-28: Cloudflare 9/15 デフォルト変更・Web Bot Auth の未収束・コミュニティ閉鎖における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-28</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / ai-crawler / cloudflare / web-bot-auth</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-28">市場リサーチ &amp; 5軸評価レポート (2026-08-28)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">adgate-diff</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 10 件（うち一次ソース 11 件）</div></div><div class="fig">19<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">adgate-diff</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">botauth-probe</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">forum-lifeboat</div><div class="val">15<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（08-27）の総括で、探索軸に条件をひとつ足すと書きました。 「実装は短いが、蓄積に時間がかかる資産を伴うか」という条件です。 2週間で作れるものは資金を持つ競合なら1四半期で作れるため、作れることそのものは差別化にならないという反省でした。</p><p>そこで今回は、<strong>時間をかけないと手に入らないデータが介在する市場</strong>を探索対象にしました。 具体的には「観測しないと分からない事実」が意思決定の入口に立ちはだかっている領域です。 仕様書を読めば分かることは誰でも実装できますが、自分のサイトに実際に何が来ているか、どの実装が実際に何を受理するか、消える前のデータが実際に何であったかは、観測した者しか持てません。</p><p>この観点で、性質の異なる3つの変化を調べました。</p><p>第一に、AIトラフィックの遮断が<strong>ページ単位の判定</strong>へ移りました。 Cloudflare は AI 関連の自動アクセスを Search / Agent / Training の3分類に分け、新しい既定値を告知しています。 原文は "On September 15, 2026, we'll be setting new defaults for each of these three classifications" とし、既定の中身を "Training and Agent will be blocked by default on the pages that display ads" と書いています（<a href="https://blog.cloudflare.com/content-independence-day-ai-options/" target="_blank" rel="noopener noreferrer">Cloudflare Blog</a>）。 サイト単位ではなく「広告を表示しているページ」という条件が入ったため、遮断範囲は自分のサイトの構成に依存します。</p><p>第二に、その遮断をすり抜けるための本人確認手段が、<strong>標準になる前に本番へ入りました</strong>。 Web Bot Auth は Cloudflare 主導の IETF ドラフトで、エージェントが HTTP 署名で自分を名乗る仕組みです。 Cloudflare、AWS WAF、Akamai、Vercel が既に検証側を稼働させている一方、ワーキンググループには採択済み文書がありません。</p><p>第三に、15年分の一次情報を抱えたコミュニティが、<strong>公開アーカイブを残さずに消え始めました</strong>。 RPG Maker 公式フォーラムは6月18日に読み取り専用となり、12月11日に完全閉鎖されます。 運営は公開アーカイブを作らないと明言しています。</p><p>三者に共通するのは、<strong>判断に必要な事実が、締切の側にしか存在しない</strong>という点です。 何が遮断されるかはサイトごとに違い、何が受理されるかは実装ごとに違い、何が失われるかは閉鎖されるコミュニティごとに違います。 どれも仕様の読解では埋まらず、観測して初めて分かります。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-28)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-28)"><title>アイデア候補のポジショニングマップ (2026-08-28)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="430.4" cy="112.4" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="442.4" y="116.4" text-anchor="start" class="qpt-label">1</text><circle cx="430.4" cy="112.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Adgate Diff 総合 19 / 25（Tier 2）" data-tv="Idea 1: Adgate Diff" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="475.8" cy="200.4" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="487.8" y="204.4" text-anchor="start" class="qpt-label">2</text><circle cx="475.8" cy="200.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Botauth Probe 総合 17 / 25（Tier 2）" data-tv="Idea 2: Botauth Probe" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="243.0" cy="231.6" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="255.0" y="235.6" text-anchor="start" class="qpt-label">3</text><circle cx="243.0" cy="231.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Forum Lifeboat 総合 15 / 25（Tier 3）" data-tv="Idea 3: Forum Lifeboat" data-td="総合 15 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Adgate Diff</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Botauth Probe</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Forum Lifeboat</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-adgate-diff-広告表示ページ単位のボット遮断シミュレータ">アイデア 1: <code>adgate-diff</code> (広告表示ページ単位のボット遮断シミュレータ)</h3><ul><li><strong>ターゲット</strong>: 広告収益とAI経由の露出を両方持つ運営者。個人・少人数のメディア、技術ブログ、レシピ／レビュー系サイト、そしてそれらを預かる小規模SEO事業者。</li><li><strong>解決する課題</strong>: 新しい既定値は「広告を表示しているページ」に対して Training と Agent を遮断する。しかし自分のサイトのどのURLがその条件に当たるかを、運営者は把握していない。広告タグはテンプレート単位・記事単位で差し込まれ、条件付きで出し分けられ、AMPや一部カテゴリでは出ないこともある。加えて Cloudflare は判定方法を公開しておらず、Changelog にも広告ページの判定手順の記述がない。結果として、遮断範囲を事前に見積もる手段が運営者の側に存在しない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>Cloudflare 自身が、複数目的のクローラを最も制限の強い扱いに寄せると明記している。原文は "Multi-purpose crawlers such as Googlebot, Applebot, and BingBot will be blocked by customers who have selected to block Training" である（<a href="https://blog.cloudflare.com/content-independence-day-ai-options/" target="_blank" rel="noopener noreferrer">Cloudflare Blog</a>）。学習を止めたつもりが Googlebot ごと止まるという結合が、仕様として書かれている。</li><li>適用範囲の記述は資料によって食い違う。Changelog は "Starting September 15, 2026, new domains onboarding to Cloudflare receive updated defaults." と新規ドメイン限定で書き、ブログは全顧客に対して9月15日までのオプトアウトを案内している（<a href="https://developers.cloudflare.com/changelog/post/2026-07-01-ai-traffic-options/" target="_blank" rel="noopener noreferrer">Cloudflare Developers Changelog</a>）。自分が対象かどうかも自明ではない。</li><li>個人運営者の負担は金額として現れている。AWS 上でブログを運営する Ran Isenberg 氏は、ボット流入について "I am, quite literally, paying Amazon to serve the machines that scrape me." と書いた。同氏は対策後も "I am under no illusion that this catches everything." と限界を認めている（<a href="https://ranthebuilder.cloud/blog/my-blogs-biggest-fans-are-ai-bots-so-i-fought-back/" target="_blank" rel="noopener noreferrer">ranthebuilder.cloud</a>）。<strong>既存手段の実践者自身が、それでは解決しきらないと書いている記述</strong>である。</li><li>遮断の効果は直感と逆に出ている。BuzzStream と Citation Labs が2026年3月に400万件の引用を調べた結果、LLM に引用されたサイトの95%が学習クローラを遮断済みであり、ChatGPT の引用の70%は同社の取得ボットを遮断しているサイトから出ていた（<a href="https://www.buzzstream.com/blog/publishers-block-ai-study/" target="_blank" rel="noopener noreferrer">BuzzStream</a>）。学習の遮断は引用を減らさず、取得の遮断は流入を減らす。この非対称は、遮断の設計を勘で決めてはいけないことを意味する。</li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「プラットフォーム変更起点の観測ツール型」である。 Why Now は日付そのものにある。既定値の切り替えは9月15日であり、オプトアウトの窓はそれ以前にしか開いていない。 そして判定条件が「広告を表示しているページ」である以上、必要なのはサイト単位の設定助言ではなく、<strong>URL単位の実測</strong>である。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みは「来たものの分類」である。AWS の AI トラフィックダッシュボード、Screaming Frog のログ解析、Scrawl の無償ログ解析はいずれもアクセスログ側を読み、どのAIクローラがどのURLを叩いたかを見せる。 未解決は「自分のページ側の条件」である。どのURLが広告表示ページに当たり、そこに来ている Training/Agent の実測が何件で、遮断した場合に何を失うかを突き合わせた出力は見当たらない。 ログ解析ツールはページの中身を見ず、SEOクローラはボットの実測を持たない。この2つが分かれていることが空白の正体である。</p><hr><h3 id="アイデア-2-botauth-probe-web-bot-auth-署名の世代別・検証器別-適合性診断">アイデア 2: <code>botauth-probe</code> (Web Bot Auth 署名の世代別・検証器別 適合性診断)</h3><ul><li><strong>ターゲット</strong>: 自作エージェントや自動化を運用していて、CDN/WAF に弾かれる側の開発者。加えて、自サイトで署名検証を実装しようとしている運営者。</li><li><strong>解決する課題</strong>: 署名の書式が世代ごとに変わっており、どの書式が通るかは相手の検証器に依存する。ドラフトは新しい辞書形式を必須と書き、実際に稼働している検証器は旧来の文字列形式を前提にしている。どちらに合わせても、相手によって落ちる。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>標準の状態そのものが未収束である。原文は "Web Bot Auth is not an adopted IETF standard yet. As of August 12, 2026 its working group has no adopted documents — only individual drafts." と書かれている（<a href="https://nerdleveltech.com/web-bot-auth-ietf-standard-agent-verification" target="_blank" rel="noopener noreferrer">Nerd Level Tech</a>）。</li><li>署名側への要求は "Signers MUST send the dictionary form." であり、一方で Cloudflare の検証規則は辞書形式を失敗の理由として扱う旨が記録されている（同上）。仕様と稼働実装が正面から食い違っている。</li><li>同記事は結論として "a site operator following any single vendor page implements against the wrong generation of the spec" と書く。<strong>ベンダーのドキュメントを1つ読んで実装すると、必ず古い世代に当たる</strong>という自認である。</li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「標準化の空白を埋めるマイクロDevEx型」である。 Why Now は、検証側の本番投入が標準の採択より先行している今しかない。 採択が済んで実装が揃えば、この診断の価値は消える。逆に言えば、<strong>揃うまでの期間に観測を続けた者だけが、世代 × 検証器の対応表を持つ</strong>。この対応表は仕様書からは作れず、実際に叩いて受理・拒否を記録する以外に作る方法がない。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みは「署名の作り方」である。Cloudflare は TypeScript / Go の実装と npm パッケージを公開しており、鍵の生成から署名までは既に容易である（<a href="https://github.com/cloudflare/web-bot-auth" target="_blank" rel="noopener noreferrer">cloudflare/web-bot-auth</a>）。 未解決は「それが誰に通るか」である。署名は作れるが、Cloudflare、AWS WAF、Akamai、Vercel のどれが今どの書式を受理するかは、公開資料からは決められない。適合性テストの実装は各社の役割ではなく、標準側にも存在しない。</p><hr><h3 id="アイデア-3-forum-lifeboat-閉鎖予告済みコミュニティの個人資産の保全">アイデア 3: <code>forum-lifeboat</code> (閉鎖予告済みコミュニティの個人資産の保全)</h3><ul><li><strong>ターゲット</strong>: 閉鎖が予告されたフォーラムの利用者と、避難先を作っている有志モデレータ。</li><li><strong>解決する課題</strong>: 読み取り専用期間は数ヶ月あるが、そこで各自が手作業で保存するしかない。添付ファイル、プラグイン配布スレッド、私信、複数ページに分かれた長大なスレッドは、ブラウザの保存では形が崩れる。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>運営の回答は明快である。公開アーカイブの予定を問われ、"There are currently no plans to provide a public archive or backup of the current forum once it has been closed." と回答している（<a href="https://forums.rpgmakerweb.com/threads/rpg-maker-web-forum-closure-faq.183960/page-2" target="_blank" rel="noopener noreferrer">RPG Maker Forums</a>）。</li><li>利用者側の懸念は実利に紐づく。ある利用者は "what if someone wants to use an old plugin and needs an archive?" と書いた（同スレッド）。消えるのは思い出ではなく、現役のプラグインの導入手順である。</li><li>規模も確認できる。当該フォーラムには約15年分、140万件超の投稿、3.4万件超のプラグインスレッド、4.5万件超の旧エンジン向けサポートスレッドがあるとされる（<a href="https://80.lv/articles/rpg-maker-s-official-forum-will-close-this-december-with-no-public-archive-planned" target="_blank" rel="noopener noreferrer">80.lv</a>）。</li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「期限付きの海外先行事例型」である。 Why Now は12月11日という削除日である。ただし需要は日付とともに消える。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みが多い。HTTrack と ArchiveBox は静的取得を、Wayback Machine は公開ページの保存を、XenForo 自身はスレッドのエクスポート機能を既に提供している。当該スレッドでも利用者同士が Wayback とエクスポート機能を勧め合っており、有償の解を待っていない。 未解決は「認証が要る領域（私信・添付・個人の投稿履歴）を、検索可能な形でまとめること」に限られる。範囲が狭く、しかも他人の投稿を再公開できない以上、成果物は各自のローカルに留まる。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>adgate-diff</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>botauth-probe</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>forum-lifeboat</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">9/15の締切は強いが適用範囲の記述が割れている</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">未収束の期間限定、母集団は小さい</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">日付は明確だが需要が日付とともに消える</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">描画後の広告検出とログ突合、2週間で1構成分</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">署名生成と検証器叩きは軽い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">取得と静的化は枯れた技術</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">広告収益が縮む層が買い手</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">母数が小さく無償化圧力が強い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">単発少額、需要が消える</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">判定が非公開のため観測でしか埋まらない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">対応表は観測の蓄積でしか作れない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">無償の代替が既に使われている</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行、ただし追随は必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ドラフトと検証器の変化に張り付く</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">単発配布で完結</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">15<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-adgate-diff-19点-tier-2">Idea 1: <code>adgate-diff</code> — 19点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 判定条件が「広告を表示しているページ」へ移り、しかも切り替え日が9月15日と明示された。需要の存在は数字でも裏づく。主要ニュースサイトの79%が学習クローラを、71%が取得クローラを遮断しており、遮断の設計はすでに全員が触っている論点である。<strong>減点材料</strong>: 適用範囲の記述が一次資料の中で割れている。Changelog は新規ドメイン限定と読め、ブログは全顧客のオプトアウトを案内している。「あなたも9月15日に変わる」と言い切れないため、訴求の芯が1本に定まらない。</li><li><strong>技術的実現可能性 4</strong>: 中核は3つで、サイトマップからのURL列挙、ヘッドレスブラウザでの描画後の広告タグ検出、アクセスログのAI UA別集計である。いずれも既存ライブラリで組め、推論も独自インフラも要らない。2週間で「WordPress + AdSense + Nginx ログ」という1構成分は出せる。<strong>減点材料</strong>: 広告の出し分けは条件付きで行われることが多く、1回の描画では真偽が確定しない。地域・デバイス・同意状態を変えて複数回踏む必要があり、精度を上げるほど実行時間が伸びる。</li><li><strong>収益性 3</strong>: 買い手は広告収益を持つ運営者であり、失う金額で説明できるため支払いの根拠は立つ。小規模SEO事業者が顧客サイト分をまとめて回す使い方なら、月額20〜40ドルの帯に置ける。<strong>減点材料</strong>: 個人メディアの広告収益は縮小基調にあり、コストを増やす提案は通りにくい。加えて需要の山が9月に寄るため、単発課金へ流れやすく、月額の継続率を前提にできない。「誰がいくら払うか」を単発と月額のどちらで書くべきかが、今の証拠では決められない。</li><li><strong>競合優位性 4</strong>: Cloudflare は広告ページの判定方法を公開しておらず、Changelog にも記述がない。<strong>判定が非公開である以上、外側からは観測して近似する以外に方法がない</strong>。既存のログ解析ツールはページの中身を見ず、SEOクローラはボットの実測を持たないため、両者の交差は空いている。加えて、観測を続ければ「宣言と実際の挙動が食い違うボット」の記録が溜まり、これは後発が短期間で複製できない。<strong>減点材料</strong>: 空白の根拠が「Cloudflare が出していないこと」に依存する。Cloudflare が対象URL一覧をダッシュボードに出した日に、中核の価値は消える。</li><li><strong>個人開発適性 4</strong>: ログもページも利用者の手元で処理でき、サーバーもデータベースも要らない。<strong>減点材料</strong>: AIクローラのUAと検証用IPレンジは頻繁に増減し、広告タグの種類も増える。判定データの更新をやめられない構造である。</li></ul><h4 id="idea-2-botauth-probe-17点-tier-2">Idea 2: <code>botauth-probe</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 検証側の本番投入が標準の採択に先行しており、食い違いが現に起きている。<strong>減点材料</strong>: 対象となる開発者の母数が小さい。署名付きエージェントを運用するのは現時点では大手と一部の実験者であり、個人開発者の困りごとになるのはもう少し後である。</li><li><strong>技術的実現可能性 4</strong>: Ed25519 の鍵生成、RFC 9421 に沿った署名、書式を世代別に切り替えての送信、応答の記録という一本道である。Cloudflare が参照実装を公開しているため、署名の生成部分は借りられる。<strong>減点材料</strong>: 検証器の受理条件は公開されていないため、判定は自分で叩いた結果に依存する。相手側のレート制限と誤検知の扱いを慎重に設計しないと、調査自体が遮断される。</li><li><strong>収益性 2</strong>: 診断そのものは無償で配り、対応表の閲覧とCIでの継続確認を有償にする筋はある。<strong>減点材料</strong>: 買い手の母数が小さく、しかも困っている当事者は開発者であるため、自作で済ませる傾向が強い。標準が採択されれば問題自体が消えるため、継続課金の前提が立たない。この軸の3点（月額数百円レベルでスケールが必要）にも届かない可能性が高く、2点とする。</li><li><strong>競合優位性 4</strong>: 適合性テストは標準側にもベンダー側にも存在しない。そして必要な資産は仕様の理解ではなく、<strong>世代 × 検証器 × 時刻の受理記録</strong>であり、これは時間をかけて叩き続けた者にしか溜まらない。後発が同じ表を作るには同じ日数がかかる。<strong>減点材料</strong>: その資産の寿命が短い。採択後は表が1行に収束し、蓄積の価値がゼロになる。</li><li><strong>個人開発適性 3</strong>: 実行はローカルで完結し、インフラは不要である。<strong>減点材料</strong>: 9本のドラフトと4社の実装を追い続ける必要があり、休日に手を離すと表が腐る。腐った表は誤った実装を誘導するため、放置の害が大きい。</li></ul><h4 id="idea-3-forum-lifeboat-15点-tier-3">Idea 3: <code>forum-lifeboat</code> — 15点 (Tier 3)</h4><ul><li><strong>タイミング 3</strong>: 12月11日という削除日が確定しており、対象規模も140万件超と大きい。<strong>減点材料</strong>: 需要が閉鎖の日で終わる。次の閉鎖まで売上がゼロになる構造であり、市場と呼べる連続性がない。</li><li><strong>技術的実現可能性 4</strong>: 認証付きの取得、ページ送りの解決、添付の保存、全文検索付きの静的サイト生成は、いずれも枯れた技術で組める。<strong>減点材料</strong>: フォーラムソフトごとにDOM構造が違い、XenForo に合わせた実装は phpBB では動かない。</li><li><strong>収益性 2</strong>: 個人向けの買い切りで15〜30ドル、有志モデレータ向けの代行で数万円という帯である。<strong>減点材料</strong>: 同じことを無償ツールで済ませている利用者が現に多数いる。当該スレッドでも Wayback Machine と標準のエクスポート機能が推奨されており、支払う理由を作れていない。</li><li><strong>競合優位性 2</strong>: 認証が必要な領域（私信・添付・自分の投稿履歴）に限れば空白はある。<strong>減点材料</strong>: その空白は狭く、他人の投稿を再公開できない以上、成果物は各自のローカルで完結する。共有も蓄積もされないため、資産が溜まらない。今回の探索条件（蓄積に時間がかかる資産を伴うか）に最も明確に反する案である。</li><li><strong>個人開発適性 4</strong>: 単発のCLI配布で完結し、運用は発生しない。<strong>減点材料</strong>: 「保存できなかった」という苦情が締切直前に集中し、しかも再実行の機会がない。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-adgate-diff-のリスクと対策">1. <code>adgate-diff</code> のリスクと対策</h3><p><strong>最大のリスクは、そもそも対象者が少ない可能性です。</strong></p><p>Changelog の記述は新規ドメイン限定と読めます。 既存ドメインが自分でオプトインしない限り既定値が変わらないのであれば、「9月15日に何かが変わる人」は新規ドメインの運営者だけになります。 その場合、締切を訴求の芯に置く設計は成立しません。</p><p>対策は、Day 1 を適用範囲の確定に充てることです。 Cloudflare のダッシュボード上で既存ドメインの現在値と、9月15日以降の予定値がどう表示されるかを、無償プランと有償プランの両方で実際に確認します。 ここで既存ドメインが対象外だと確定した場合は、訴求を「切り替え日」から「遮断設定の恒常的な影響測定」へ組み替えます。 このとき残る価値は、79%と71%という遮断率の乖離を自サイトで検算できることです。</p><p><strong>第二のリスクは、広告ページ判定を当てられないことです。</strong></p><p>Cloudflare は判定方法を公開していないため、こちらの近似が外れる可能性があります。 外れた出力は、正しい設定を誤りとして提示することになり、害の方が大きくなります。</p><p>対策は、断定を避けて根拠を出す設計にすることです。 「このURLは広告ページと判定される」ではなく、「このURLの描画後DOMに広告スロットが N 個あり、そのうち実際に配信が発生したのは M 個である」と事実だけを返します。 判定語ではなく観測値を返す限り、Cloudflare の判定が何であっても出力は誤りになりません。</p><p><strong>第三のリスクは、Cloudflare 自身が対象URLを可視化することです。</strong></p><p>判定を持っているのは Cloudflare であり、それを見せるのは同社にとって難しくありません。</p><p>対策は、価値の重心を「Cloudflare が持っていないもの」へ寄せることです。 具体的には、遮断した場合に失うAI経由の露出と、遮断しない場合に負担する転送量の対比です。 前者は引用の観測、後者は自分のホスティング請求に紐づくため、CDN 側のダッシュボードには出てきません。</p><h3 id="2-botauth-probe-のリスクと対策">2. <code>botauth-probe</code> のリスクと対策</h3><p><strong>最大のリスクは、標準の採択で問題が消えることです。</strong></p><p>ワーキンググループが文書を採択し、各社が追随すれば、世代の食い違いは無くなります。 そのとき残るのは、誰も見ない対応表です。</p><p>対策は、寿命の短さを前提に設計を分けることです。 書式の適合診断は無償で配り、有償にするのは「自分のエージェントが実際に何％のサイトで通るか」の継続測定に限定します。 後者は標準が採択されても残ります。検証器の設定は各サイトの運営者が決めるため、通過率は仕様が固まっても揃わないためです。</p><p><strong>第二のリスクは、調査行為そのものが遮断されることです。</strong></p><p>検証器の受理条件を調べる行為は、外形上は署名を変えながら繰り返しアクセスする行為です。</p><p>対策は、対象を自分が管理するドメインと、検証用に公開されているテスト用エンドポイントに限定することです。 第三者のサイトへ無断で試行しない方針を明文化し、利用者が自分のドメインを登録して初めて測定が走る設計にします。</p><h3 id="3-forum-lifeboat-のリスクと対策">3. <code>forum-lifeboat</code> のリスクと対策</h3><p><strong>最大のリスクは、他人の投稿を扱うことです。</strong></p><p>フォーラムの投稿は投稿者の著作物であり、運営が公開アーカイブを作らないと決めた以上、第三者が再公開する余地はありません。</p><p>対策は、成果物をローカルに閉じ、共有機能を持たせないことです。 それを守ると、今度は事業として成立しなくなります。この矛盾が解けないことが、本案を Tier 3 とした理由です。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>adgate-diff</code> について、14日間の想定を置きます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) Cloudflare の無償プランと有償プランで既存ドメインを1つずつ用意し、AIトラフィック設定の現在値と9月15日以降の予定表示を実機で確認する。既存ドメインが対象外なら訴求を恒常的な影響測定へ組み替える。(b) 広告収益を持つ個人メディア運営者5〜10名に接触し、遮断設定を今どう決めているか、決める根拠を持っているかを聞く。(c) 「根拠なく既定のまま」が多数を占めない場合は着手しない。</td></tr><tr><td class="tk">Day 3-4</td><td>観測対象の定義</td><td>何を事実として返すかを確定する。描画後DOMにおける広告スロットの検出条件（GPT、AdSense、Prebid の主要3系統）、配信の発生判定、判定不能の扱いを決める。ここで「判定語を返さない」という原則を実装上の制約として固定する。</td></tr><tr><td class="tk">Day 5-7</td><td>クロール側の実装</td><td>サイトマップからURLを列挙し、ヘッドレスブラウザで描画して広告スロットを数える。同意状態と地域を変えた2回踏みを既定とし、出し分けを検出する。対象は WordPress + AdSense の1構成に限定する。</td></tr><tr><td class="tk">Day 8-9</td><td>ログ側の実装</td><td>Nginx / Apache のアクセスログを取り込み、AI関連UAを Search / Agent / Training の3分類へ寄せ、URL別に集計する。名乗りの真偽は逆引きと公開IPレンジで検証し、検証できなかったものを別枠で数える。</td></tr><tr><td class="tk">Day 10-11</td><td>突合と出力</td><td>2つの観測を突き合わせ、URL別に「広告スロット数」「分類別リクエスト数」「名乗りが検証できなかった割合」を並べた表を出す。加えて、現在の robots.txt と WAF 設定を読み、宣言と実測の食い違いを列挙する。</td></tr><tr><td class="tk">Day 12-13</td><td>自分のサイトでの検証</td><td>自分が運営するサイトへ適用し、過去30日分のログで実行する。広告スロットの検出漏れと過検出を手作業で数え、精度を記録する。精度が説明できない水準なら、対象を静的広告のみへ狭める。</td></tr><tr><td class="tk">Day 14</td><td>公開と検証</td><td>無償のCLIとして公開し、Day 1-2 で接触した運営者へ試用を依頼する。成功指標はダウンロード数ではなく、「出力を見て遮断設定を実際に変更した人の割合」に置く。変更が起きないなら、事実を出しても意思決定には効いていないということであり、有償化へ進まない。</td></tr></tbody></table></div><p>課金設計は、単発のレポート生成を無償、複数サイトの定期実行と経時比較を月額とする二層構成を想定します。 無償側で配るのは1回分の観測であり、有償側で売るのは<strong>観測の継続</strong>です。 1回の観測はいずれ誰でも作れますが、遮断設定を変えた前後の比較は、変える前から測っていた者にしか作れません。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>adgate-diff</code></strong>（総合19点、Tier 2）を最有力候補として選定しました。Cloudflare が広告ページの判定方法を公開していないため、<strong>遮断範囲は外側から観測して近似するしかありません</strong>。ログ解析ツールはページの中身を見ず、SEOクローラはボットの実測を持たないため、両者の交差は現時点で空いています。Tier 1 に届かなかった理由は二点です。第一に、適用範囲の記述が一次資料の中で割れており、「あなたも9月15日に変わる」と言い切れないこと。第二に、買い手である個人メディアの広告収益が縮小基調にあり、支出提案が通りにくいことです。着手の条件は Day 1-2 の実機確認であり、既存ドメインが対象外だと確定した場合は訴求を組み替えます。</li></ul><ul><li><strong><code>botauth-probe</code></strong>（総合17点、Tier 2）は、空白の存在が最も明確な案です。適合性テストは標準側にもベンダー側にも無く、必要な資産（世代 × 検証器の受理記録）は観測の蓄積でしか作れません。しかしその資産の寿命は標準の採択までであり、対象者の母数も現時点では小さいままです。<strong>採択の見通しが立つまでは着手を保留し、ドラフトの動きだけを追う</strong>のが妥当です。</li></ul><ul><li><strong><code>forum-lifeboat</code></strong>（総合15点、Tier 3）は却下しました。削除日と規模は明確ですが、無償の代替が現に使われており、他人の著作物を扱う制約から成果物をローカルに閉じるほかありません。今回の探索条件である「蓄積に時間がかかる資産」を最も持たない案でもあります。</li></ul><ul><li><strong>今回の探索で候補から落とした案があります。</strong> OpenAI が2026年12月11日に GPT-5 系スナップショットを、2027年1月20日に音声・リアルタイム系を停止する件（<a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener noreferrer">OpenAI Deprecations</a>）は、開発者フォーラムに "Do not depreciate gpt-4o-mini-tts-2025-03-20!" という悲鳴が残るほど痛みが濃い領域です（<a href="https://community.openai.com/t/deprecation-notice-upcoming-model-shutdowns-in-2026/1379553" target="_blank" rel="noopener noreferrer">OpenAI Developer Community</a>）。しかし「コード中の廃止予定モデルIDを検出する」道具は既に3つ（<code>llm-model-deprecation</code>、GitHub Marketplace の LLM Model Deprecation Check、llmstatus.ai）が公開済みで、除外フィルタ以前に競合優位性が立ちません。<strong>痛みの濃さと参入余地は別である</strong>という確認として記録します。</li></ul><ul><li><strong>3回連続で Tier 1 に到達していません。</strong> ただし今回は前回までと構造が違います。前2回の Tier 2 は「作れるが真似される」型でしたが、今回の上位2案はいずれも<strong>観測の蓄積が資産になる</strong>型で、競合優位性は4点に届いています。点数を押し下げているのは収益性（3点と2点）です。次回は探索軸に「観測の蓄積が資産になる」条件を残したうえで、<strong>買い手が既に別の何かに金を払っている領域</strong>を優先します。支払い習慣の有無は市場側の性質であり、こちらの工夫では作れないためです。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-27)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://blog.cloudflare.com/content-independence-day-ai-options/" target="_blank" rel="noopener noreferrer">Your site, your rules: new AI traffic options for all customers（Cloudflare Blog）</a><span class="u">https://blog.cloudflare.com/content-independence-day-ai-options/</span></li><li><a href="https://developers.cloudflare.com/changelog/post/2026-07-01-ai-traffic-options/" target="_blank" rel="noopener noreferrer">New options to manage AI traffic（Cloudflare Developers Changelog, 2026-07-01）</a><span class="u">https://developers.cloudflare.com/changelog/post/2026-07-01-ai-traffic-options/</span></li><li><a href="https://www.searchenginejournal.com/cloudflares-ai-crawler-rules-can-block-googlebot/581385/" target="_blank" rel="noopener noreferrer">Cloudflare&#x27;s AI Crawler Rules Can Block Googlebot（Search Engine Journal）</a><span class="u">https://www.searchenginejournal.com/cloudflares-ai-crawler-rules-can-block-googlebot/581385/</span></li><li><a href="https://ranthebuilder.cloud/blog/my-blogs-biggest-fans-are-ai-bots-so-i-fought-back/" target="_blank" rel="noopener noreferrer">My Blog&#x27;s Biggest Fans Are AI Bots. So I Fought Back.（Ran Isenberg）</a><span class="u">https://ranthebuilder.cloud/blog/my-blogs-biggest-fans-are-ai-bots-so-i-fought-back/</span></li><li><a href="https://www.buzzstream.com/blog/publishers-block-ai-study/" target="_blank" rel="noopener noreferrer">Which News Sites Block AI Crawlers?（BuzzStream × Citation Labs, 2026-03）</a><span class="u">https://www.buzzstream.com/blog/publishers-block-ai-study/</span></li><li><a href="https://nerdleveltech.com/web-bot-auth-ietf-standard-agent-verification" target="_blank" rel="noopener noreferrer">Web Bot Auth in 2026: Shipped Before It&#x27;s a Standard（Nerd Level Tech）</a><span class="u">https://nerdleveltech.com/web-bot-auth-ietf-standard-agent-verification</span></li><li><a href="https://github.com/cloudflare/web-bot-auth" target="_blank" rel="noopener noreferrer">cloudflare/web-bot-auth — Sign and verify orchestrated HTTP requests（GitHub）</a><span class="u">https://github.com/cloudflare/web-bot-auth</span></li><li><a href="https://forums.rpgmakerweb.com/threads/rpg-maker-web-forum-closure-faq.183960/page-2" target="_blank" rel="noopener noreferrer">RPG Maker Web Forum Closure FAQ（RPG Maker Forums）</a><span class="u">https://forums.rpgmakerweb.com/threads/rpg-maker-web-forum-closure-faq.183960/page-2</span></li><li><a href="https://80.lv/articles/rpg-maker-s-official-forum-will-close-this-december-with-no-public-archive-planned" target="_blank" rel="noopener noreferrer">RPG Maker&#x27;s Official Forum is Shutting Down With No Archive Planned（80.lv）</a><span class="u">https://80.lv/articles/rpg-maker-s-official-forum-will-close-this-december-with-no-public-archive-planned</span></li><li><a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener noreferrer">Deprecations | OpenAI API</a><span class="u">https://developers.openai.com/api/docs/deprecations</span></li><li><a href="https://community.openai.com/t/deprecation-notice-upcoming-model-shutdowns-in-2026/1379553" target="_blank" rel="noopener noreferrer">Deprecation notice: upcoming model shutdowns in 2026（OpenAI Developer Community）</a><span class="u">https://community.openai.com/t/deprecation-notice-upcoming-model-shutdowns-in-2026/1379553</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-28_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
