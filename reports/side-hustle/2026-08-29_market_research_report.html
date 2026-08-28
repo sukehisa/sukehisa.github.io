@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="AI APIが電力のような時間帯課金へ移り、インボイスの2割特例が9月末で終わり、npmの公開資格が段階的に失効していくという3つの変化から、すでに支払い習慣を持つ買い手のいる穴場を抽出し5軸評価した結果">
+<title>2026-08-29: トークンの時間帯課金・2割特例の終了・公開資格の静かな失効における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-29</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / llm-cost / time-of-day-pricing / invoice-tax</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-29">市場リサーチ &amp; 5軸評価レポート (2026-08-29)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">token-clock</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 14 件（うち一次ソース 14 件）</div></div><div class="fig">18<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">token-clock</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">shohizei-switch</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">pubcred-watch</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（08-28）の総括で、次回の探索軸に条件をひとつ足すと書きました。 <strong>買い手が既に別の何かに金を払っている領域を優先する</strong>、という条件です。 3回連続で Tier 1 に届かず、点数を押し下げていたのが一貫して収益性の軸だったためです。 支払い習慣の有無は市場側の性質であり、こちらの工夫では作れません。</p><p>そこで今回は、「すでに毎月請求書が届いている場所」から探索を始めました。 AI APIの利用料、消費税、そしてリリースパイプラインの3つです。 いずれも支払いが既に発生しており、金額が変わる予定が確定しています。</p><p>第一に、<strong>AIのトークンが電力のように時間帯で値付けされ始めました</strong>。 DeepSeek は V4 系の公開に合わせて価格をピークとオフピークに分け、2026年8月16日16:00 UTC から適用しています。 ピーク帯は平日の 01:00–04:00 UTC と 06:00–10:00 UTC で、それ以外はすべてオフピークです（<a href="https://codersera.com/blog/deepseek-v4-price-change-august-2026/" target="_blank" rel="noopener noreferrer">Codersera</a>）。 値上げの幅は大きく、V4-Pro の出力はピークで100万トークンあたり $3.96、オフピークで $1.98 です（<a href="https://www.infoworld.com/article/4209439/deepseek-raises-some-v4-prices-by-more-than-10x-as-ai-demand-strains-capacity.html" target="_blank" rel="noopener noreferrer">InfoWorld</a>）。 改定前は $0.87 の一律だったため、時刻を選ばずに投げると4倍以上を払うことになります。</p><p>この変化は1社の値付けにとどまりません。 GitHub は2026年6月1日に Copilot の全プランを従量課金へ移しました（<a href="https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/" target="_blank" rel="noopener noreferrer">The GitHub Blog</a>）。 供給が逼迫し、AIの費用が定額から変動へ移りつつあるという同じ流れの上に、DeepSeek の時間帯課金があります。</p><p>第二に、<strong>インボイス制度の2割特例が2026年9月30日で終わります</strong>。 2割特例は売上税額の2割を納税額とする経過措置で、これが消えると本則課税か簡易課税へ移ります。 後継として3割特例が新設されましたが、対象は個人事業者に限られ、2027年分と2028年分の申告だけです（<a href="https://www.tc-nb.co.jp/2155/" target="_blank" rel="noopener noreferrer">TCNB</a>）。 法人には後継措置がなく、緩衝なしで移行します。</p><p>第三に、<strong>npm の公開資格が段階的に失効していきます</strong>。 2026年7月31日から、2FAをバイパスする granular access token では権限まわりの操作ができなくなりました。 そして GitHub は次の段階の日付を明示しています。 原文は "2FA-bypass tokens will also lose direct publish." とし、"We are targeting January 2027 for this update." と書いています（<a href="https://github.blog/changelog/2026-07-31-restricting-npm-bypass-2fa-granular-access-tokens/" target="_blank" rel="noopener noreferrer">GitHub Changelog</a>）。</p><p>三者に共通するのは、<strong>請求書はすでに届いていて、その金額の決まり方だけが変わる</strong>という点です。 新しい支出を説得する必要がなく、既存の支出が増えるか減るかの話になります。 これは前回までの3案（広告収益が縮む層、母数の小さい実験者、無償代替のある一回きりの需要）と、買い手の性質が明確に違います。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-29)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-29)"><title>アイデア候補のポジショニングマップ (2026-08-29)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="373.6" cy="132.2" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="385.6" y="136.2" text-anchor="start" class="qpt-label">1</text><circle cx="373.6" cy="132.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Token Clock 総合 18 / 25（Tier 2）" data-tv="Idea 1: Token Clock" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="350.9" cy="120.9" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="362.9" y="124.9" text-anchor="start" class="qpt-label">2</text><circle cx="350.9" cy="120.9" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Shohizei Switch 総合 17 / 25（Tier 2）" data-tv="Idea 2: Shohizei Switch" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="282.7" cy="194.7" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="294.7" y="198.7" text-anchor="start" class="qpt-label">3</text><circle cx="282.7" cy="194.7" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Pubcred Watch 総合 16 / 25（Tier 2）" data-tv="Idea 3: Pubcred Watch" data-td="総合 16 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Token Clock</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Shohizei Switch</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Pubcred Watch</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-token-clock-時間帯レートを持つaiジョブの実行ゲート">アイデア 1: <code>token-clock</code> (時間帯レートを持つAIジョブの実行ゲート)</h3><ul><li><strong>ターゲット</strong>: LLM APIに月数百ドル以上を払っていて、その一部がバッチ処理・夜間評価・埋め込み再生成・合成データ生成である小規模SaaSと個人開発者。とくに日本・シンガポール・インドなど、業務時間がピーク帯と重なるタイムゾーンの開発者。</li><li><strong>解決する課題</strong>: 価格が時刻の関数になったのに、コードは時刻を知らない。既存のLLMゲートウェイは「どのモデルへ流すか」「いくら使ったか」を扱うが、「いつ実行するか」を扱わない。結果として、待てる仕事が最も高い時間帯に流れる。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>DeepSeek の変更を解説した開発者は、値付けの変化が比較の前提を壊したと書いています。原文は "Price comparisons are now time-dependent." です（<a href="https://dev.to/jamilxt/deepseek-now-prices-tokens-like-electricity-50-off-peak-discount-and-a-spring-boot-pattern-to-1j7g" target="_blank" rel="noopener noreferrer">DEV Community</a>）。同じ記事は、既存の Spring AI 連携が価格を定数として書かれていたため、時間帯を扱う処理を自分で足す必要があったと述べています。<strong>既存のフレームワークが時間帯を前提にしていないことを、実装した当人が書いている</strong>点で価値の高い記述です。</li><li>調査会社の Greyhound Research は、割引の受け取り手を「注意を払っている買い手」に限定して表現しています。原文は "The schedule's own clock and cache hand most of it back to any buyer paying attention." です（<a href="https://www.infoworld.com/article/4209439/deepseek-raises-some-v4-prices-by-more-than-10x-as-ai-demand-strains-capacity.html" target="_blank" rel="noopener noreferrer">InfoWorld</a>）。裏返せば、注意を払っていない買い手は値上げをそのまま被ります。</li><li>割引の価値が地理に強く依存することも、数字で示されています。米国の太平洋・東部時間では 9–17 時のうちピーク帯は0%、シンガポール・北京では75%です（<a href="https://codersera.com/blog/deepseek-v4-price-change-august-2026/" target="_blank" rel="noopener noreferrer">Codersera</a>）。<strong>引用したピーク帯（01:00–04:00 UTC と 06:00–10:00 UTC）から機械的に計算すると、日本時間 9:00–18:00 の9時間のうち6時間がピーク帯に当たります。</strong> 日本の開発者は、何もしなければ業務時間の3分の2を高い側で払うことになります。</li></ul><ul><li><strong>パターン判定</strong>: <strong>新APIラッパー型（先行者利益）</strong> と <strong>マイクロDevExツール型</strong> の複合。加えて、ピーク帯の定義がUTC固定であるため、タイムゾーンによる不利をそのまま需要にできる <strong>地理アービトラージ</strong> の側面を持ちます。</li><li><strong>Why Now</strong>: 時間帯課金の導入が13日前であり、既存のゲートウェイ・SDK・オーケストレータのいずれもレート表に時間軸を持っていません。値上げの体感が強い一方、対応策が「自分でcronを書く」以外に流通していない期間が、いま開いています。</li><li><strong>コア機能 (MVP)</strong>:<ul><li>プロバイダ別・モデル別の<strong>時間帯レート表</strong>（UTC基準、夏時間の影響を受けない形式）をデータとして持つCLI/ライブラリ。</li><li>ジョブに「締切」と「遅延許容」を宣言させ、レート表とバッチAPIの選択肢を突き合わせて投入時刻を決める実行ゲート。</li><li>実行後に「即時実行した場合との差額」を出す精算ログ。削減額が見えなければ課金の根拠が立たないため、これを中核に置く。</li></ul></li></ul><hr><h3 id="アイデア-2-shohizei-switch-2割特例終了後の申告方式の有利試算と届出期限の管理">アイデア 2: <code>shohizei-switch</code> (2割特例終了後の申告方式の有利試算と届出期限の管理)</h3><ul><li><strong>ターゲット</strong>: インボイス制度を機に課税事業者となった小規模事業者。とくに<strong>一人法人（法人成りしたフリーランス、マイクロ法人）</strong>と、顧問税理士を付けずに自分で申告している個人事業主。</li><li><strong>解決する課題</strong>: 2割特例が終わった後の選択肢は、個人と法人で違う。個人は3割特例・簡易課税・本則課税の3択、法人は簡易課税・本則課税の2択になる。どれが有利かは業種区分（みなし仕入率）と実際の仕入率で入れ替わり、しかも簡易課税は2年間の拘束を伴う。加えて、3割特例が2028年分で終わるため、判断は単年ではなく数年をまたいで比較しなければ答えが出ない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>経過措置の改正内容は日付で確定しています。2割特例について、原文は「法人の2割特例は、2026年（令和8年）9月30日を含む課税期間をもって原則通り終了します」です。控除率も段階的に下がり、「〜2026年9月30日：80％控除」「2026年10月1日〜：70％控除（2年間）」と示されています（<a href="https://www.tc-nb.co.jp/2155/" target="_blank" rel="noopener noreferrer">TCNB</a>）。</li><li>3割特例の対象は限定されています。「基準期間の課税売上高が1,000万円以下などの要件を満たす個人事業者」が対象で、「2027年（令和9年）分および2028年（令和10年）分の消費税申告」に適用されます（<a href="https://www.tc-nb.co.jp/2155/" target="_blank" rel="noopener noreferrer">TCNB</a>）。<strong>法人は対象外です。</strong></li><li>届出の期限は、誤ると1年を失う種類のものです。個人事業主が簡易課税を選ぶ場合、「2026年12月31日が提出期限となります」とされ、「期限を過ぎると翌年度まで簡易課税が利用できなくなるため、提出忘れのないよう注意しましょう」と書かれています（<a href="https://www.all-senmonka.jp/moneyizm/management/314425/" target="_blank" rel="noopener noreferrer">MONEYIZM</a>）。</li><li>一方で法人には救済の余地があります。「2割特例の適用を受けた法人は、特例の適用を受けた課税期間の翌課税期間に係る確定申告期限までに、簡易課税制度選択届出書を提出することができます」とされています（<a href="https://macpa.jp/blog/invoice-20-percent-rule-deadline/" target="_blank" rel="noopener noreferrer">木下公認会計士税理士事務所</a>）。<strong>期限の切迫度が個人と法人で異なる</strong>という、訴求を分けるべき事実です。</li></ul><ul><li><strong>パターン判定</strong>: <strong>規制・プラットフォーム変更対応型</strong>。加えて、日本の税制に固有の判断であり海外SaaSが扱わない <strong>言語・制度障壁</strong> に守られます。</li><li><strong>Why Now</strong>: 2割特例の終了が1か月後、個人の届出期限が4か月後に迫っています。判断材料（3割特例の要件、控除率の段階表）は2026年度税制改正で確定済みであり、いま計算できます。</li><li><strong>コア機能 (MVP)</strong>:<ul><li>売上・業種区分・概算仕入率を入力すると、<strong>3割特例／簡易課税／本則課税の納税額を2027年から2029年まで年度別に並べる</strong>試算表。単年ではなく、簡易課税の2年拘束と3割特例の終了を跨いだ合計で比較する。</li><li>法人か個人か、決算月はいつかを入力させ、<strong>自分に適用される期限日を1つだけ</strong>返す期限判定。</li><li>出力は税額の試算と期限日に限定し、「どれを選ぶべきか」の助言は行わない。税理士法上の税務相談に踏み込まない設計上の制約として固定する。</li></ul></li></ul><hr><h3 id="アイデア-3-pubcred-watch-公開資格の静かな失効を監視するリリース経路の点検">アイデア 3: <code>pubcred-watch</code> (公開資格の静かな失効を監視するリリース経路の点検)</h3><ul><li><strong>ターゲット</strong>: npm や PyPI へCIから継続的に公開している受託開発会社・SaaS企業のリリース担当と、社内向けパッケージを配っているプラットフォームチーム。</li><li><strong>解決する課題</strong>: レジストリ側の認証仕様が短い周期で変わり続けており、変更のたびにリリースパイプラインが<strong>予告された日に静かに壊れる</strong>。しかも壊れるのは「次にリリースしたとき」であって、変更日ではない。四半期に一度しか公開しないパッケージほど、気づくのが遅れる。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>次の失効日は明示されています。原文は "2FA-bypass tokens will also lose direct publish. Their publishing surface will reduce to reading private packages and staging a publish, which a maintainer approves with 2FA. We are targeting January 2027 for this update." です（<a href="https://github.blog/changelog/2026-07-31-restricting-npm-bypass-2fa-granular-access-tokens/" target="_blank" rel="noopener noreferrer">GitHub Changelog</a>）。</li><li>移行先にも制約が残っています。npm の公式ドキュメントは "Self-hosted runners are not currently supported but are planned for future releases." と書いており、対応するCIも "GitHub Actions (GitHub-hosted runners), GitLab CI/CD Pipelines (GitLab.com shared runners), CircleCI (CircleCI cloud)" に限られます（<a href="https://docs.npmjs.com/trusted-publishers/" target="_blank" rel="noopener noreferrer">npm Docs</a>）。<strong>セルフホストランナーで公開しているチームには、まだ移行先が存在しません。</strong></li><li>設定の既定値が日付で分岐しています。原文は "Trusted publisher configurations created before May 20, 2026 are automatically set to allow <code>npm publish</code> only" と "Configurations created after May 20, 2026 require you to explicitly select at least one allowed action." です（<a href="https://docs.npmjs.com/trusted-publishers/" target="_blank" rel="noopener noreferrer">npm Docs</a>）。同じ画面で作った設定が、作った時期によって許可範囲が違います。</li><li>多数のパッケージを抱えるメンテナが手作業に追い込まれた実例も記録されています。Babel のメンテナは200個のパッケージを移行するために Puppeteer スクリプトを書く必要があり、その後2026年2月18日に <code>npm trust</code> コマンドが提供されて一括設定が可能になりました（<a href="https://socket.dev/blog/npm-trusted-publishing" target="_blank" rel="noopener noreferrer">Socket</a>）。</li></ul><ul><li><strong>パターン判定</strong>: <strong>規制・プラットフォーム変更対応型</strong> と <strong>マイクロDevExツール型</strong>。</li><li><strong>Why Now</strong>: 2027年1月の直接publish停止まで4か月あり、いま点検すれば直せます。ただし後述するとおり、この「まだ4か月ある」ことが収益性の側では不利に働きます。</li><li><strong>コア機能 (MVP)</strong>:<ul><li>組織配下の全パッケージについて、公開に使われている認証方式（classic の残骸、bypass-2FA トークン、OIDC）を<strong>レジストリ側とワークフロー側の両方から</strong>突き合わせる棚卸し。</li><li>trusted publisher 設定の許可範囲と、実際のワークフローが実行するコマンドの不一致検出。5月20日前後の既定値の差をここで吸収する。</li><li>セルフホストランナー利用など、<strong>現時点で移行先が存在しない構成の明示</strong>。「直せない」ことを早く知らせるほうが、直し方を示すより価値がある。</li></ul></li></ul><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>token-clock</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>shohizei-switch</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>pubcred-watch</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">13日前の改定だが時間帯課金は現状1社</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">期限が確定、ただし国内市場のみ</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">日付は確定だが壊れるまで誰も動かない</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">レート表とキューは軽い、精算ログが重い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">四則演算だが業種区分の検証に工数</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">レジストリAPIとYAML解析で足りる</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">削減額で説明できるが母数の多くは小額</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">差額は大きいが単発かつ季節性</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">継続監視なら月額の根拠は立つ</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ゲートウェイが時間軸を足せば吸収される</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">会計SaaSが数か月で足せる範囲</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">npm trust が一括設定を提供済み</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行、ただし価格追随が恒常コスト</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">税制改正への年次追随が必須</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">CI実行で完結、低サポート負荷</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-token-clock-18点-tier-2">Idea 1: <code>token-clock</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 改定が13日前で、値上げ幅も大きい。V4-Pro 出力はピークで $3.96、改定前の一律 $0.87 と比べると4倍を超える。加えて Copilot の従量課金化（6月1日）と重なり、「AIの費用は変動する」という前提が今年になって定着した。<strong>減点材料</strong>: 時間帯課金を実際に導入しているのは現時点で DeepSeek のみである。他社が追随しなければ、対象は「DeepSeek を使っている開発者」に縮む。追随の見通しは仮説であって、証拠ではない。</li><li><strong>技術的実現可能性 4</strong>: 中核はレート表・UTCクロック・遅延許容付きのキューであり、いずれも軽い。1〜2週間で1プロバイダ分は動く。<strong>減点材料</strong>: 削減額を出す精算ログが難しい。「即時実行していたらいくらだったか」は反実仮想であり、キャッシュヒット率やリトライを含めると単純な掛け算では出ない。ここを雑に作ると、製品の中核である「いくら助かったか」が信用されない。</li><li><strong>収益性 3</strong>: 買い手はすでにトークン代を払っており、削減額で説明できる。月$300以上使っているチームなら、30%削減に対して月$19は通る。<strong>減点材料</strong>: 母数の大半がそこに届かない。報道で引かれた個人の例は「月$5が$15になる」規模であり、この層は月額を払うより手でcronを書く。<strong>「誰がいくら払うか」を具体的に書けるのは月$300以上の層に限られ、その層の人数を今回の調査では確認できていない。</strong></li><li><strong>競合優位性 3</strong>: LiteLLM・Portkey・Helicone・OpenRouter のいずれも、レート表に時間軸を持つという記述は確認できなかった。予算管理とリアルタイムの支出追跡はあるが、いずれも事後の可視化である。空白は現に存在する。<strong>減点材料</strong>: その空白は浅い。レート表に時間帯の列を足すのは、OSSゲートウェイなら数週間の作業である。<strong>大手が3か月で真似したらどうなるか</strong>という問いに対して、残るのは「価格改定を追い続けた記録」だけであり、これは薄い。4点は付けられない。</li><li><strong>個人開発適性 4</strong>: 実行は利用者の環境で完結し、サーバーもデータベースも不要である。<strong>減点材料</strong>: 各社の価格改定を追い続けなければレート表が腐る。腐った表は誤った時刻にジョブを流し、そのまま損失になる。放置の害が大きい種類の製品である。</li></ul><h4 id="idea-2-shohizei-switch-17点-tier-2">Idea 2: <code>shohizei-switch</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 2割特例の終了が2026年9月30日、個人の簡易課税届出が2026年12月31日と、期限が2つとも確定している。逃すと1年間は選び直せない。買い手はすでに消費税を納めており、金額が変わることも決まっている。<strong>減点材料</strong>: 市場が国内に閉じており、対象はインボイスを機に課税事業者となった小規模層に限られる。海外展開の余地がなく、上限が最初から見えている。</li><li><strong>技術的実現可能性 4</strong>: 計算そのものは売上税額とみなし仕入率の四則演算であり、数日で書ける。<strong>減点材料</strong>: 正確性の担保にかかる工数が本体より重い。業種区分の判定は実務上の解釈が入り、複数事業を営む場合の按分規定もある。ここを誤ると製品が有害になるため、検証と免責の設計に時間を取られる。</li><li><strong>収益性 3</strong>: 選択を誤った場合の差額は年間で数万円から十数万円に及び、支払いの根拠としては強い。買い手はすでに会計ソフトや税理士に払っている層である。<strong>減点材料</strong>: 需要が単発かつ季節的である。試算は一度やれば終わりで、山は2026年12月と2027年3月に寄る。買い切り3,000円前後が現実的な上限であり、月額の継続前提は立たない。フレームワークの4点（月額$10〜$30の帯が成立する）には届かない。</li><li><strong>競合優位性 3</strong>: freee・マネーフォワード・弥生はいずれも記帳が本体であり、<strong>簡易課税の2年拘束と3割特例の終了を跨いだ複数年度の合計比較</strong>という形の試算は薄い。税理士に頼めば答えは出るが、顧問を付けていない層は相談先を持たない。<strong>減点材料</strong>: この差は機能の差であって構造の差ではない。会計SaaSが確定申告シーズンに向けて同等のシミュレータを足す可能性は十分にあり、その日に価値は消える。</li><li><strong>個人開発適性 3</strong>: 実行はローカルで完結し、インフラは不要である。<strong>減点材料</strong>: 税制は毎年変わるため、年1回の改修が構造的に必須になる。加えて、試算の誤りが利用者の納税額に直結するため、サポートの重さが他の2案と質的に違う。「判断は行わず試算に留める」という設計上の制約を守り続ける必要もある。</li></ul><h4 id="idea-3-pubcred-watch-16点-tier-2">Idea 3: <code>pubcred-watch</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 3</strong>: 2027年1月という日付が一次ソースで明示されており、対象も「CIから公開している組織」と明確である。<strong>減点材料</strong>: 期限まで4か月あり、この種の変更は壊れるまで誰も動かない。購買が直前に集中する一方、その頃には対処法の記事が出揃っている。加えて npm は過去に日程を動かした実績があり（classic token の削除は12月9日へ移動）、日付そのものが確定ではない。</li><li><strong>技術的実現可能性 4</strong>: レジストリのAPIとワークフローのYAML解析で足り、推論も独自インフラも要らない。1〜2週間で npm 分は出せる。<strong>減点材料</strong>: 「実際にどの資格で公開されたか」はレジストリ側の公開情報だけでは追い切れず、組織の設定画面への権限が必要になる場面がある。導入時の権限説明が障壁になる。</li><li><strong>収益性 3</strong>: 一度きりの点検ではなく、レジストリ仕様の変更を追い続ける継続監視として売るなら、月額の根拠は立つ。過去12か月で npm 側の変更は5回以上あり、「また変わった」が定常状態である。<strong>減点材料</strong>: それでも単価は低い。壊れて困るのはリリース日だけであり、平時の支払い意欲は弱い。月額数百円から数ドルの帯であり、100人で月10〜20万円には届かない。</li><li><strong>競合優位性 2</strong>: 最大の弱点である。一括設定という最も大きな不便は、2026年2月の <code>npm trust</code> コマンドで既に解消されている。残る空白は「設定と実際のワークフローの不一致検出」と「移行先が無い構成の明示」に限られ、狭い。<strong>減点材料</strong>: Socket や StepSecurity が隣接領域で既に顧客を持っており、この検査を機能として足すのは彼らにとって小さな追加である。参入余地が構造ではなく、単に誰も手を付けていないことだけに依存している。</li><li><strong>個人開発適性 4</strong>: CIの中で完結し、サーバーもデータベースも不要である。<strong>減点材料</strong>: 対象レジストリを増やすほど（PyPI、crates.io、RubyGems）、仕様追随の負荷が線形に増える。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-token-clock-のリスクと対策">1. <code>token-clock</code> のリスクと対策</h3><p><strong>最大のリスクは、スケジューリングより先に手を付けるべき手段があることです。</strong> 同じ記事が、キャッシュヒットは時間帯に関係なくキャッシュミス時の約3%であり、プロンプトの接頭辞を安定させるほうがスケジューリングより効果が大きいと述べています（<a href="https://codersera.com/blog/deepseek-v4-price-change-august-2026/" target="_blank" rel="noopener noreferrer">Codersera</a>）。 これが正しければ、利用者は「まずキャッシュを効かせる」で満足し、時刻の最適化まで到達しません。 対策は、製品の入口をスケジューリングではなく<strong>精算ログ</strong>に置くことです。 「いま何にいくら払っているか」を時間帯とキャッシュヒット率に分解して見せ、そのうえで削減余地の大きい順に手段を提示します。 キャッシュのほうが効くなら、そう言う道具にします。</p><p>第二のリスクは、<strong>対象プロバイダが増えないこと</strong>です。 DeepSeek が単独で終われば市場は成立しません。 対策は、レート表を「時間帯課金の表」ではなく「バッチAPIを含む待てる仕事の投入先の表」として定義することです。 OpenAI と Anthropic のバッチAPIは約50%引きであり、これも「待てるなら安い」という同じ構造です。 時間帯課金が広がらなくても、バッチAPIの選択自動化として価値が残ります。</p><p>第三のリスクは、<strong>ピーク帯の定義が変わること</strong>です。 プロバイダは負荷に応じて時間帯を動かせます。 対策は、レート表を製品内にハードコードせず、更新可能なデータとして外部に置き、更新日を利用者に見せることです。</p><h3 id="2-shohizei-switch-のリスクと対策">2. <code>shohizei-switch</code> のリスクと対策</h3><p><strong>最大のリスクは、判断が多くの人にとって自明であることです。</strong> 3割特例は納税額を売上税額の3割に抑えます。 一方、簡易課税のみなし仕入率はサービス業で50%であり、この場合の納税額は売上税額の50%です。 つまりサービス業の個人事業主にとっては3割特例が明確に有利であり、比較するまでもありません。 判断が割れるのは卸売業（みなし仕入率90%）のように仕入率の高い業種に限られ、対象はさらに狭まります。 対策は、Day 1 で<strong>業種別に判断が割れる範囲を先に計算し、割れる業種の事業者数を確認する</strong>ことです。 割れる範囲が狭ければ、製品を試算ツールではなく「あなたは計算不要です」と言い切る診断へ組み替えます。</p><p>第二のリスクは、<strong>税理士法との距離</strong>です。 個別の税務相談は有償無償を問わず税理士の独占業務です。 対策は、出力を「入力値に基づく税額の試算」と「制度上の期限日」に限定し、選択の推奨を一切行わないことです。 会計ソフトのシミュレーション機能と同じ立ち位置に留めます。</p><p>第三のリスクは、<strong>法人の期限が緩いこと</strong>です。 法人には翌課税期間の確定申告期限までに届出できる特例があり、切迫感が個人より弱くなります。 対策は、訴求を個人事業主の12月31日に寄せ、法人向けは「期限は緩いが選択肢が2つしかない」という別の切り口で分けることです。</p><h3 id="3-pubcred-watch-のリスクと対策">3. <code>pubcred-watch</code> のリスクと対策</h3><p><strong>最大のリスクは、空白が既に埋まりつつあることです。</strong> 一括設定という最大の不便は <code>npm trust</code> で解消済みであり、残る空白は狭い。 対策は、検査対象を npm 単体ではなく<strong>複数レジストリを跨いだリリース経路</strong>に置くことです。 npm と PyPI の両方へ公開している組織にとって、仕様変更は別々にやって来ます。 横断の視点はレジストリ提供者側からは出てきません。</p><p>第二のリスクは、<strong>2027年1月という日付が動くこと</strong>です。 GitHub は "targeting" という語を使っており、確定ではありません。 対策は、製品の価値を特定の期限に紐付けず、「リリース経路の資格が今どうなっているか」の常時可視化として設計することです。</p><p>第三のリスクは、<strong>買い手が「壊れてから直す」を選ぶこと</strong>です。 リリースが1日遅れる程度の損害であれば、事前の支出は正当化されません。 対策は、Day 1 でこれを直接聞くことです。過去1年でリリースパイプラインが認証周りで壊れた経験の有無と、そのときの停止時間を確認し、経験者が多数を占めない場合は着手しません。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>token-clock</code> について、14日間の想定を置きます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) 自分の手元のバッチ処理で、時間帯を変えた実測とキャッシュ接頭辞を安定させた実測を別々に取り、どちらの削減幅が大きいかを数字で確定する。(b) LLM APIに月$300以上払っている開発者・チーム5〜10件に接触し、待てる仕事の割合と、投入時刻を今どう決めているかを聞く。(c) キャッシュ最適化のほうが常に大きい、または待てる仕事が全体の2割未満である場合は、製品をスケジューラではなく精算ログへ組み替える。</td></tr><tr><td class="tk">Day 3-4</td><td>レート表の定義</td><td>何をデータとして持つかを確定する。プロバイダ×モデル×時間帯の単価、バッチAPIの割引率と所要時間の上限、キャッシュヒット時の単価を、UTC基準の単一スキーマへ落とす。夏時間の影響を受けない形式であることを制約として固定する。</td></tr><tr><td class="tk">Day 5-7</td><td>精算ログの実装</td><td>中核から作る。実行済みのリクエストを時間帯・キャッシュ状態別に集計し、「別の時刻に投げていた場合の差額」を出す。反実仮想の計算方法（リトライとキャッシュヒット率の扱い）をここで明文化し、出力に前提を併記する。</td></tr><tr><td class="tk">Day 8-10</td><td>実行ゲートの実装</td><td>ジョブに締切と遅延許容を宣言させ、レート表と突き合わせて投入時刻を決める。即時実行・オフピーク待機・バッチAPI投入の3経路を選択肢として持ち、選んだ理由をログに残す。対象は DeepSeek と OpenAI バッチAPIの2経路に限定する。</td></tr><tr><td class="tk">Day 11-12</td><td>自分の処理での検証</td><td>自分が運用しているバッチ処理へ適用し、7日間走らせる。実際の請求額と精算ログの予測額を突き合わせ、誤差を記録する。誤差が説明できない水準なら、対象を単一モデル・キャッシュ無効の構成へ狭める。</td></tr><tr><td class="tk">Day 13-14</td><td>公開と検証</td><td>無償のCLIとして公開し、Day 1-2 で接触した相手へ試用を依頼する。成功指標はインストール数ではなく、<strong>「精算ログを見てジョブの投入時刻を実際に変更した人の割合」</strong>に置く。変更が起きないなら、削減額を見せても行動は変わらないということであり、有償化へ進まない。</td></tr></tbody></table></div><p>課金設計は、精算ログの単発出力を無償、複数プロバイダのレート表の継続更新と実行ゲートを月額とする二層構成を想定します。 無償側で配るのは1回分の計算であり、有償側で売るのは<strong>価格改定に追随し続けること</strong>です。 1回の計算はいずれ誰でも作れますが、改定のたびに表を直し続ける手間は、払っている側にしか価値が分かりません。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>token-clock</code></strong>（総合18点、Tier 2）を最有力候補として選定しました。価格が時刻の関数になったのに、ゲートウェイもSDKもレート表に時間軸を持っていません。空白は現に存在し、日本の開発者は業務時間の3分の2がピーク帯に当たるという地理的な不利をそのまま需要にできます。Tier 1 に届かなかった理由は二点です。第一に、時間帯課金の導入が現時点で1社にとどまり、市場の広がりが仮説であること。第二に、レート表に時間帯の列を足すのはOSSゲートウェイなら数週間の作業であり、<strong>空白が浅い</strong>ことです。着手の条件は Day 1-2 の実測であり、キャッシュ最適化のほうが常に効くと確定した場合は、製品を精算ログへ組み替えます。</li></ul><ul><li><strong><code>shohizei-switch</code></strong>（総合17点、Tier 2）は、買い手の支払い習慣が最も確かな案です。すでに消費税を納めており、金額が変わることも期限も確定しています。しかし需要が単発かつ季節的であり、さらに<strong>判断がサービス業では自明である</strong>という反証を抱えています。着手するなら、業種別に判断が割れる範囲を先に計算し、対象が十分に残るかを確認してからです。</li></ul><ul><li><strong><code>pubcred-watch</code></strong>（総合16点、Tier 2）は、期限の確度が最も高い一方、参入余地が最も薄い案です。一括設定という最大の不便は <code>npm trust</code> で既に解消されており、残る空白は「設定とワークフローの不一致」と「移行先が存在しない構成」に限られます。複数レジストリを跨ぐ視点に賭けるなら成立しますが、npm 単体では推奨しません。</li></ul><ul><li><strong>今回の探索で候補から落とした案が3件あります。</strong><ul><li><strong>OpenAI の Prompt Objects 移行支援</strong>: 2026年8月26日に Assistants API がハードシャットダウンし、移行先である Prompt Objects 自体も2026年11月30日に停止します。公式の移行ガイドは "prompts, can only be created in the dashboard" と書き、Threads から Conversations への自動移行ツールは提供されないと明記しています（<a href="https://developers.openai.com/api/docs/assistants/migration" target="_blank" rel="noopener noreferrer">OpenAI Migration Guide</a>）。フォーラムには "It is NOT at feature parity, because you can only use the platform UI to build such a prompt." という当事者の指摘も残っています（<a href="https://community.openai.com/t/assistants-api-beta-deprecation-august-26-2026-sunset/1354666" target="_blank" rel="noopener noreferrer">OpenAI Developer Community</a>）。痛みは濃いものの、エクスポートAPIが存在しないため取得経路がブラウザ操作の自動化に依存し、しかも移行先を訴求する製品（Promptary、Langfuse、PromptLayer）が既に複数あります。総合13点で却下しました。</li><li><strong>ベンダー保持状態のエスクロー</strong>: Assistants の停止で「保存していたIDの分しか取り出せない」ことが実証されました。しかし「自分のDBに保存すればいい」で終わる話であり、差別化が立ちません。加えて保険型の製品は平時に売れません。総合14点で却下しました。</li><li><strong>YouTube Shorts の収益下限監視</strong>: 2027年2月1日から、直近90日で1,000万の有効視聴を割ったチャンネルは Shorts の収益分配を受け取れなくなります（<a href="https://ppc.land/youtube-cuts-shorts-pay-for-channels-under-10m-views-from-february-2027/" target="_blank" rel="noopener noreferrer">PPC Land</a>）。"This is blatantly stealing money from creators!" という反発も出ています（<a href="https://kotaku.com/youtube-partner-program-monetization-change-youtube-shorts-ad-revenue-2000723397" target="_blank" rel="noopener noreferrer">Kotaku</a>）。しかし当該指標は YouTube Studio の Engaged Views として既に閲覧でき、進捗表示が追加された日に価値が消えます。総合14点で却下しました。</li></ul></li></ul><ul><li><strong>4回連続で Tier 1 に到達していません。</strong> ただし今回、収益性の軸は3案とも3点で揃い、前回まで2点が混ざっていた状態からは改善しました。「買い手が既に金を払っている領域」という探索軸は、収益性の底上げには効いたということです。代わりに、今回は<strong>競合優位性が全案で3点以下</strong>に落ちました。支払い習慣のある領域はすでに誰かが商売をしている領域でもあり、空白が浅くなるという交換が起きています。次回は探索軸に「買い手に支払い習慣がある」を残したうえで、<strong>空白の深さを、機能の有無ではなく構造で説明できるか</strong>を条件に加えます。具体的には、大手が真似できない理由が「まだ手を付けていない」ではなく「立場上できない」と書ける案を優先します。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-28)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.infoworld.com/article/4209439/deepseek-raises-some-v4-prices-by-more-than-10x-as-ai-demand-strains-capacity.html" target="_blank" rel="noopener noreferrer">DeepSeek raises some V4 prices by more than 10x as AI demand strains capacity（InfoWorld）</a><span class="u">https://www.infoworld.com/article/4209439/deepseek-raises-some-v4-prices-by-more-than-10x-as-ai-demand-strains-capacity.html</span></li><li><a href="https://codersera.com/blog/deepseek-v4-price-change-august-2026/" target="_blank" rel="noopener noreferrer">DeepSeek&#x27;s New Peak/Off-Peak API Pricing: The Exact Numbers（Codersera）</a><span class="u">https://codersera.com/blog/deepseek-v4-price-change-august-2026/</span></li><li><a href="https://dev.to/jamilxt/deepseek-now-prices-tokens-like-electricity-50-off-peak-discount-and-a-spring-boot-pattern-to-1j7g" target="_blank" rel="noopener noreferrer">DeepSeek Now Prices Tokens Like Electricity: 50% Off-Peak Discount（DEV Community）</a><span class="u">https://dev.to/jamilxt/deepseek-now-prices-tokens-like-electricity-50-off-peak-discount-and-a-spring-boot-pattern-to-1j7g</span></li><li><a href="https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/" target="_blank" rel="noopener noreferrer">GitHub Copilot is moving to usage-based billing（The GitHub Blog）</a><span class="u">https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/</span></li><li><a href="https://www.tc-nb.co.jp/2155/" target="_blank" rel="noopener noreferrer">インボイス経過措置の見直しを解説！2割特例は3割へ、8割控除は7・5・3割控除へ【2026年改正】（株式会社TCNB）</a><span class="u">https://www.tc-nb.co.jp/2155/</span></li><li><a href="https://www.all-senmonka.jp/moneyizm/management/314425/" target="_blank" rel="noopener noreferrer">インボイス制度の2割特例は2026年9月終了｜3割特例との違いと消費税計算・準備ポイントを解説（MONEYIZM）</a><span class="u">https://www.all-senmonka.jp/moneyizm/management/314425/</span></li><li><a href="https://macpa.jp/blog/invoice-20-percent-rule-deadline/" target="_blank" rel="noopener noreferrer">2割特例はいつまで使える？法人は決算月で終了時期が変わります（木下公認会計士税理士事務所）</a><span class="u">https://macpa.jp/blog/invoice-20-percent-rule-deadline/</span></li><li><a href="https://github.blog/changelog/2026-07-31-restricting-npm-bypass-2fa-granular-access-tokens/" target="_blank" rel="noopener noreferrer">Restricting npm bypass-2FA granular access tokens（GitHub Changelog, 2026-07-31）</a><span class="u">https://github.blog/changelog/2026-07-31-restricting-npm-bypass-2fa-granular-access-tokens/</span></li><li><a href="https://docs.npmjs.com/trusted-publishers/" target="_blank" rel="noopener noreferrer">Trusted publishing for npm packages（npm Docs）</a><span class="u">https://docs.npmjs.com/trusted-publishers/</span></li><li><a href="https://socket.dev/blog/npm-trusted-publishing" target="_blank" rel="noopener noreferrer">npm Adopts OIDC for Trusted Publishing in CI/CD Workflows（Socket）</a><span class="u">https://socket.dev/blog/npm-trusted-publishing</span></li><li><a href="https://developers.openai.com/api/docs/assistants/migration" target="_blank" rel="noopener noreferrer">Assistants migration guide（OpenAI API Docs）</a><span class="u">https://developers.openai.com/api/docs/assistants/migration</span></li><li><a href="https://community.openai.com/t/assistants-api-beta-deprecation-august-26-2026-sunset/1354666" target="_blank" rel="noopener noreferrer">Assistants API beta deprecation — August 26, 2026 sunset（OpenAI Developer Community）</a><span class="u">https://community.openai.com/t/assistants-api-beta-deprecation-august-26-2026-sunset/1354666</span></li><li><a href="https://ppc.land/youtube-cuts-shorts-pay-for-channels-under-10m-views-from-february-2027/" target="_blank" rel="noopener noreferrer">YouTube cuts Shorts pay for channels under 10M views from February 2027（PPC Land）</a><span class="u">https://ppc.land/youtube-cuts-shorts-pay-for-channels-under-10m-views-from-february-2027/</span></li><li><a href="https://kotaku.com/youtube-partner-program-monetization-change-youtube-shorts-ad-revenue-2000723397" target="_blank" rel="noopener noreferrer">Small Creators Are Feeling The Crunch Under YouTube&#x27;s New Monetization Rules（Kotaku）</a><span class="u">https://kotaku.com/youtube-partner-program-monetization-change-youtube-shorts-ad-revenue-2000723397</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-29_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
