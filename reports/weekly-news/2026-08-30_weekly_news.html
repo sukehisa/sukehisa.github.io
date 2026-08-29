@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="対象期間: 2026-08-23（日）〜 2026-08-29（土） ／ 収録 9 本">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今週読んだもの">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<title>Weekly Promo Dispatch Vol.2 — 2026年8月30日号</title>
+<style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
+:root {
+  color-scheme: light;
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
+  --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+           Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.85;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
+}
+a { color: inherit; text-decoration: none; }
+
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
+/* --- マストヘッド --- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
+  text-align: center;
+}
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.masthead .tagline {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.issue-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-3);
+}
+.issue-bar .vol { color: var(--accent); }
+
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
+/* --- リード（今週の総括） --- */
+.lede {
+  margin: 38px auto 0;
+  max-width: 60ch;
+}
+.lede p {
+  margin: 0 0 14px;
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+.lede p:first-child::first-letter {
+  float: left;
+  font-size: 2.8em;
+  line-height: 0.9;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- リード記事 --- */
+.lead-story {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
+.lead-story h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
+}
+.lead-story .dek {
+  margin: 20px 0 0;
+  max-width: 48ch;
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
+}
+
+/* --- 編集後記 --- */
+.note {
+  margin: 20px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+.note .byline { display: block; color: var(--accent); margin-bottom: 4px; }
+.note p { margin: 0; }
+.lead-story .note { max-width: 52ch; font-size: 1.02rem; }
+
+/* --- 記事メタ --- */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.meta .dot { color: var(--hairline); }
+.tag {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 1px 7px;
+}
+
+/* --- セクション --- */
+.section { margin-top: 56px; scroll-margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--accent);
+  padding-top: 10px;
+  margin-bottom: 26px;
+}
+.section-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.section-head .count {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.section-intro {
+  margin: -8px 0 26px;
+  max-width: 60ch;
+  color: var(--ink-2);
+  font-size: 0.97rem;
+}
+.stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
+}
+.story { padding-bottom: 4px; }
+.story h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
+
+/* --- 編集メモ --- */
+.colophon {
+  margin-top: 62px;
+  padding: 28px 30px;
+  background: var(--band);
+  border-top: 2px solid var(--accent);
+}
+.colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
+.colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
+.colophon p:last-child { margin-bottom: 0; }
+
+/* --- 索引 --- */
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.index ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 44px; }
+.index li { margin-bottom: 8px; break-inside: avoid; font-size: 0.92rem; color: var(--ink-2); }
+.index li a:hover { color: var(--accent); }
+@media (max-width: 719px) { .index ol { columns: 1; } }
+
+/* --- フッタ --- */
+.foot {
+  margin-top: 54px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.foot code { font-size: 0.9em; }
+
+@media print {
+  body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
+  .stories { grid-template-columns: 1fr 1fr; }
+  .story { break-inside: avoid; }
+  .sectionnav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">Weekly Dispatch from a Personal Knowledge Base</span>
+  <h1 class="wordmark">今週読んだもの</h1>
+  <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
+  <div class="issue-bar"><span class="vol">Vol. 2</span><span>2026年8月30日（日） 発行</span><span>収録期間 2026年8月23日（日） 〜 2026年8月29日（土）</span><span>9 本</span></div>
+</header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">分散データベースの内側を覗く</a><a class="navlink" href="#sec1">速さは設計で決まる</a><a class="navlink" href="#sec2">進め方そのものを決める</a><a class="navlink" href="#sec3">習慣が技能をつくる</a></nav>
+<section class="lede has-drop"><p>今週 promo に上げた 9 本のうち 5 本が Cloud Spanner だった。分散データベースの内部構造と、その上でクエリを速く保つための手当てを、まとめて押さえ直した週である。残る 4 本は 2018 年から 2025 年まで年代がばらけていて、例外機構の設計思想、ブランチの切り方、仕様からコードを生成する進め方、絵の練習法と、話題も揃っていない。それでも並べてみると共通点は一つに絞れる。道具の使い方ではなく、その道具がなぜそう設計されたかを拾いにいっている。</p></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://qiita.com//Maki-Daisuke/items/80cbc26ca43cca3de4e4" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fqiita-user-contents.imgix.net%2Fhttps%253A%252F%252Fcdn.qiita.com%252Fassets%252Fpublic%252Fadvent-calendar-ogp-background-7940cd1c8db80a7ec40711d90f43539e.jpg%3Fixlib%3Drb-4.1.1%26w%3D1200%26blend64%3DaHR0cHM6Ly9xaWl0YS11c2VyLXByb2ZpbGUtaW1hZ2VzLmltZ2l4Lm5ldC9odHRwcyUzQSUyRiUyRnFpaXRhLWltYWdlLXN0b3JlLnMzLmFtYXpvbmF3cy5jb20lMkYwJTJGMTAwNTc3JTJGcHJvZmlsZS1pbWFnZXMlMkYxNDczNzA4MTM5P2l4bGliPXJiLTQuMS4xJmFyPTElM0ExJmZpdD1jcm9wJm1hc2s9ZWxsaXBzZSZiZz1GRkZGRkYmZm09cG5nMzImcz1kMTkxODMxNjQxMjA1ZjQ0ODVjMzg4YjJlNThlNDNjZA%26blend-x%3D120%26blend-y%3D467%26blend-w%3D82%26blend-h%3D82%26blend-mode%3Dnormal%26s%3Dcefc03b41d6a17e071ce637760689f6c?ixlib=rb-4.1.1&amp;w=1200&amp;fm=jpg&amp;mark64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTk2MCZoPTMyNCZ0eHQ9JUUzJTgwJThDJUU0JUJFJThCJUU1JUE0JTk2JUUzJTgwJThEJUUzJTgxJThDJUUzJTgxJUFBJUUzJTgxJTg0JUUzJTgxJThCJUUzJTgyJTg5R28lRTglQTglODAlRTglQUElOUUlRTMlODElQUYlRTMlODIlQTQlRTMlODIlQjElRTMlODElQTYlRTMlODElQUElRTMlODElODQlRTMlODElQTglRTMlODElOEIlRTMlODElQTMlRTMlODElQTYlRTglQTglODAlRTMlODElQTMlRTMlODElQTYlRTMlODIlOEIlRTMlODMlQTQlRTMlODMlODQlRTMlODElOEMlRTYlOUMlQUMlRTUlQkQlOTMlRTMlODElQUIlRTMlODIlQTQlRTMlODIlQjElRTMlODElQTYlRTMlODElQUElRTMlODElODQlRTQlQkIlQjYmdHh0LWFsaWduPWxlZnQlMkN0b3AmdHh0LWNvbG9yPSUyMzNBM0MzQyZ0eHQtZm9udD1IaXJhZ2lubyUyMFNhbnMlMjBXNiZ0eHQtc2l6ZT01NiZ0eHQtcGFkPTAmcz04MjYyZDM5MzE2ZTdkNmNjYmNlN2E1ZDIxOTU2YWY3Mg&amp;mark-x=120&amp;mark-y=112&amp;blend64=aHR0cHM6Ly9xaWl0YS11c2VyLWNvbnRlbnRzLmltZ2l4Lm5ldC9-dGV4dD9peGxpYj1yYi00LjEuMSZ3PTgzOCZoPTU4JnR4dD0lNDBNYWtpLURhaXN1a2UmdHh0LWNvbG9yPSUyMzNBM0MzQyZ0eHQtZm9udD1IaXJhZ2lubyUyMFNhbnMlMjBXNiZ0eHQtc2l6ZT0zNiZ0eHQtcGFkPTAmcz1mYTgyYmI1ZTk2NTc2MzAzMmEyYTQ4YjU1MDUyZGNjNA&amp;blend-x=242&amp;blend-y=480&amp;blend-w=838&amp;blend-h=46&amp;blend-fit=crop&amp;blend-crop=left%2Cbottom&amp;blend-mode=normal&amp;s=b192f63d750b90733b42754fc3e4d542" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://qiita.com//Maki-Daisuke/items/80cbc26ca43cca3de4e4" rel="noopener"><span class="grow-underline">「例外」がないからGo言語はイケてないとかって言ってるヤツが本当にイケてない件 - Qiita</span></a></h2><div class="lead-body"><div><p class="dek">Go が例外機構を持たず <code>error</code> 型の戻り値でエラーを扱う設計思想を、他言語の try-catch と対比して解説する。例外は「どこで何が捕捉されるか」が不透明になり例外安全性の担保が難しいと指摘し、エラーを値として明示的に扱わせる Go の判断を論じている。</p><p class="meta"><span>qiita.com</span><span class="dot">/</span><span>PROMO 8.27</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>言語の機能は好き嫌いで選ばれているのではなく、制御フローの見通しをどこまで手放すかという交換で決まっている。例外の有無をイケている/イケていないの軸で語ると、その交換条件のほうが見えなくなる。8 年前の記事だが、言語設計の論点としては古びていない。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>分散データベースの内側を覗く</h2><span class="count">2 本</span></div><p class="section-intro">Spanner は構造を知らないまま使うと、なぜ遅いのかを説明できない。</p><div class="stories"><article class="story no-image"><h3><a href="https://medium.com/google-cloud-jp/cloud-spanner-%E3%81%AE%E3%83%8F%E3%82%A4%E3%83%AC%E3%83%99%E3%83%AB%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A7%A3%E8%AA%AC-fee62c17f7ed" rel="noopener"><span class="grow-underline">Cloud Spanner のハイレベルアーキテクチャ解説</span></a></h3><p class="dek">Google Cloud Japan のエンジニアによる Spanner のアーキテクチャ解説。コンピュート（Spanner ノード）とストレージ（Colossus）が分離された構造、スプリットのリシャーディングによるダウンタイムなしの水平スケーリング、TrueTime による強整合性の維持を整理している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>Spanner の性能特性は、この分離構造とスプリットの動き方からおおむね導ける。設計を考えるときの土台として、最初に置いておく 1 本にあたる。</p></div><p class="meta"><span>medium.com</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">Architecture</span><span class="tag">Spanner</span></p></article><article class="story no-image"><h3><a href="https://spanner-hacks.apstn.dev/" rel="noopener"><span class="grow-underline">Cloud Spanner Unofficial Hacks</span></a></h3><p class="dek">元メルペイの Spanner スペシャリストによる、公式ドキュメントには書かれていない実行計画の内部構造とクエリチューニングの知見集。Seek Condition と Residual Condition の見分け方、分散オペレータのコスト特性を扱う。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実行計画をどう読むかが分かって初めて、チューニングは当て推量から抜け出す。低レベルの分散構造と SQL の書き方が地続きであることを示す資料として、手元に置いておきたい。</p></div><p class="meta"><span>spanner-hacks.apstn.dev</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article></div></section>
+<section class="section" id="sec1"><div class="section-head"><h2>速さは設計で決まる</h2><span class="count">3 本</span></div><p class="section-intro">Spanner では、書いたクエリより先に、スキーマとインデックスの側で速度が決まっている。</p><div class="stories"><article class="story"><a class="thumb" href="https://engineering.dena.com/blog/2020/07/spanner-secondary-index/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://engineering.dena.com/blog/2020/07/spanner-secondary-index/cover.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://engineering.dena.com/blog/2020/07/spanner-secondary-index/" rel="noopener"><span class="grow-underline">GCPUGまとめ「Cloud Spannerでセカンダリインデックスを使うときの勘所」 | BLOG - DeNA Engineering</span></a></h3><p class="dek">GCPUG Tokyo での登壇まとめ。Spanner のセカンダリインデックスが内部的に独立したテーブルとして格納される特性を起点に、書き込み負荷とホットスポットのリスク、インデックス作成のタイミング、STORING 句の併用による読み取り最適化を具体例で整理している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>インデックスが別テーブルとして存在するなら、その追加は読み取りの最適化であると同時に書き込み側の負債でもある。この一点を先に押さえておくかどうかで、スキーマ設計の判断が変わってくる。</p></div><p class="meta"><span>engineering.dena.com</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">Spanner</span><span class="tag">index</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/facengineer/articles/cc0cab5c7e9a1c" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--H7MEvqeB--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:Cloud%2520Spanner%25E3%2581%25AE%25E3%2583%2591%25E3%2583%2595%25E3%2582%25A9%25E3%2583%25BC%25E3%2583%259E%25E3%2583%25B3%25E3%2582%25B9%25E3%2583%2581%25E3%2583%25A5%25E3%2583%25BC%25E3%2583%258B%25E3%2583%25B3%25E3%2582%25B0%25E3%2581%25AE%25E5%258B%2598%25E6%2589%2580%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:kngnr%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzc3YmY1NTZjODYuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/facengineer/articles/cc0cab5c7e9a1c" rel="noopener"><span class="grow-underline">Cloud Spannerのパフォーマンスチューニングの勘所</span></a></h3><p class="dek">Spanner を実務で 1 年半運用したエンジニアによる実践記。通常の RDBMS とのインデックスの違い、STORING 句の活用による不要なベーステーブル参照の回避、実行計画の確認手順を初学者向けにまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>前掲の登壇まとめと論点が重なり、STORING 句と実行計画の確認が両方から出てくる。立場の違う実務者が同じ場所を指しているなら、そこが最初に覚えるべき勘所だと考えてよい。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article><article class="story"><a class="thumb" href="https://github.com/GoogleCloudPlatform/community/blob/master/archived/jmeter-spanner-performance-test/index.md" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://opengraph.githubassets.com/75dca18be13ec524f5f23074f89266e79b4ecb42fbb4dbaef096aeb59a676a80/GoogleCloudPlatform/community" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/GoogleCloudPlatform/community/blob/master/archived/jmeter-spanner-performance-test/index.md" rel="noopener"><span class="grow-underline">Cloud Spanner performance testing with Apache JMeter (GCP Community)</span></a></h3><p class="dek">Apache JMeter の JDBC Sampler を使い、アプリケーションコードを変更せずに Spanner のレイテンシとスループットを移行前に検証する手順。目標ワークロードに対する必要ノード数の見積もりと、参照・更新トランザクションの応答時間の計測を扱う。</p><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">Cloud Spanner</span><span class="tag">Database</span><span class="tag">Google Cloud</span><span class="tag">JMeter</span><span class="tag">パフォーマンステスト</span></p></article></div></section>
+<section class="section" id="sec2"><div class="section-head"><h2>進め方そのものを決める</h2><span class="count">2 本</span></div><p class="section-intro">コードを書く前に、どう進めるかを決める話が 2 本あった。</p><div class="stories"><article class="story"><a class="thumb" href="https://posfie.com/@ono_matope/p/uBN74mK" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://s.tgstc.com/ogp3/26ced0ee719495de5bee91ffac59be4e-1200x630.jpeg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://posfie.com/@ono_matope/p/uBN74mK" rel="noopener"><span class="grow-underline">git の develop ブランチは必要なのか、またはリリースtagについて</span></a></h3><p class="dek">git-flow、GitHub Flow、Trunk-Based Development を並べ、develop ブランチの要否とリリースタグの運用を議論したまとめ。develop と main の乖離がコンフリクトとリリースの複雑さを生むと指摘し、feature ブランチを短命に保つ運用、セマンティックバージョニング、フィーチャーフラグの併用を挙げている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>ブランチ戦略の議論は流派の名前で語られがちだが、争点は「分岐をどれだけ長く放置するか」の一点に収束していく。個別のフローを覚えるより、この論点だけを抜き出して持っておくほうが使える。</p></div><p class="meta"><span>posfie.com</span><span class="dot">/</span><span>PROMO 8.27</span></p></article><article class="story"><a class="thumb" href="https://tech.algomatic.jp/entry/2025/09/22/143931" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://cdn.image.st-hatena.com/image/scale/5211188586c9e209709a5adf35687014545107b9/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fo%2Footsuka_techs%2F20250922%2F20250922144819.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://tech.algomatic.jp/entry/2025/09/22/143931" rel="noopener"><span class="grow-underline">仕様書がコードを生む時代：話題のSDDを試してみた - Algomatic Tech Blog</span></a></h3><p class="dek">仕様駆動開発（Spec-Driven Development）の概要と、Kiro、Spec Kit、spec-workflow-mcp、cc-sdd の 4 ツールの比較検証。日本語対応、承認フロー、プロジェクトガバナンス、IDE 統合、カスタマイズ性の各軸で評価し、選定基準を提示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>自然言語の仕様を入力にコードを書かせる領域は、ツールの入れ替わりが速い。個々の製品の比較は早晩古びるが、どの軸で選ぶかという枠組みのほうは残る。</p></div><p class="meta"><span>tech.algomatic.jp</span><span class="dot">/</span><span>PROMO 8.27</span><span class="tag">AI</span><span class="tag">sdd</span></p></article></div></section>
+<section class="section" id="sec3"><div class="section-head"><h2>習慣が技能をつくる</h2><span class="count">1 本</span></div><div class="stories"><article class="story"><a class="thumb" href="https://www.buzzfeed.com/jp/hikaruyoza/irasuto-syoshinsya-rensyu" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://img.buzzfeed.com/buzzfeed-static/static/2018-01/31/21/enhanced/buzzfeed-prod-fastlane-01/original-28721-1517452283-2.jpg?crop=800:419;0,19%26downsize=1250:*" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.buzzfeed.com/jp/hikaruyoza/irasuto-syoshinsya-rensyu" rel="noopener"><span class="grow-underline">イラスト初心者だけど、3ヶ月でかなり画力上がったのでやり方かいてく</span></a></h3><p class="dek">イラスト初学者が 3 ヶ月で画力を上げた実践記。デッサンや人体構造の基礎を学べるオンライン教材の活用、模写と添削による反復練習、毎日描く習慣という学習プロセスを紹介している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>技術記事のなかで 1 本だけ毛色が違うが、やっていることは同じで、目的を決めたインプットと反復の設計である。いつか手をつける趣味として残しておく。</p></div><p class="meta"><span>buzzfeed.com</span><span class="dot">/</span><span>PROMO 8.27</span></p></article></div></section>
+<section class="colophon"><span class="section-label">編集メモ</span><p>Spanner の 5 本は、どれも「設計の時点で性能が決まる」という同じ結論に向かっている。ただ、読んで分かった気になった状態と、実際にスキーマを引ける状態のあいだにはまだ距離がある。次は手を動かして測るところまで持っていきたい。</p></section>
+<nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://qiita.com//Maki-Daisuke/items/80cbc26ca43cca3de4e4" rel="noopener">「例外」がないからGo言語はイケてないとかって言ってるヤツが本当にイケてない件 - Qiita</a> <span class="meta" style="display:inline">qiita.com</span></li><li><a href="https://medium.com/google-cloud-jp/cloud-spanner-%E3%81%AE%E3%83%8F%E3%82%A4%E3%83%AC%E3%83%99%E3%83%AB%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A7%A3%E8%AA%AC-fee62c17f7ed" rel="noopener">Cloud Spanner のハイレベルアーキテクチャ解説</a> <span class="meta" style="display:inline">medium.com</span></li><li><a href="https://spanner-hacks.apstn.dev/" rel="noopener">Cloud Spanner Unofficial Hacks</a> <span class="meta" style="display:inline">spanner-hacks.apstn.dev</span></li><li><a href="https://engineering.dena.com/blog/2020/07/spanner-secondary-index/" rel="noopener">GCPUGまとめ「Cloud Spannerでセカンダリインデックスを使うときの勘所」 | BLOG - DeNA Engineering</a> <span class="meta" style="display:inline">engineering.dena.com</span></li><li><a href="https://zenn.dev/facengineer/articles/cc0cab5c7e9a1c" rel="noopener">Cloud Spannerのパフォーマンスチューニングの勘所</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://github.com/GoogleCloudPlatform/community/blob/master/archived/jmeter-spanner-performance-test/index.md" rel="noopener">Cloud Spanner performance testing with Apache JMeter (GCP Community)</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://posfie.com/@ono_matope/p/uBN74mK" rel="noopener">git の develop ブランチは必要なのか、またはリリースtagについて</a> <span class="meta" style="display:inline">posfie.com</span></li><li><a href="https://tech.algomatic.jp/entry/2025/09/22/143931" rel="noopener">仕様書がコードを生む時代：話題のSDDを試してみた - Algomatic Tech Blog</a> <span class="meta" style="display:inline">tech.algomatic.jp</span></li><li><a href="https://www.buzzfeed.com/jp/hikaruyoza/irasuto-syoshinsya-rensyu" rel="noopener">イラスト初心者だけど、3ヶ月でかなり画力上がったのでやり方かいてく</a> <span class="meta" style="display:inline">buzzfeed.com</span></li></ol></nav>
+<footer class="foot"><p>生成: 2026-08-30 04:11 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+</div>
+</body>
+</html>
