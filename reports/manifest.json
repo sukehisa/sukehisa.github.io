@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29T06:20:12+09:00",
+  "generated_at": "2026-08-30T03:19:56+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -63,6 +63,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-08-30_market_research_report.html",
+          "title": "2026-08-30: Android開発者確認・MCP廃止時計・X収益プログラム再申請における穴場市場の特定",
+          "date": "2026-08-30",
+          "bytes": 88563
+        },
         {
           "file": "2026-08-29_market_research_report.html",
           "title": "2026-08-29: トークンの時間帯課金・2割特例の終了・公開資格の静かな失効における穴場市場の特定",

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="締切を課した側が『間に合うかどうか』を事前に教える立場にない、という共通構造を持つ3つの変化から、第三者しか作れない事前判定の余地を抽出し5軸評価した結果">
+<title>2026-08-30: Android開発者確認・MCP廃止時計・X収益プログラム再申請における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-08-30</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / android / developer-verification / mcp</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-08-30">市場リサーチ &amp; 5軸評価レポート (2026-08-30)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">signkey-gate</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 12 件（うち一次ソース 15 件）</div></div><div class="fig">18<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">signkey-gate</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">mcp-sunset</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">origin-audit</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（08-29）の総括で、次回の探索軸に条件をひとつ足すと書きました。 「大手が真似できない理由を、まだ手を付けていないからではなく、立場上できないからだと書けるか」という条件です。 支払い習慣のある領域を狙った結果、収益性は上がったものの競合優位性が全案で3点以下に落ちた、という反省からの調整でした。</p><p>そこで今回は、<strong>締切を課した側が、締切に間に合うかどうかを事前に教える立場にない領域</strong>を探索対象にしました。 期限を宣言する主体と、期限に間に合うかを判定する主体が同一なら、事前判定はその主体が提供します。 両者が同一でありながら提供されないとき、そこには技術的な未着手ではなく、立場の制約があります。</p><p>この観点で、性質の異なる3つの変化を調べました。</p><p>第一に、Android のアプリ配布に<strong>本人確認と成果物の登録</strong>が入ります。 Google はブラジル・インドネシア・シンガポール・タイの4か国で2026年9月30日から開発者確認を強制し、2027年に全世界へ拡大すると告知しています。 検証の単位はアプリではなくパッケージ名と署名鍵の組であり、この組が登録されていない成果物は認定端末への通常インストールが止まります。</p><p>第二に、MCP が仕様のライフサイクルを<strong>日付付きで宣言しました</strong>。 2026-07-28 版は <code>initialize</code> ハンドシェイクとセッションを削除する破壊的変更を含み、同時に Active / Deprecated / Removed の3状態と最低12か月の廃止猶予を持つ制度を導入しました。 猶予期間は決まりましたが、猶予の消化状況を利用者側へ機械可読な形で伝える仕組みは仕様に含まれていません。</p><p>第三に、X のクリエイター収益プログラムが<strong>審査制へ切り替わります</strong>。 Revenue Sharing は2026年9月7日で終了し、9月8日から Original Content Rewards の申請受付が始まります。 既存の参加者は自動移行されず、新しい要件を満たしたうえで申請し直す必要があります。</p><p>三者に共通するのは、<strong>判定する側が判定基準を事前には渡さない</strong>という点です。 Google は Play 外の配布経路を横断して整合を確認する動機を持たず、MCP は特定サーバーの期限超過を名指ししません。 X に至っては、オリジナリティの判定基準を事前に開示すればその瞬間に回避されるため、開示できないという構造を抱えています。 どれも第三者の位置からしか埋められない空白です。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-08-30)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-08-30)"><title>アイデア候補のポジショニングマップ (2026-08-30)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="413.4" cy="126.6" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="425.4" y="130.6" text-anchor="start" class="qpt-label">1</text><circle cx="413.4" cy="126.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Signkey Gate 総合 18 / 25（Tier 2）" data-tv="Idea 1: Signkey Gate" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="367.9" cy="186.2" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="379.9" y="190.2" text-anchor="start" class="qpt-label">2</text><circle cx="367.9" cy="186.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: MCP Sunset 総合 17 / 25（Tier 2）" data-tv="Idea 2: MCP Sunset" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="458.8" cy="228.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="470.8" y="232.8" text-anchor="start" class="qpt-label">3</text><circle cx="458.8" cy="228.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Origin Audit 総合 16 / 25（Tier 2）" data-tv="Idea 3: Origin Audit" data-td="総合 16 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Signkey Gate</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: MCP Sunset</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Origin Audit</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-signkey-gate-play外配布アプリの-インストール可否-をリリース前に確定させるciゲート">アイデア 1: <code>signkey-gate</code> (Play外配布アプリの「インストール可否」をリリース前に確定させるCIゲート)</h3><ul><li><strong>ターゲット</strong>: Google Play 以外の経路で Android アプリを配布している事業者。社内業務アプリ、キオスク端末・POS・車載などの専用端末、地域OEMストア（Galaxy Store、GetApps、OPPO App Market 等）へ出している中小アプリ会社、およびそれらのビルドを預かる受託開発会社。</li><li><strong>解決する課題</strong>: 開発者確認は「開発者」ではなく「パッケージ名と署名鍵の組」に対して行われる。したがって、確認済みの開発者が作ったアプリであっても、登録していない鍵で署名した成果物は通常インストールが止まる。ところが CI が出力する APK / AAB の署名証明書と、コンソール側に登録済みの鍵の一覧を突き合わせる工程は、リリースパイプラインのどこにも存在しない。鍵のローテーション、リリース用とデバッグ用の取り違え、Play App Signing とローカル署名の併用、フレーバーごとに異なる applicationId といった日常的な構成が、そのまま静かな失格の原因になる。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>Google 自身が、未登録のまま期限を迎えた場合の結果を明示している。原文は "If you do not verify your identity and register your apps by the September deadline, your apps will be blocked from being installed by users on certified Android devices in applicable regions." である（<a href="https://developer.android.com/developer-verification/guides/faq" target="_blank" rel="noopener noreferrer">Android Developers FAQ</a>）。ブロックの単位が「アプリ」であることが、開発者アカウント単位の確認だけでは足りないことを示している。</li><li>登録が鍵の所有証明を伴うことも書かれている。FAQ は "The Android Developer Console lets you add and verify multiple signing keys for a single package." とし、既存パッケージ名の登録には既知の秘密署名鍵による所有証明が必要だと説明している（<a href="https://support.google.com/android-developer-console/answer/16640821" target="_blank" rel="noopener noreferrer">Registering Android package names</a>）。鍵が増えるほど、登録済み集合と実際の成果物の乖離が起きやすくなる。</li><li>パッケージ名を取れない場合があることも明記されている。ヘルプは、パッケージ名が既に使われている場合には鍵が請求資格を持たないと通知されることがあり、その場合は別のパッケージ名の使用を検討すべきだとしている（<a href="https://support.google.com/android-developer-console/answer/16640821" target="_blank" rel="noopener noreferrer">同上</a>）。<strong>リリース直前に判明すると、パッケージ名の変更は既存ユーザーの更新経路を壊すため、事実上のやり直しになる。</strong></li><li>配布側は、この仕組みが自分たちの運用と噛み合わないと明言している。F-Droid は "The F-Droid project cannot require that developers register their apps through Google, but at the same time, we cannot 'take over' the application identifiers for the open-source apps we distribute." と書いた（<a href="https://f-droid.org/en/2025/09/29/google-developer-registration-decree.html" target="_blank" rel="noopener noreferrer">F-Droid</a>）。<strong>配布経路の運営者自身が、自分たちの立場では解決できないと認めている記述</strong>である。</li><li>影響範囲の見立ても出ている。The Hacker News は、4か国での強制開始後、未登録アプリは通常経路ではインストールできず、ADB か、開発者モードの有効化・24時間の待機・再認証を要する上級者向けフローに限られると報じている（<a href="https://thehackernews.com/2026/06/google-sets-sept-30-deadline-for.html" target="_blank" rel="noopener noreferrer">The Hacker News</a>）。<strong>エンドユーザーに24時間の待機を要求する経路は、業務端末の展開手順としては成立しない。</strong></li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「規制・プラットフォーム変更対応型」と「マイクロDevEx型」の複合である。 Why Now は日付が二段構えであることにある。2026年9月30日は4か国に限られるが、Google は2027年の全世界拡大を明言している。 先に4か国の実運用で失敗パターンを収集できた者が、全世界拡大時に既に動く道具を持っている。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みは「登録状態の閲覧」である。 Play Console と Android Developer Console はどちらも、自分のパッケージの登録状態を Registered / Not registered / Draft として画面に表示する。 Android Developer Console API も公開されており、パッケージ名の登録は自動化できる。</p><p>未解決は「いま出そうとしている成果物が、その登録集合に入っているか」である。 コンソールが答えるのは「登録済みの鍵は何か」であって、「このビルドが使った鍵はどれか」ではない。 両者を突き合わせるにはビルド成果物の署名証明書を読む必要があり、その読み取りはコンソールの外側で起きる。 そして Google は、Play 外の配布経路を横断してこの突き合わせを手厚く提供する立場にない。 本人確認の目的が Play 外配布の管理強化である以上、Play 外配布者の利便のために工程を整えるのは目的と逆向きになる。</p><hr><h3 id="アイデア-2-mcp-sunset-依存しているmcpサーバー群の廃止予定機能と期限のインベントリ">アイデア 2: <code>mcp-sunset</code> (依存しているMCPサーバー群の廃止予定機能と期限のインベントリ)</h3><ul><li><strong>ターゲット</strong>: 業務のワークフローに複数のリモートMCPサーバーを組み込んでいるチーム。社内エージェント基盤の運用担当、MCPクライアントを製品に載せている開発会社。</li><li><strong>解決する課題</strong>: 2026-07-28 版の廃止制度により、MCP の機能には「いつ消えるか」という日付が付いた。しかし利用者が知りたいのは仕様の状態ではなく、<strong>自分が依存している十数個のサーバーのうち、どれが消える機能の上に立っているか</strong>である。この問いに答えるには、各サーバーへ実際に接続して応答を観測するしかない。仕様書を読んでも、接続先のサーバーが何を実装しているかは分からない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>廃止の対象と移行先は仕様に列挙されている。原文は "Deprecate the Roots, Sampling, and Logging features" とし、HTTP+SSE トランスポートについては "Reclassify the HTTP+SSE transport (deprecated since protocol version <code>2025-03-26</code>) as Deprecated under the feature lifecycle policy" と書いている（<a href="https://modelcontextprotocol.io/specification/2026-07-28/changelog" target="_blank" rel="noopener noreferrer">MCP Changelog</a>）。制度としては "a minimum twelve-month deprecation window" が定義された。</li><li>ところが、宣言された期限が実際には守られていない事例が一次記録として残っている。Atlassian の MCP サーバーに対する2026年8月1日の Issue は、6月30日の SSE 停止日を過ぎても <code>/v1/sse</code> が動き続けており、エンドポイントは "still connects, authenticates, and serves tools normally" だと報告している（<a href="https://github.com/atlassian/atlassian-mcp-server/issues/212" target="_blank" rel="noopener noreferrer">atlassian/atlassian-mcp-server #212</a>）。</li><li>同じ Issue は、通知の形式そのものを問題として指摘している。廃止の告知は結果本文の散文としてのみ存在し、"no machine-actionable signal. The notice exists only as prose inside result content." と書かれている。加えて、その文言がツール応答のたびに繰り返されるため、1セッションで4回表示され、"90 tokens × N calls of context" を消費するとされている。<strong>告知が機械可読でないという指摘は、事前判定を第三者側で組み立てる余地がそこにあることを意味する。</strong></li><li>報告者は状況をこう総括している。"The deprecation is currently the worst of both worlds: unenforced (so clients have no forcing function to migrate) and maximally noisy."（<a href="https://github.com/atlassian/atlassian-mcp-server/issues/212" target="_blank" rel="noopener noreferrer">同 Issue</a>）。<strong>期限を宣言した側が自ら強制していないという当事者の観測</strong>であり、期限の管理が利用者側に落ちていることの証拠になる。</li><li>破壊の規模も小さくない。同じ変更セットは <code>initialize</code> / <code>notifications/initialized</code> ハンドシェイクと <code>Mcp-Session-Id</code> ヘッダの削除、<code>ping</code> と <code>logging/setLevel</code> の削除、全結果への <code>resultType</code> 必須化を含む（<a href="https://modelcontextprotocol.io/specification/2026-07-28/changelog" target="_blank" rel="noopener noreferrer">MCP Changelog</a>）。既存サーバーの多くが、いずれかに該当する。</li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「マイクロDevEx型」である。 Why Now は制度の新しさにある。廃止のカレンダーが2026年7月28日に初めて存在したため、12か月の時計はいま動き始めたばかりである。 時計が回り切る前にインベントリを持っている側が、移行の順序を決められる。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みは「1台のサーバーの適合検査」である。 YawLabs の <code>mcp-compliance</code> は8カテゴリ88件のテストでA〜Fの評点を出し、MCP Scan や MCP Inspector も同種の検査を提供している（<a href="https://github.com/YawLabs/mcp-compliance" target="_blank" rel="noopener noreferrer">YawLabs/mcp-compliance</a>）。 これらは「いま仕様に合っているか」という現在形の問いに答える。</p><p>未解決は「依存の束に対する未来形の問い」である。 自分のクライアント設定に並んだ十数個のサーバーを一括で観測し、廃止レジストリの日付と突き合わせ、どのサーバーがいつ壊れるかを期日順に並べた出力は見当たらない。 検査ツールは対象を1台ずつ指定する設計であり、依存インベントリという単位を持っていない。 そして MCP プロジェクト自身は、特定ベンダーのサーバーが期限を超過していると名指しする立場にない。</p><hr><h3 id="アイデア-3-origin-audit-x-original-content-rewards-の申請前セルフ監査">アイデア 3: <code>origin-audit</code> (X Original Content Rewards の申請前セルフ監査)</h3><ul><li><strong>ターゲット</strong>: Revenue Sharing で収益を得ており、9月8日以降に新プログラムへ申請し直す必要があるクリエイター。特に、転載や引用を含む投稿を日常的に行っている層。</li><li><strong>解決する課題</strong>: 新プログラムは審査制であり、不承認になった場合は異議申立てが1回、それも通らなければ再申請まで90日待つ必要がある。つまり申請は実質的に一発勝負である。にもかかわらず、自分の過去投稿が「オリジナル」と「転載・薄い加工」のどちらに分類されるかを事前に確かめる手段が存在しない。判定基準は公開されているが、自分の投稿群を基準に当てはめた結果は自分で数えるしかない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><ul><li>除外の基準は具体的に示されている。X の説明として引用されている原文は "Adding a caption, crop, border, watermark, speed adjustment, or simple text overlay generally is not enough." であり、出典元に帰属表示を付けた転載であっても、意味のあるコメントや分析が乏しければオリジナリティの要件を満たさないとされている（<a href="https://influencermarketinghub.com/x-is-turning-creator-monetization-into-an-originality-test/" target="_blank" rel="noopener noreferrer">Influencer Marketing Hub</a>）。</li><li>除外対象は他にも列挙されている。TechCrunch は、他アカウントから "copied over from another account"、ダウンロードして再アップロードした内容、"without meaningful transformation" の再投稿が対象外だと報じている（<a href="https://techcrunch.com/2026/08/08/x-replaces-misaligned-revenue-sharing-program-with-original-content-rewards/" target="_blank" rel="noopener noreferrer">TechCrunch</a>）。X 側は旧制度について "had reached a point where its incentives were misaligned" と説明している。</li><li>当事者が判定方法そのものを疑問視している。同じ記事群には、クリエイターからの "How will X find out if content is copied from other social media?" という問いが記録されており、既に基準を満たしている小規模アカウントを再審査の対象から外すよう求める声も出ている（<a href="https://influencermarketinghub.com/x-is-turning-creator-monetization-into-an-originality-test/" target="_blank" rel="noopener noreferrer">Influencer Marketing Hub</a>）。<strong>判定の予測可能性が当事者にとって不透明であることを、当事者自身が述べている。</strong></li><li>移行が自動でないことは国内報道でも明示されている。GameBusiness.jp は、既存の登録者は2026年9月7日まで従来どおり収益を得られ、9月8日以降は申請が必要だと伝え、既存コンテンツについては独自の文脈・分析・ナレーション・ユーモア・創造的な編集といった意味のある価値の付加が条件になると整理している（<a href="https://www.gamebusiness.jp/article/2026/08/14/27696.html" target="_blank" rel="noopener noreferrer">GameBusiness.jp</a>）。</li><li>到達要件も高い。90日間で認証済みユーザーからのホームタイムラインインプレッション50万回という基準について、対象クリエイターの割合が6〜7割から1割程度へ落ちるという第三者の見積もりが報じられている（<a href="https://influencermarketinghub.com/x-is-turning-creator-monetization-into-an-originality-test/" target="_blank" rel="noopener noreferrer">Influencer Marketing Hub</a>）。</li></ul><p><strong>パターン判定 &amp; Why Now</strong></p><p>パターンは「プラットフォーム変更対応型」と「ローカルファースト型」の複合である。 Why Now は8日後という近さにある。9月7日に旧制度が終わり、9月8日から申請が始まる。 不承認時の90日ロックアウトがあるため、申請直前の1回の点検に対する支払い動機が、この時期にだけ立ち上がる。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みは「自分の数字を見ること」である。 X Analytics はインプレッションとエンゲージメントを表示し、Circleboom や twtData のようなアーカイブ変換サービスは投稿履歴を CSV へ落とす。</p><p>未解決は「基準に当てはめた結果を見ること」である。 どのツールも投稿を「オリジナル / 転載 / 薄い加工」へ分類しないし、分類する動機も持たない。 そして X 自身は、この分類器を事前に配れない。 審査基準を機械的に事前開示することは、その基準を回避可能にすることと同義だからである。 <strong>この空白は誰かが手を付けていないから空いているのではなく、判定者の立場からは埋められないから空いている。</strong></p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>signkey-gate</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>mcp-sunset</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>origin-audit</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">期限は1か月後、ただし当面4か国</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">廃止制度が1か月前に発足</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">8日後に旧制度終了、一発勝負</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">署名解析は軽いがOAuth導線が重い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">接続と観測のみ、推論不要</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">分類の正確性が本体より重い</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">CI枠の月額が成立、母数は限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">買い手の多くがOSS保守者</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">買い切りは通るが単発</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Googleは作れるが作る動機がない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">適合検査ツールが既に複数存在</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">構造的な空白だが模倣は容易</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">CI完結、Google仕様への追随が必須</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行、仕様追随が恒常コスト</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">規約変更で即死、サポートが重い</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-signkey-gate-18点-tier-2">Idea 1: <code>signkey-gate</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 強制開始が2026年9月30日と確定しており、Google は2027年の全世界拡大を明言している。期限が二段構えであるため、先行して失敗パターンを集める時間が取れる。<strong>減点材料</strong>: 2026年内に切迫するのはブラジル・インドネシア・シンガポール・タイの4か国に限られる。国内企業でこの4か国に配布実体を持つ層は薄く、いま金を払う買い手の数は、期限の派手さに比べて少ない。5点の条件である「明確な課金動機が既に立っている」には現時点で届かない。</li><li><strong>技術的実現可能性 3</strong>: 成果物側の処理は軽い。APK / AAB から署名証明書のフィンガープリントを取り出す工程は <code>apksigner</code> の出力で足り、パッケージ名はマニフェストから読める。<strong>減点材料</strong>: 反対側が重い。Android Developer Console API の利用には Google Cloud プロジェクトと OAuth の設定が要り、この導線を利用者に踏ませること自体が最大の離脱要因になる。CLI を配って終わりにできず、初回セットアップの手引きが製品の一部になる。2週間で「自分の1リポジトリで動く」までは行けるが、他人が導入できる状態には届かない可能性が高い。</li><li><strong>収益性 4</strong>: 買い手は既に CI に金を払っている法人であり、リリースが止まる損失で説明できる。CI ゲート1本あたり月$20〜$30 は、この層の稟議で通る帯である。100社で月20万円前後という計算は成立する。<strong>減点材料</strong>: その100社を Play 外配布かつ対象地域という条件で集めるのが難しい。単価は高いが母数が読めないため、5点は付けられない。</li><li><strong>競合優位性 3</strong>: Google は登録状態をコンソールに表示しているが、ビルド成果物との突き合わせは提供していない。そして提供する動機を構造的に持たない。本人確認の目的が Play 外配布の管理強化である以上、Play 外配布者の運用を滑らかにする工程は目的と逆を向く。<strong>減点材料</strong>: 動機がないことと、できないことは違う。Gradle プラグインとして同等の検査を書くのは中規模のCI事業者にとって数週間の作業であり、<strong>大手が3か月で真似したら</strong>残るのは失敗パターンの蓄積だけになる。構造的な参入障壁ではなく、動機の非対称に依存している。4点は付けられない。</li><li><strong>個人開発適性 4</strong>: 実行は利用者の CI 内で完結し、サーバーもデータベースも不要である。<strong>減点材料</strong>: Google 側の仕様変更に追随し続ける必要がある。2027年の全世界拡大に向けて登録要件や API は動く可能性が高く、追随を止めた瞬間に「通ると言ったのに止まった」という最悪の壊れ方をする。</li></ul><h4 id="idea-2-mcp-sunset-17点-tier-2">Idea 2: <code>mcp-sunset</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 廃止制度そのものが2026年7月28日に発足し、12か月の時計が動き始めたばかりである。Roots・Sampling・Logging・HTTP+SSE が同時に Deprecated へ入り、対象は広い。<strong>減点材料</strong>: 12か月という猶予は長い。Atlassian の事例が示すとおり、期限を過ぎても実際には動き続けるため、購買行動は壊れる直前まで起きない。切迫度が日付の見た目より弱い。</li><li><strong>技術的実現可能性 4</strong>: 中核はクライアント設定の解析と、各サーバーへの接続・応答の観測である。推論も独自インフラも要らず、1〜2週間で主要な廃止機能の検出までは届く。<strong>減点材料</strong>: 認証が壁になる。業務で使うリモートMCPサーバーの多くは OAuth を要求するため、観測のために資格情報を扱う必要が出る。ここを安全に設計しないと、ツール自体が持ち込めない。</li><li><strong>収益性 2</strong>: 最大の弱点である。買い手として最も数が多いのは MCP サーバーを公開している OSS 保守者であり、この層は支払わない。金を払える層はリモートMCPサーバーを商用提供している事業者だが、その規模の会社は同種の検査を内製する。<strong>減点材料</strong>: 「誰がいくら払うか」を具体的に書けない。月額の根拠として置けるのは「依存サーバーの期限を監視し続けること」だが、監視対象が壊れる頻度は年に数回であり、平時の支払い意欲が立たない。3点は付けられない。</li><li><strong>競合優位性 3</strong>: 適合検査ツールは既に複数存在し（<code>mcp-compliance</code> は88テスト、他に MCP Scan と MCP Inspector）、単なる仕様適合の検査では差別化できない。空白が残るのは「1台の現在形」ではなく「依存の束の未来形」という単位に移したときだけである。<strong>減点材料</strong>: その単位の違いは設計の違いであって、構造の違いではない。既存の検査ツールが設定ファイルの読み込みと日付の突き合わせを足すのは小さな追加であり、参入余地は薄い。</li><li><strong>個人開発適性 4</strong>: ローカル実行で完結し、常時稼働のサーバーを持たずに済む。<strong>減点材料</strong>: 廃止レジストリの内容を追い続けなければ出力が腐る。仕様が年に複数回動く領域であり、追随が恒常的な固定費になる。</li></ul><h4 id="idea-3-origin-audit-16点-tier-2">Idea 3: <code>origin-audit</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 5</strong>: 旧制度の終了が8日後の9月7日、新制度の申請開始が9月8日である。不承認時は異議申立て1回、その後は90日の待機となるため、申請は一発勝負になる。買い手は既にプラットフォームから収益を得ており、失う金額が具体的に分かっている。期限・金額・一回性の3つが揃っており、この軸で減点する材料が見つからない。</li><li><strong>技術的実現可能性 3</strong>: 投稿履歴の取得と、テキスト・メディアの分類が中核である。アーカイブの解析自体は数日で書ける。<strong>減点材料</strong>: 正確性の担保が本体より重い。「意味のある付加価値があるか」は連続量であり、閾値の置き方で結果が変わる。誤って「問題なし」と出せば利用者を90日のロックアウトへ送り込むため、出力を確信度付きの候補列挙に留める設計が必須になる。加えて、<strong>判定に必要な「認証済みユーザーからのホームタイムラインインプレッション」は、公開されているどのエクスポート経路にも存在しない可能性が高い</strong>。この点は未検証であり、後述のロードマップで最初に潰す。</li><li><strong>収益性 3</strong>: 失う収益が具体的であるため、買い切り2,000〜4,000円の帯は成立する。<strong>減点材料</strong>: 需要が完全に単発である。申請は一度きりであり、通れば二度と使わない。継続課金の根拠が立たず、月額$10〜$30という4点の条件には届かない。加えて需要の山が2026年9月に集中し、その後は新規参入クリエイターの細い流入だけになる。</li><li><strong>競合優位性 3</strong>: X は審査基準の機械的な事前開示ができないため、この診断はプラットフォーム側から提供されない。空白は構造的である。<strong>減点材料</strong>: 構造的なのは「X が作らないこと」だけであり、他の第三者が作らない理由にはならない。分類ロジック自体は公開された基準の実装であり、模倣は容易である。既存のアーカイブ解析サービス（Circleboom、twtData 等）が分類機能を足せば、その日に優位は消える。</li><li><strong>個人開発適性 2</strong>: 最大の弱点である。プラットフォームの規約と審査基準は予告なく変わり、変わった瞬間に製品の出力が誤りになる。<strong>減点材料</strong>: サポート負荷の質が他の2案と異なる。「診断で問題なしと出たのに落ちた」という申立てが必ず来る一方、審査結果の理由は X から開示されないため、こちらから検証する手段がない。反証不能な苦情を受け続ける構造であり、個人での運用に向かない。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-signkey-gate-のリスクと対策">1. <code>signkey-gate</code> のリスクと対策</h3><p><strong>最大のリスクは、突き合わせに必要な情報を第三者の立場から取れない可能性です。</strong> Android Developer Console API はパッケージ名の登録を自動化するものであり、<strong>自分が所有していないパッケージの登録状態を照会できるとは限りません</strong>。 もし自己所有分しか読めないなら、製品は「他社アプリの状態を調べる道具」にはならず、「自社CIの自己点検」に限定されます。 市場は縮みますが、消えはしません。 対策は、Day 1 で API の権限境界を実測し、読めない場合は訴求を最初から「自社パイプラインの事故防止」へ固定することです。 他社調査を前提にした設計へ進んでから境界に気付くと、作り直しになります。</p><p>第二のリスクは、<strong>買い手が対象地域に存在しないこと</strong>です。 2026年内に切迫するのは4か国だけであり、国内の受託開発会社がそこへ配布している例は多くありません。 対策は、訴求を地域ではなく<strong>2027年の全世界拡大</strong>に置き、いま売るのは緊急対応ではなく「棚卸し」だと定義することです。 登録済みの鍵と実際に使っている鍵の一覧を出すだけでも、鍵管理が属人化している現場では価値が出ます。</p><p>第三のリスクは、<strong>Gradle プラグインとして誰かが先に出すこと</strong>です。 この検査は Android のビルド工程に自然に収まるため、参入は容易です。 対策は、成果物を検査結果ではなく<strong>失敗パターンの分類</strong>として蓄積することです。 どの構成（Play App Signing 併用、フレーバー別 applicationId、鍵ローテーション直後）でどう落ちたかの記録は、実際に現場を通さないと集まりません。</p><h3 id="2-mcp-sunset-のリスクと対策">2. <code>mcp-sunset</code> のリスクと対策</h3><p><strong>最大のリスクは、SDK の更新が問題の大半を吸収してしまうことです。</strong> 公式 SDK が2026-07-28 に対応済みであり、サーバー実装の多くは SDK を上げるだけで新仕様へ乗ります。 そうなると「何が壊れるか」を調べる需要そのものが立ち上がりません。 対策は、Day 1 で<strong>手元で実際に使っているMCPサーバー群を素の状態で観測し、SDK 更新だけでは解決しない項目が何件残るかを数える</strong>ことです。 残りがゼロに近ければ、この案は成立しません。</p><p>第二のリスクは、<strong>買い手が金を払わない層に偏っていること</strong>です。 対策は、対象をサーバー実装者からクライアント運用者へ寄せることです。 「自分が公開しているサーバーが仕様に合っているか」は無償で済ませたい問いですが、「業務が依存している十数個のサーバーのうち、どれがいつ止まるか」は運用側の問いであり、支払いの位置が変わります。</p><p>第三のリスクは、<strong>期限が守られないこと</strong>です。 Atlassian の事例のとおり、宣言された停止日は過ぎても実際には動き続けます。 期限を根拠にした警告は、外れ続けると信用を失います。 対策は、出力を「この日に止まる」ではなく「この日以降、いつ止まってもおかしくない状態にある」と表現し、実際の応答の観測結果を必ず併記することです。</p><h3 id="3-origin-audit-のリスクと対策">3. <code>origin-audit</code> のリスクと対策</h3><p><strong>最大のリスクは、判定に必要なデータが取得できないことです。</strong> 要件は「認証済みユーザーからのホームタイムラインインプレッション」であり、この内訳を返すエクスポート経路は確認できていません。 アーカイブに含まれるのは投稿本文と基本的な指標までで、インプレッションについても「アカウントによっては部分的またはゼロで返る」という報告があります。 対策は、Day 1 で<strong>自分のアカウントのアーカイブを実際に取得し、どの数値が入っているかを目視で確定する</strong>ことです。 インプレッションの内訳が取れないなら、製品から到達度の推定機能を外し、<strong>オリジナリティの分類だけに絞ります</strong>。 分類だけでも、90日ロックアウトの回避という主目的は残ります。</p><p>第二のリスクは、<strong>分類の誤りが利用者に実害を与えること</strong>です。 対策は、出力から断定を排し、「基準に照らして説明が難しい投稿」の候補列挙と、その根拠となった基準文の引用に留めることです。 承認可否の予測は行いません。</p><p>第三のリスクは、<strong>需要が2026年9月に集中して終わること</strong>です。 対策は、製品を X 専用として設計せず、<strong>「プラットフォームの公開基準に自分の過去投稿を当てはめる」という形</strong>で作ることです。 YouTube も収益化の下限を2027年2月に引き上げており、同じ構造の需要が別の場所で立ち上がります。 基準の定義を差し替え可能なデータとして外に置けば、次の期限へ載せ替えられます。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>signkey-gate</code> について、14日間の想定を置きます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1-2</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) Android Developer Console API の権限境界を実測し、自己所有以外のパッケージの登録状態を照会できるかを確定する。(b) Play 外で Android アプリを配布している国内企業・受託開発会社に5〜10件接触し、署名鍵が何本あり、誰がどこで管理しているかを聞く。(c) 他社照会が不可、かつ鍵が1本で担当者が把握済みという回答が大半なら、製品を検査ゲートではなく「鍵と成果物の棚卸しレポート」へ組み替える。</td></tr><tr><td class="tk">Day 3-4</td><td>成果物側の読み取り</td><td>APK / AAB からパッケージ名と署名証明書のフィンガープリントを取り出す処理を書く。Play App Signing 併用時にアップロード鍵とアプリ署名鍵のどちらが記録されるかを、実物のビルドで確認して仕様として固定する。フレーバー別 applicationId を持つプロジェクトを検証対象に含める。</td></tr><tr><td class="tk">Day 5-7</td><td>登録側の読み取りと突き合わせ</td><td>Android Developer Console API から登録済みパッケージと鍵の一覧を取得し、成果物側と突き合わせる。出力は判定だけでなく、<strong>照合できなかった理由</strong>（鍵が未登録 / パッケージ名が未登録 / API の権限不足）を区別して返す。判定不能を「問題なし」に丸めない。</td></tr><tr><td class="tk">Day 8-10</td><td>CIゲート化</td><td>GitHub Actions と Gradle タスクの2形態で組み込めるようにする。失敗時の出力を、対象4か国での通常インストール可否という形へ落とし込む。OAuth の初回セットアップ手順を、Day 1-2 で接触した相手に実際に踏んでもらい、詰まった箇所を記録する。</td></tr><tr><td class="tk">Day 11-12</td><td>失敗パターンの収集</td><td>意図的に壊した構成（未登録鍵での署名、鍵ローテーション直後、デバッグ署名の混入、未登録の applicationId）を通し、それぞれの検出結果を記録する。検出できない構成があれば、その存在を製品の制約として明示する。</td></tr><tr><td class="tk">Day 13-14</td><td>公開と検証</td><td>無償の CLI として公開し、Day 1-2 の接触先へ試用を依頼する。成功指標はインストール数ではなく、<strong>「検査の結果、実際に鍵かパッケージ名の登録作業を行った組織の数」</strong>に置く。全社が「問題なし」で終わるなら、その現場に問題は存在しないということであり、有償化へ進みません。</td></tr></tbody></table></div><p>課金設計は、単発の棚卸しレポートを無償、CI への常設と Google 側の仕様変更への追随を月額とする二層構成を想定します。 無償側で配るのは1回分の突き合わせであり、有償側で売るのは<strong>2027年の全世界拡大まで判定を正しく保ち続けること</strong>です。 1回の突き合わせは誰でも書けますが、要件が動くたびに直し続ける手間は、リリースを止められない側にしか価値が分かりません。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>signkey-gate</code></strong>（総合18点、Tier 2）を最有力候補として選定しました。検証の単位がアプリではなくパッケージ名と署名鍵の組であるにもかかわらず、その組をリリース成果物と突き合わせる工程がパイプラインのどこにもありません。空白は現に存在し、しかも Google はそれを埋める動機を構造的に持ちません。Tier 1 に届かなかった理由は二点です。第一に、2026年内に切迫するのが4か国に限られ、いま金を払う買い手の数を確認できていないこと。第二に、Gradle プラグインとして同等の検査を書くのは難しくなく、<strong>動機の非対称に依存していて構造的な障壁ではない</strong>ことです。着手の条件は Day 1-2 の権限境界の実測であり、他社照会が不可なら訴求を自社パイプラインの事故防止へ固定します。</li></ul><ul><li><strong><code>mcp-sunset</code></strong>（総合17点、Tier 2）は、証拠の質が最も高い案です。「告知が散文でしか存在せず機械可読な信号がない」という指摘は、事前判定を第三者が組み立てる余地がそこにあることを、当事者の言葉で示しています。しかし買い手の多くが支払わない層に偏っており、収益性で2点に落ちました。着手するなら、対象をサーバー実装者ではなくクライアント運用者へ寄せ、Day 1 で SDK 更新だけでは解決しない項目が実際に何件残るかを数えてからです。</li></ul><ul><li><strong><code>origin-audit</code></strong>（総合16点、Tier 2）は、切迫度が3案で最も高く、空白の理由も最も構造的です。X は審査基準を事前に機械開示できないため、この診断はプラットフォーム側から永久に提供されません。それでも16点に留まったのは、需要が完全に単発であることと、<strong>個人開発適性が2点</strong>であることによります。反証不能な苦情を受け続ける構造は、個人が長く抱えるには重すぎます。作るなら、X 専用ではなく基準を差し替え可能な形にして、2027年2月の YouTube へ載せ替えられる設計にすべきです。</li></ul><ul><li><strong>今回の探索で候補から落とした案が3件あります。</strong><ul><li><strong>Chrome Manifest V2 のストア削除対応</strong>: 2026年8月31日に残存する MV2 拡張機能がすべてウェブストアから削除されます。公式の記述は "Manifest V2 extensions installed on Chrome 138 or earlier will remain installed, but will be unable to receive any updates and cannot be reinstalled from the Chrome Web Store once removed from Chrome." です（<a href="https://developer.chrome.com/docs/extensions/develop/migrate/mv2-deprecation-timeline" target="_blank" rel="noopener noreferrer">Chrome for Developers</a>）。しかし実効的な機能停止は2025年7月の Chrome 138 で既に完了しており、8月31日は掲載の削除にすぎません。痛みの本体は1年前に過ぎています。加えて 2026-08-27 の <code>ext-chat-audit</code> が拡張機能の棚卸しを既に扱っており、重複判定にも触れます。総合13点で却下しました。</li><li><strong>EU Data Act の設計義務（2026年9月12日）</strong>: 同日以降に市場へ出すコネクテッド製品は、生成データが既定で利用者から直接アクセスできる設計であることを求められます（<a href="https://www.traverssmith.com/knowledge/knowledge-container/the-eu-data-act-compliance-countdown-for-connected-products/" target="_blank" rel="noopener noreferrer">Travers Smith</a>）。期限は確定していますが、買い手がハードウェアメーカーであり個人開発者が接触できる層ではありません。加えて義務の中身が製品設計そのものであり、外付けのツールで代替できる部分がほとんどありません。総合12点で却下しました。</li><li><strong>青色申告特別控除75万円への移行支援</strong>: 2027年分から e-Tax と優良な電子帳簿の要件を満たせば控除が75万円へ増え、書面申告は10万円へ落ちます。届出の期限は確定しています。しかし本質は届出書1枚の提出であり、freee・弥生・マネーフォワードが確定申告シーズンに必ず案内する範囲です。加えて前回（08-29）が消費税の特例終了を扱っており、探索空間が連続します。総合13点で却下しました。</li></ul></li></ul><ul><li><strong>5回連続で Tier 1 に到達していません。</strong> 今回導入した「立場上できないと書けるか」という条件は、目的の一部を果たしました。3案とも大手が提供しない理由を動機や制約の言葉で説明でき、特に <code>origin-audit</code> の「基準を開示すれば回避される」は、時間が経っても消えない種類の理由です。しかし競合優位性は依然として3案とも3点でした。原因は、<strong>空白が構造的であることと、その空白を自分だけが埋められることが別問題</strong>だからです。X が作れないことは、他の第三者も作れないことを意味しません。次回は探索軸に「立場上できない」を残したうえで、<strong>埋める側にも参入条件があるか</strong>を条件に加えます。具体的には、実装の容易さではなく、<strong>現場を通さないと集まらないデータが製品の中核に置けるか</strong>を先に確認します。今回の3案で言えば、<code>signkey-gate</code> の失敗パターンの分類だけがそれに当たり、他の2案は公開情報の実装に留まっています。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-29)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://developer.android.com/developer-verification" target="_blank" rel="noopener noreferrer">Android developer verification（Android Developers）</a><span class="u">https://developer.android.com/developer-verification</span></li><li><a href="https://developer.android.com/developer-verification/guides/faq" target="_blank" rel="noopener noreferrer">Frequently asked questions | Android developer verification（Android Developers）</a><span class="u">https://developer.android.com/developer-verification/guides/faq</span></li><li><a href="https://support.google.com/android-developer-console/answer/16640821" target="_blank" rel="noopener noreferrer">Registering Android package names（Android Developer Console Help）</a><span class="u">https://support.google.com/android-developer-console/answer/16640821</span></li><li><a href="https://developer.android.com/developer-verification/guides/developer-console-api" target="_blank" rel="noopener noreferrer">Register package names with the Android Developer Console API（Android Developers）</a><span class="u">https://developer.android.com/developer-verification/guides/developer-console-api</span></li><li><a href="https://f-droid.org/en/2025/09/29/google-developer-registration-decree.html" target="_blank" rel="noopener noreferrer">Google&#x27;s developer registration decree（F-Droid）</a><span class="u">https://f-droid.org/en/2025/09/29/google-developer-registration-decree.html</span></li><li><a href="https://thehackernews.com/2026/06/google-sets-sept-30-deadline-for.html" target="_blank" rel="noopener noreferrer">Google Sets Sept. 30 Deadline for Android Developer Verification in Four Countries（The Hacker News）</a><span class="u">https://thehackernews.com/2026/06/google-sets-sept-30-deadline-for.html</span></li><li><a href="https://modelcontextprotocol.io/specification/2026-07-28/changelog" target="_blank" rel="noopener noreferrer">Key Changes — MCP Specification 2026-07-28（Model Context Protocol）</a><span class="u">https://modelcontextprotocol.io/specification/2026-07-28/changelog</span></li><li><a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/" target="_blank" rel="noopener noreferrer">The 2026-07-28 Specification（Model Context Protocol Blog）</a><span class="u">https://blog.modelcontextprotocol.io/posts/2026-07-28/</span></li><li><a href="https://github.com/atlassian/atlassian-mcp-server/issues/212" target="_blank" rel="noopener noreferrer">SSE sunset date (30 June 2026) has passed but /v1/sse still works — Issue #212（atlassian/atlassian-mcp-server）</a><span class="u">https://github.com/atlassian/atlassian-mcp-server/issues/212</span></li><li><a href="https://github.com/YawLabs/mcp-compliance" target="_blank" rel="noopener noreferrer">YawLabs/mcp-compliance — CLI + MCP server that tests MCP servers for spec compliance（GitHub）</a><span class="u">https://github.com/YawLabs/mcp-compliance</span></li><li><a href="https://techcrunch.com/2026/08/08/x-replaces-misaligned-revenue-sharing-program-with-original-content-rewards/" target="_blank" rel="noopener noreferrer">X replaces &#x27;misaligned&#x27; revenue sharing program with Original Content Rewards（TechCrunch）</a><span class="u">https://techcrunch.com/2026/08/08/x-replaces-misaligned-revenue-sharing-program-with-original-content-rewards/</span></li><li><a href="https://influencermarketinghub.com/x-is-turning-creator-monetization-into-an-originality-test/" target="_blank" rel="noopener noreferrer">X Is Turning Creator Monetization Into an Originality Test（Influencer Marketing Hub）</a><span class="u">https://influencermarketinghub.com/x-is-turning-creator-monetization-into-an-originality-test/</span></li><li><a href="https://www.gamebusiness.jp/article/2026/08/14/27696.html" target="_blank" rel="noopener noreferrer">X、クリエイター収益化「Revenue Sharing」を終了―新制度「Original Content Rewards」へ全面移行（GameBusiness.jp）</a><span class="u">https://www.gamebusiness.jp/article/2026/08/14/27696.html</span></li><li><a href="https://developer.chrome.com/docs/extensions/develop/migrate/mv2-deprecation-timeline" target="_blank" rel="noopener noreferrer">Manifest V2 support timeline（Chrome for Developers）</a><span class="u">https://developer.chrome.com/docs/extensions/develop/migrate/mv2-deprecation-timeline</span></li><li><a href="https://www.traverssmith.com/knowledge/knowledge-container/the-eu-data-act-compliance-countdown-for-connected-products/" target="_blank" rel="noopener noreferrer">The EU Data Act: compliance countdown for connected products（Travers Smith）</a><span class="u">https://www.traverssmith.com/knowledge/knowledge-container/the-eu-data-act-compliance-countdown-for-connected-products/</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-08-30_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
