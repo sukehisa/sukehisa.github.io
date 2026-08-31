@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「期限までにしか観測できないデータ」を探索軸に置き、9月8日のChromeケイデンス切替を境に取り直せなくなる審査待ち時間の基準値を中核に据えた3案を5軸評価した結果">
+<title>2026-09-01: Chrome 2週間ケイデンス・待遇差説明の明示義務・iOS 27 の起動時強制における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-01</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / chrome-extensions / web-store / labor-law</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-01">市場リサーチ &amp; 5軸評価レポート (2026-09-01)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">cws-window</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 10 件（うち一次ソース 12 件）</div></div><div class="fig">19<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">cws-window</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">taiguu-brief</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">scenegate</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-08-31）の探索で得た結論を、そのまま今回の探索軸に据えます。 <strong>期限そのものではなく、その期限までにしか観測できないデータが何であるか</strong>を先に問う、という軸です。 期限は誰にでも見えており、期限に反応する製品は誰でも作れます。 一方、期限を境に観測できなくなる値は、その日を過ぎた者が後から集め直せません。</p><p>この軸で見たとき、2026年9月の変曲点は3つに絞れました。</p><p>1つ目は、Chrome のリリース間隔の半減です。 2026年9月8日の Chrome 153 から、安定版が4週ごとではなく2週ごとに出ます。 同時に、Chrome ウェブストアの審査待ち行列は2026年4月から滞留しており、Google 自身が滞留を認めたまま解消の見通しを示していません。 <strong>9月8日より前の「4週ケイデンス下での審査待ち時間」は、9月8日を過ぎると二度と観測できません。</strong></p><p>2つ目は、パートタイム・有期雇用労働法の改正です。 2026年10月1日から、パート・有期雇用労働者を雇い入れる際に「待遇の相違の内容・理由等に関する説明を求めることができる旨」の明示が義務になります。 明示は書式の問題ですが、その先にある説明は各社の賃金規程と運用を読まなければ書けません。</p><p>3つ目は、iOS 27 の一般提供です。 iOS 27 SDK でビルドしたアプリは、UISceneDelegate に対応していないと起動時点で終了します。 起動しないため通知登録も走らず、既存ユーザーのデバイストークンが静かに死にます。</p><p>この3件は、期限の性質が異なります。 1つ目は<strong>観測の窓が閉じる</strong>期限、2つ目は<strong>書類の締切</strong>、3つ目は<strong>ビルド構成に紐づく強制</strong>です。 以下では、それぞれに対して個人が入れる位置を探しました。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-01)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-01)"><title>アイデア候補のポジショニングマップ (2026-09-01)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="447.4" cy="143.6" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="459.4" y="147.6" text-anchor="start" class="qpt-label">1</text><circle cx="447.4" cy="143.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: CWS Window 総合 19 / 25（Tier 2）" data-tv="Idea 1: CWS Window" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="288.4" cy="166.3" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="300.4" y="170.3" text-anchor="start" class="qpt-label">2</text><circle cx="288.4" cy="166.3" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Taiguu Brief 総合 17 / 25（Tier 2）" data-tv="Idea 2: Taiguu Brief" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="277.0" cy="200.4" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="289.0" y="204.4" text-anchor="start" class="qpt-label">3</text><circle cx="277.0" cy="200.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Scenegate 総合 16 / 25（Tier 2）" data-tv="Idea 3: Scenegate" data-td="総合 16 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: CWS Window</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Taiguu Brief</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Scenegate</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-cws-window-差し戻しを潰す提出前検査と-審査待ち実測にもとづく提出タイミングの決定">アイデア 1: <code>cws-window</code> (差し戻しを潰す提出前検査と、審査待ち実測にもとづく提出タイミングの決定)</h3><ul><li><strong>ターゲット</strong>: Chrome 拡張機能で収入を得ている個人開発者と小規模チーム。インストール数が数万から数十万規模で、修正を出せない期間がそのまま損失になる層を中心に置く。</li><li><strong>解決する課題</strong>: 拡張機能の開発者にとって、審査待ち行列は制御できない。制御できるのは「差し戻されないこと」と「いつ提出するか」の2つだけである。ところがこの2つはどちらも、判断材料が公開されていない。Google は審査所要時間を公表せず、差し戻しの判定基準も提出後にしか分からない。9月8日以降は安定版が2週ごとに出るため、提出の集中と Chrome 側の破壊的変更の両方が倍の頻度で来る。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><p>Chrome ウェブストアの審査滞留について、Google の担当者が2026年4月24日に投稿しています。</p><blockquote class="voice"><p>We've experienced a surge in new extensions being submitted to the Chrome Web Store causing longer-than-expected wait times.</p></blockquote><p>このスレッドに、月20万インストールを持つ開発者が返信しています。</p><blockquote class="voice"><p>I get over 200,000 installs a month and right now I'm trying to release a fix for a bug...now there's nothing I can do other than wait 28 days.</p></blockquote><p>別の開発者は、実績のある拡張機能が新規提出に押し出される構造を問題にしています。</p><blockquote class="voice"><p>It is extremely unfair if a bunch of new users submitting new extensions with no history cause developers with history...to be delayed.</p></blockquote><p>収入との直結を述べた投稿もあります。</p><blockquote class="voice"><p>Many of us depend on our extensions for income, and delays like this can directly translate into financial loss.</p></blockquote><p>これに対する Google の回答は、次のとおりです。</p><blockquote class="voice"><p>We're actively discussing and investigating different approaches...but there's nothing concrete yet that we can share.</p></blockquote><p>出所: <a href="https://groups.google.com/a/chromium.org/g/chromium-extensions/c/VJ6DcpEn51Y/m/yuxvHWdwCAAJ" target="_blank" rel="noopener noreferrer">PSA: Increase in review times for submissions to the Chrome Web Store（chromium-extensions グループ）</a></p><p><strong>この4月の滞留の上に、9月8日のケイデンス変更が重なります。</strong></p><blockquote class="voice"><p>Starting September 2026, Chrome will move to a two-week release cycle, from the current four-week cycle.</p></blockquote><blockquote class="voice"><p>Chrome 153 on September 8th</p></blockquote><p>Google は開発者に対して、ベータでの検証を求めています。</p><blockquote class="voice"><p>developers test with the beta to keep up to date with any upcoming changes that might impact your sites and applications</p></blockquote><p>出所: <a href="https://developer.chrome.com/blog/chrome-two-week-release" target="_blank" rel="noopener noreferrer">Get features faster with Chrome's two-week release cycle（Chrome for Developers）</a></p><p>ケイデンス変更が審査待ち行列に与える影響を、外部の解説はこう書いています。</p><blockquote class="voice"><p>The queue will see roughly twice the update volume from the developer ecosystem around each stable release date.</p></blockquote><blockquote class="voice"><p>Review queue pressure typically spikes in the 48 hours before and after a Chrome stable release. Doubling the releases doubles those spikes, and queue times during those windows may lengthen.</p></blockquote><p>保守モードの拡張機能については、猶予が縮む点を具体的に述べています。</p><blockquote class="voice"><p>A newly deprecated API method that breaks a feature in Chrome 155 (let's say) now arrives six weeks after the initial Beta warning instead of eight weeks. For a developer who checks in quarterly, that window matters.</p></blockquote><p>出所: <a href="https://www.superchargebrowser.com/library/chrome-two-week-release-cycle-2026-explained/" target="_blank" rel="noopener noreferrer">Chrome's 2-Week Release Cycle (Sept 2026): What Changes</a></p><p>Web 開発全体への影響として、検証の信頼性が落ちるという指摘もあります。</p><blockquote class="voice"><p>A two-week release model makes end-stage compatibility testing increasingly unreliable. Tests may pass early in the week, Chrome may update days later, and user-facing issues can surface immediately after deployment.</p></blockquote><blockquote class="voice"><p>Teams built for resilience will move with the browser. Teams built around reactive fixes may spend the next year or so trying to catch up.</p></blockquote><p>出所: <a href="https://news.designrush.com/google-chrome-new-release-cycle-challenges-web-developers" target="_blank" rel="noopener noreferrer">Google Chrome Faster Release Cycle Reshapes Web Development（DesignRush）</a></p><p><strong>パターン判定 &amp; Why Now</strong></p><p><strong>6. マイクロDevExツール型</strong>を主とし、<strong>5. 規制・プラットフォーム変更対応型</strong>が重なります。</p><p>Why Now は日付で確定しています。 9月8日を境に、安定版の間隔が4週から2週へ変わります。 審査待ち行列の混雑は安定版リリース日の前後48時間に立つため、<strong>混雑の山の数が年13回から年26回へ増えます。</strong> 提出日をどこに置くかという問いは、これまで存在しなかった問いです。</p><p>そして本案の核心は、ここに置く判断材料が誰の手元にもないことです。 Google は待ち時間を公表せず、開発者は自分の1件しか知りません。 4週ケイデンス下での待ち時間の分布は、9月8日を過ぎれば取り直せません。 <strong>この基準値は、今週中に測り始めた者だけが持てます。</strong></p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みの範囲は3つあります。 第一に、審査ポリシーの文書化である。権限は機能の実装に必要な最小限に絞ること、単一目的の記述と掲載情報を一致させることが、<a href="https://developer.chrome.com/docs/webstore/program-policies/policies" target="_blank" rel="noopener noreferrer">Program Policies</a> に明記されている。 第二に、アップロードの自動化である。<code>chrome-webstore-upload</code> 系の CLI が提出そのものを自動化している。 第三に、拡張機能の統計である。インストール数や評価の推移を追う外部サービスは複数ある。</p><p>未解決の範囲は2つです。 <strong>1つ目は、提出前に「この提出は差し戻されるか」を判定する工程です。</strong> ポリシーは文章として公開されているが、手元のビルドがそれに適合しているかを機械的に照合する手段は提供されていない。 差し戻しは1回で数週間を失い、異議申立ては1回しか許されない。 それでも判定は提出後にしか得られない。</p><p><strong>2つ目は、いつ提出するかの判断です。</strong> 混雑の山が安定版リリース日の前後48時間に立つことは外部の解説が指摘しているが、実測値ではない。 Google 自身が「共有できる具体策はまだない」と述べており、この空白は当事者に認識されたまま埋まっていない。</p><h3 id="アイデア-2-taiguu-brief-正社員との待遇差の説明資料を-規程の版に紐づけて組み立てるローカルツール">アイデア 2: <code>taiguu-brief</code> (正社員との待遇差の説明資料を、規程の版に紐づけて組み立てるローカルツール)</h3><ul><li><strong>ターゲット</strong>: パート・有期雇用労働者を抱える国内の中小企業（小売・飲食・介護・宿泊）と、その労務を請け負う社会保険労務士事務所。顧問先を10社から50社抱える社労士事務所を主たる販路に置く。</li><li><strong>解決する課題</strong>: 2026年10月1日から、雇い入れ時に「説明を求めることができる旨」を明示する義務が生じる。明示そのものは通知書の1行であり、労務SaaSがひな形を更新すれば終わる。本当の負荷は、実際に説明を求められた後に発生する。事業主は「通常の労働者」を選定したうえで、待遇項目ごとに相違の内容と理由を述べなければならない。この材料は賃金規程・就業規則・実際の運用に散らばっており、求められてから作ると間に合わない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><p>厚生労働省の Web マガジンは、追加される明示事項を次のように書いています。</p><blockquote class="voice"><p>「待遇の相違の内容・理由等に関する説明を求めることができる」旨を明示することが必要となります</p></blockquote><p>説明の方法についても、選択肢が限定されています。</p><blockquote class="voice"><p>「資料を活用し、口頭により説明する方法」または「説明すべき事項を全て記載した分かりやすい内容の資料を交付する等の方法」のいずれかにより説明することが必要になります</p></blockquote><p>同時に、同一労働同一賃金ガイドラインが改定され、賞与・退職金・手当・福利厚生について不合理と認められる例が明確化されます。</p><p>出所: <a href="https://www.mhlw.go.jp/web_magazine/column/20260803.html" target="_blank" rel="noopener noreferrer">2026年10月からパートタイム・有期雇用のルールが変わります―3つの改正ポイント（厚生労働省 Webマガジン）</a></p><p>社会保険労務士による解説は、明示すべき事項の条文上の位置づけを次のように示しています。</p><blockquote class="voice"><p>法第14条第２項の規定による説明（待遇の相違の内容・理由等に関する説明）を求めることができる旨</p></blockquote><p>比較の基準となる労働者については、「通常の労働者」すなわち「いわゆる正規型の労働者」と定義され、企業が自社の呼称（正社員など）に読み替えてよいとされています。 違反した場合の制裁は、行政指導で是正されない場合に「10万円以下の過料」です。</p><p>出所: <a href="https://uenishi-sr.jp/20260525-2/" target="_blank" rel="noopener noreferrer">【2026年10月改正】パートタイム労働者・有期雇用労働者に対する労働条件の明示事項の追加（京都うえにし社会保険労務士事務所）</a></p><p><strong>パターン判定 &amp; Why Now</strong></p><p><strong>5. 規制・プラットフォーム変更対応型</strong>に、<strong>2. コミュニティ特化型</strong>（社労士という職能コミュニティ）が重なります。</p><p>Why Now は施行日です。 10月1日以降に締結・更新する契約から、明示が義務になります。 更新時期が集中する事業者では、9月中に通知書の書式を確定する必要があります。</p><p>ただし Why Now の本体は明示ではありません。 明示が義務化されると、労働者側に「説明を求める」という選択肢が制度として告知されます。 <strong>説明の請求は、明示の義務化によって増えます。</strong> 説明の材料を持たない事業者は、請求が来てから慌てることになります。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みの範囲は、労働条件通知書の書式です。 人事労務SaaSは10月1日に合わせて明示事項を追加するはずであり、社労士向けの書式集も更新されます。 ここへ個人が入る余地はありません。</p><p>未解決の範囲は、説明資料の中身です。 「基本給の決定要素が正社員と異なる理由」「賞与を支給しない理由」「通勤手当の支給基準の違い」は、各社の規程と運用にしか書かれていません。 ひな形を配っても埋まらず、埋めるには規程を読む工程が要ります。 <strong>この工程は、外部のSaaSが持っていないデータの上でしか成立しません。</strong></p><p>一方で、この空白は狭いものです。 埋める作業自体は表を作ることであり、技術的な難所がありません。</p><h3 id="アイデア-3-scenegate-ios-27-sdk-でのビルドが本番のどの機能を殺すかを-ビルド前に写像する検査">アイデア 3: <code>scenegate</code> (iOS 27 SDK でのビルドが本番のどの機能を殺すかを、ビルド前に写像する検査)</h3><ul><li><strong>ターゲット</strong>: 保守モードの iOS アプリを複数抱える受託開発会社と、自社アプリを外注で運用している事業会社。1本ずつ手で確かめるコストが積み上がる立場を想定する。</li><li><strong>解決する課題</strong>: iOS 27 SDK でビルドすると、UISceneDelegate に対応していないアプリは起動時に終了する。起動しないため <code>didFinishLaunchingWithOptions</code> が走らず、通知登録も行われない。結果としてデバイストークンが取得できず、プッシュ通知が届かなくなる。この連鎖は Apple の移行ガイドが説明する「シーンへ移行せよ」からは見えない。</li></ul><p><strong>検知した生の声（一次ソース）</strong></p><p>移行時に何が壊れるかを、通知基盤の提供者が具体的に書いています。</p><blockquote class="voice"><p>App crashes before <code>AppDelegate</code> initializes because no <code>UISceneDelegate</code> is found.</p></blockquote><blockquote class="voice"><p><code>application(_:didFinishLaunchingWithOptions:)</code> never executes</p></blockquote><blockquote class="voice"><p><code>didRegisterForRemoteNotificationsWithDeviceToken</code> never receives a callback</p></blockquote><blockquote class="voice"><p>No token means no push delivery</p></blockquote><p>強制の条件は、端末のOSバージョンではなくビルドに使ったSDKです。</p><blockquote class="voice"><p>An app compiled against the iOS 26 SDK will still run on an iOS 27 device.</p></blockquote><p>そして、既存ドキュメントで扱われていない副作用が指摘されています。</p><blockquote class="voice"><p>Stale tokens after rebuilding</p></blockquote><p>出所: <a href="https://www.courier.com/blog/ios-27-uiscenedelegate-push-notification-deadline-what-breaks-and-how-to" target="_blank" rel="noopener noreferrer">iOS 27 UISceneDelegate Push Notification Deadline（Courier）</a></p><p>現在の提出下限は iOS 26 SDK であり、iOS 27 SDK の強制はまだ来ていません（<a href="https://www.developer.apple.com/news/upcoming-requirements/" target="_blank" rel="noopener noreferrer">SDK minimum requirements</a>）。 Xcode 27 でのビルドが必須になるのは2027年4月と見込まれています。</p><p><strong>パターン判定 &amp; Why Now</strong></p><p><strong>6. マイクロDevExツール型</strong>です。</p><p>Why Now は、強制の到来が確定していながら、まだ来ていない点にあります。 iOS 27 は今月に一般提供され、SDK の強制は2027年4月と見込まれます。 移行の窓は約7か月であり、この間に受託先のアプリを順に確かめる需要が立ちます。</p><p><strong>既存プレイヤーが解決済みの範囲と、未解決の範囲</strong></p><p>解決済みの範囲は、移行そのものの手順です。 Apple はシーンベースのライフサイクルへの移行を文書化しており、Xcode も警告を出します。 コード変換自体は、LLM を使えば個々のファイル単位では片づきます。</p><p>未解決の範囲は、<strong>移行漏れが本番のどの機能を殺すかの写像</strong>です。 起動、通知登録、トークン取得、配信という連鎖は、コードの1箇所を見ても分かりません。 加えて、依存ライブラリ側がシーンに未対応である場合、自社コードだけを直しても起動しません。</p><p>ただしこの空白は、Apple 自身が塞ぐ位置にあります。 Xcode 27 が移行アシスタントを載せた時点で、本案の価値は大きく削られます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>cws-window</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>taiguu-brief</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>scenegate</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">9月8日が確定、ただし母数が小さい</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月1日施行、制裁は軽い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">強制は確定、期限は7か月先</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">静的解析で足りる、難読化に弱い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">対話入力と帳票出力、規程読取は手動</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">AST解析、依存ライブラリ側が見えない</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">損失額は語れるが開発者向けは無料前提</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">社労士向け年額は通る、国内限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">単発、iOS開発者は道具に払わない</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">9月8日で閉じる観測窓が唯一の障壁</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">労務SaaSが10月1日に合わせて出す</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">Xcode 27 が塞ぐ位置にある</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカルCLI、ポリシー追随が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、ガイドライン追随が要る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカルCLI、SDK追随が要る</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-cws-window-19点-tier-2">Idea 1: <code>cws-window</code> — 19点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 9月8日という日付が公式に確定しており、その前後で審査待ち行列の性質が変わることまで外部が指摘している。買い手側には「28日待った」という金額に換算できる実害の記録が既に公開されている。<strong>減点材料</strong>: 市場の母数が小さい。Chrome 拡張機能で収入を得ている開発者は多く見積もっても数千人規模であり、しかもその多くは無償の拡張機能を副産物として持っているだけである。「明確な課金動機を持つ買い手が十分な数いる」という5点の条件に、人数の側で届かない。</li><li><strong>技術的実現可能性 4</strong>: 中核は manifest の権限宣言と実コードの API 呼び出しの突き合わせであり、既存のJSパーサで書ける。掲載文・単一目的の記述・権限justificationの整合も、文字列の照合で足りる。<strong>減点材料</strong>: バンドル済み・難読化済みのコードに対する権限使用の検出精度が落ちる。多くの拡張機能はビルド済みのバンドルを提出するため、この弱点は例外ではなく常態である。ソースマップの提出を前提にすると使える相手が減り、前提にしないと精度が落ちる。この二律背反を2週間では解けない。</li><li><strong>収益性 3</strong>: 差し戻し1回の損失を日数で語れるため、買い切り$39〜$59は説明できる。<strong>減点材料</strong>: 開発者向けCLIは無料が既定の領域であり、有償の壁が高い。加えて、提出は毎日起きる作業ではないため、月額の根拠が立たない。月$10〜$30の継続課金という4点以上の条件に、利用頻度の側で届かない。</li><li><strong>競合優位性 4</strong>: 3案で唯一、時間で閉じる参入条件を持つ。<strong>4週ケイデンス下での提出から公開までの実測値は、9月8日を過ぎると誰も集め直せない。</strong> 変更前後の比較を語れるのは、変更前に測り始めた者だけである。Google は待ち時間を公表せず、「共有できる具体策はまだない」と述べたまま半年が経っている。<strong>減点材料</strong>: 静的解析の部分は模倣が容易であり、観測データを持たない期間は差別化が存在しない。5点にしないのは、この障壁が製品の一部にしか掛かっていないためである。<strong>大手が3か月で真似したら</strong>、静的解析側は即座に並ばれる。守れるのは観測データ側だけである。</li><li><strong>個人開発適性 4</strong>: 検査はローカルのCLIで完結し、預かるデータがない。観測データの収集も追記のみであり、収集先が落ちても利用者の手元の検査は動き続ける。<strong>減点材料</strong>: Chrome ウェブストアのポリシーは改定され続けるため、ルールセットの追随が恒常的な固定費になる。加えて「このツールが通ると言ったのに差し戻された」という種類の問い合わせが構造的に発生する。</li></ul><h4 id="idea-2-taiguu-brief-17点-tier-2">Idea 2: <code>taiguu-brief</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 施行が1か月後に確定しており、対象は企業規模を問わない全事業者である。更新時期の集中する事業者では9月中に着手する必要がある。<strong>減点材料</strong>: 制裁が弱い。10万円以下の過料であり、しかも行政指導で是正されなければという条件が付く。予算が即座に動く水準ではない。「切実なペインと強い予算確保動機」という5点の条件に、金額の側で届かない。</li><li><strong>技術的実現可能性 4</strong>: 待遇項目ごとの入力フォームと、通知書の追記文言・説明資料・実施記録を出力する帳票生成で成立する。ローカルで完結し、外部APIを要しない。<strong>減点材料</strong>: 賃金規程や就業規則のPDFから待遇項目を自動抽出しようとすると、難度が跳ね上がる。手入力を前提にすれば2週間で届くが、その場合の入力負荷は利用者が負う。自動化の範囲を絞ることで実現可能性を買っている。</li><li><strong>収益性 3</strong>: 社労士事務所は顧問先ごとに繰り返し使うため、年額2万円から3万円の帯は説明できる。<strong>減点材料</strong>: 市場が国内に閉じており、海外展開の余地が構造的にない。企業への直販は施行前後の単発になり、翌年に払い直す理由がない。100人で月10〜20万円という5点の条件は、継続率の側で成立しない。</li><li><strong>競合優位性 2</strong>: 3案で最も弱い軸である。<strong>減点材料</strong>: 明示事項の追加は、人事労務SaaSが10月1日に合わせて確実に対応する範囲である。説明資料の中身が各社固有であることは事実だが、大手も「入力フォーム＋ひな形」で同じ形に到達できる。既に顧問先の従業員データを握っている側が有利であり、こちらに残るものがない。<strong>大手が3か月で真似したら</strong>、差分はゼロになる。2点にとどめたのは、参入障壁が「まだ誰も作っていない」という一点にしか依存していないためである。</li><li><strong>個人開発適性 4</strong>: 従業員情報を外部へ送らないローカル実行として設計でき、個人情報を預かる責任を負わずに済む。サポート負荷も低い。<strong>減点材料</strong>: 同一労働同一賃金ガイドラインの改定に追随する必要があり、法令解釈を含む問い合わせが来る。個人が法令判断の外観を持つ出力を提供することのリスクは、この軸を5点にできない理由である。</li></ul><h4 id="idea-3-scenegate-16点-tier-2">Idea 3: <code>scenegate</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 強制の内容が明確であり、対応しなければ起動しないという結果も断定できる。移行の必要性を説明する手間がかからない。<strong>減点材料</strong>: 期限が遠い。Xcode 27 の必須化は2027年4月と見込まれ、現在の提出下限は iOS 26 SDK のままである。「今すぐ払う理由」が7か月先にあるため、購買の先送りが容易である。</li><li><strong>技術的実現可能性 4</strong>: <code>Info.plist</code> の scene 構成、<code>AppDelegate</code> のライフサイクル実装、非推奨となった <code>UIApplication</code> のアクセサ利用箇所は、いずれも静的解析で列挙できる。<code>Podfile.lock</code> と SPM の解決結果から依存ライブラリの一覧も取れる。<strong>減点材料</strong>: 依存ライブラリの内部がシーンに対応しているかは、ソースが手に入らない場合に判定できない。この判定こそが受託にとっての難所であり、そこを埋められないまま出すことになる。</li><li><strong>収益性 2</strong>: 3案で最も弱い軸である。<strong>減点材料</strong>: iOS 開発者向けの検査ツールは無償が既定であり、有償化の実績が乏しい。移行は1アプリにつき1回で終わるため、継続課金の根拠がない。受託会社に「監査レポート」として売る道はあるが、それは製品ではなく役務の販売であり、個人の時間が原価になる。「API原価率」ではなく「人的原価率」でスケールしない。</li><li><strong>競合優位性 2</strong>: <strong>減点材料</strong>: Apple が正面から重なる。Xcode 27 が移行アシスタントや診断を載せれば、本案の中核は消える。除外フィルタの「Big Tech 正面衝突」に該当するかを検討したが、Apple が現時点で提供しているのは移行手順の文書と警告のみであり、機能の重複としては未成立と判断して却下は見送った。ただしそれは、いつでも重複しうるという意味でもある。加えて LLM によるコード変換が、移行作業そのものを個別に解いてしまう。</li><li><strong>個人開発適性 4</strong>: ローカルCLIとして完結し、預かるデータがない。CI に組み込む形にすれば運用も不要である。<strong>減点材料</strong>: iOS SDK は毎年更新され、非推奨APIの一覧も毎年変わる。ルールセットの年次更新が固定費として残る。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-cws-window-のリスクと対策">1. <code>cws-window</code> のリスクと対策</h3><p><strong>最大のリスクは、審査待ち時間の実測データが集まらないことです。</strong></p><p>本案の競合優位性は、9月8日を境に取り直せなくなる観測データにあります。 しかしその観測は、開発者が自分の提出時刻と公開時刻を提供してくれることが前提です。 提出は毎日起きる作業ではないため、100人が導入しても週に数十件しか集まりません。 統計として意味を持つ量に届く前に、9月8日が過ぎる可能性があります。</p><p>対策は、収集を人の善意に依存させないことです。 提出前検査のCLIが実行された時点の時刻と、拡張機能のバージョン番号だけを記録します。 公開の検知は、開発者の手を借りずに Chrome ウェブストアの公開ページからバージョン番号の変化を読むことで成立します。 提出時刻は手元のCLI、公開時刻は公開情報という組み合わせであり、開発者が後から報告する工程を省けます。</p><p><strong>第二のリスクは、静的解析の判定が当たらないことです。</strong></p><p>差し戻し理由の多くは権限の過剰宣言と掲載情報の不整合ですが、実際の審査には自動判定に載らない要素が含まれます。 「通ると言われたのに差し戻された」という体験は、製品の信頼を一度で失わせます。</p><p>対策は、出力を判定ではなく指摘に固定することです。 「通る/通らない」を出さず、「この権限はコード上で使用箇所が見つからない」「掲載文にある機能が manifest の権限と対応しない」という事実だけを列挙します。 判断は開発者が行い、ツールは材料だけを出します。</p><p><strong>反証されたときの撤退条件</strong>は、Day 1-2 の接触で「差し戻しを経験していない」という回答が大半を占めた場合です。 待ち行列の長さが問題であって差し戻しが問題でないなら、検査には価値がありません。</p><h3 id="2-taiguu-brief-のリスクと対策">2. <code>taiguu-brief</code> のリスクと対策</h3><p><strong>最大のリスクは、説明を求められる件数がそもそも少ないことです。</strong></p><p>本案は「明示の義務化によって説明の請求が増える」という仮定の上に立ちます。 しかし労働者が待遇差の説明を求める行為には、職場での立場という抑止が働きます。 明示されても請求が増えなければ、事業者は説明資料を準備する動機を持ちません。 その場合、売れるのは通知書の1行を追記する機能だけになり、それは労務SaaSが無償で配ります。</p><p>対策は、製品の入口を説明資料ではなく<strong>通知書の追記文言の生成</strong>に置き、説明資料を上位の機能として後段に置くことです。 入口を確実に発生する需要に合わせ、不確実な需要は入口の後ろに隠します。</p><p><strong>第二のリスクは、法令解釈の責任を負わされることです。</strong></p><p>「このツールが出した説明資料で説明したのに、不合理な待遇差と判断された」という申立てが起きうる。 個人が背負える種類の責任ではありません。</p><p>対策は、出力を事業者自身の記述としてまとめる形に限定することです。 理由の文面はツールが生成せず、事業者が入力した文を構造化して並べるだけにします。 ツールが提供するのは「どの待遇項目について書くべきか」の網羅リストであり、内容ではありません。</p><p><strong>反証されたときの撤退条件</strong>は、社労士5名への聞き取りで「顧問先には自作のExcelで足りている」という回答が大半を占めた場合です。</p><h3 id="3-scenegate-のリスクと対策">3. <code>scenegate</code> のリスクと対策</h3><p><strong>最大のリスクは、Apple が同じものを出すことです。</strong></p><p>Xcode 27 が移行診断を載せた時点で、本案の中核は無価値になります。 これは対策できるリスクではなく、時期の問題です。</p><p>対策は、Apple が出さない部分に製品の重心を移すことです。 Apple が診断するのは自社コードであり、依存ライブラリの対応状況ではありません。 「どのライブラリのどのバージョンがシーンに対応しているか」という表は、複数の現場を通らないと作れません。 本案に残る価値があるとすれば、この表だけです。</p><p><strong>第二のリスクは、買い手が金を払わないことです。</strong></p><p>iOS 開発者向けの検査ツールは無償が既定であり、この前提は動きません。</p><p>対策は、売り先を開発者個人ではなく受託会社に変えることです。 「保守中の20本について、iOS 27 SDK でビルドしたときに壊れる箇所の一覧」は、見積の材料になります。 見積の材料は経費で通ります。</p><p><strong>反証されたときの撤退条件</strong>は、受託会社3社への聞き取りで「移行はLLMに投げれば済む」という回答が大半を占めた場合です。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>cws-window</code> について、14日間の想定を置きます。 9月8日にケイデンスが変わるため、Day 1 は9月1日からの起算とします。 <strong>観測の基準値を取れるのは Day 1 から Day 7 までであり、この7日間は取り戻せません。</strong></p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) chromium-extensions グループと関連コミュニティで、直近6か月に差し戻しを経験した開発者を10名探し、差し戻し理由の内訳を聞く。(b) 「待つのは辛いが差し戻されたことはない」という回答が大半なら、検査に価値がないということであり、着手しない。(c) 提出時刻と公開時刻を記録することへの抵抗の有無を確認する。</td></tr><tr><td class="tk">Day 2-3</td><td>観測の開始</td><td><strong>最優先。9月8日より前に動かす必要がある。</strong> 公開されている拡張機能のバージョン番号を定期的に読み、変化した時刻を記録するだけの収集器を書く。対象は Day 1 で接触した開発者の拡張機能と、インストール数上位の公開拡張機能に限る。提出時刻はこの時点では取れないため、公開間隔の分布だけを先に取る。<strong>4週ケイデンス下での基準値は、9月7日までしか観測できない。</strong></td></tr><tr><td class="tk">Day 4-6</td><td>提出前検査（権限）</td><td>manifest の <code>permissions</code> / <code>host_permissions</code> と、コード上の <code>chrome.*</code> 呼び出しおよび実際に触れるオリジンを突き合わせる。出力は「宣言されているが使用箇所が見つからない権限」「<code>&lt;all_urls&gt;</code> を宣言しているが実際に触れているのは3オリジン」という事実の列挙に限る。通る/通らないの判定は出さない。</td></tr><tr><td class="tk">Day 7-8</td><td>提出前検査（掲載情報）</td><td>掲載文・単一目的の記述・権限justification・プライバシー開示と manifest の整合を照合する。掲載文に書かれた機能に対応する権限がない場合、逆に権限に対応する記述がない場合を指摘する。ここまでを無償のCLIとして公開する。</td></tr><tr><td class="tk">Day 9-10</td><td>提出時刻の記録</td><td>CLI の実行時に、拡張機能のIDとバージョン番号と時刻をローカルへ記録し、任意で送信する導線を作る。送信は追記のみで、失敗しても検査は成立する。Day 2-3 の公開検知と突き合わせることで、提出から公開までの実測値が初めて揃う。</td></tr><tr><td class="tk">Day 11-12</td><td>提出タイミングの提示</td><td>収集した公開間隔の分布と、Chrome の安定版リリース日程を重ねる。「次の安定版は9月22日、その前後48時間を外すなら9月18日までに提出」という形で、日付だけを返す。予測の精度を主張せず、<strong>観測された分布をそのまま見せる</strong>。</td></tr><tr><td class="tk">Day 13-14</td><td>有償化の判断</td><td>成功指標はダウンロード数ではなく、<strong>「検査の結果、提出前に権限宣言または掲載文を修正した件数」</strong>に置く。修正が起きないなら、指摘に価値がないということであり、有償化へ進みません。</td></tr></tbody></table></div><p>課金設計は、提出前検査を恒久的に無償、提出タイミングの提示を有償とする二層構成を想定します。 無償側は模倣可能な静的解析であり、有償側は<strong>9月8日より前にしか取れない基準値</strong>を含みます。 この順序は逆にできません。 検査を有償にすると導入者が減り、導入者が減ると観測データが集まらず、有償にすべき側の価値が立たないためです。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>cws-window</code></strong>（総合19点、Tier 2）を最有力候補として選定しました。選定理由は、<strong>競合優位性が4点である唯一の案</strong>だからです。9月8日に Chrome のリリース間隔が4週から2週へ変わるため、それ以前の審査待ち時間の分布は、その日を過ぎると誰も観測できません。前回設定した探索軸「期限までにしか観測できないデータ」を、3案で唯一満たしています。Tier 1 に届かなかった理由は二点です。第一に、Chrome 拡張機能で収入を得る開発者という母数が小さく、市場規模の側で4点が上限であること。第二に、開発者向けCLIの有償化という構造的な壁があり、収益性が3点を超えないことです。着手の条件は Day 1 の接触であり、「待つのは辛いが差し戻されたことはない」という回答が大半なら着手しません。</li></ul><ul><li><strong><code>taiguu-brief</code></strong>（総合17点、Tier 2）は、買い手の数が3案で最も多い案です。パート・有期雇用労働者を雇う事業者は企業規模を問わず対象であり、10月1日という日付も動きません。それでも17点に留まったのは、<strong>競合優位性が2点</strong>であることによります。明示事項の追加は人事労務SaaSが確実に対応する範囲であり、参入障壁が「まだ誰も作っていない」という一点にしか依存していません。着手するなら、製品ではなく社労士事務所向けの受託作業として始め、繰り返し発生する部分だけを後から製品化すべきです。</li></ul><ul><li><strong><code>scenegate</code></strong>（総合16点、Tier 2）は、壊れ方の説明が3案で最も明快な案です。「iOS 27 SDK でビルドすると起動しない、起動しないから通知トークンが死ぬ」という連鎖は、買い手にそのまま伝わります。しかし収益性2点と競合優位性2点が重なり、16点に留まりました。Apple が Xcode 27 に移行診断を載せた時点で中核が消える位置にあり、残るのは依存ライブラリの対応状況の表だけです。着手するなら、その表を作ることから始め、検査ツールは表を配るための道具として扱うべきです。</li></ul><ul><li><strong>今回の探索で候補から落とした案が4件あります。</strong><ul><li><strong>Chrome の非推奨APIの期日換算</strong>: 9月8日以降、マイルストーン番号は2週ごとに進むため、「M160 で削除」という告知の実際の日付が従来の見積より早く来ます。依存しているAPIの削除日を暦日へ換算する道具は成立しますが、課題の形が「依存の束の期限を棚卸しする」であり、2026-08-30 の <code>mcp-sunset</code> と実質的に同一です。重複判定フィルタに触れるため、総合13点で却下しました。</li><li><strong>Sora 2 API の移行支援</strong>: 2026年9月24日に <code>sora-2</code> 系モデルと Videos API が削除されます（<a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener noreferrer">OpenAI Deprecations</a>）。期限は鋭いものの、移行先の動画生成APIを叩く構成では原価率が課金額の50%を超えやすく、除外フィルタの「過度なAPI原価率」に該当します。加えて残り3週間では製品が間に合いません。総合11点で却下しました。</li><li><strong>Content API for Shopping 停止後の復旧支援</strong>: 2026年8月18日に停止済みで、移行しなかった事業者の商品リスティングが既に止まっています。需要は現に発生していますが、Merchant API への移行はフィード管理ベンダーが既に商品化しており、正面衝突になります。総合12点で却下しました。</li><li><strong>サイバー対処能力強化法のインシデント報告支援</strong>: 2026年10月1日から基幹インフラ事業者にインシデント報告義務が生じます。期限は確定していますが、買い手が15業種の大規模事業者に限られ、調達要件と実績が参入条件になります。個人開発適性が構造的に成立しないため、総合12点で却下しました。</li></ul></li></ul><ul><li><strong>7回連続で Tier 1 に到達していません。</strong> ただし今回は、前回設定した探索軸が実際に機能しました。「期限までにしか観測できないデータ」を条件に当てたところ、3案のうち1案（<code>cws-window</code>）だけが競合優位性4点に届き、残る2案は2点に沈みました。差がついたのは技術の難易度ではなく、<strong>データの取得可能期間が有限かどうか</strong>です。<code>taiguu-brief</code> の説明資料も <code>scenegate</code> の依存ライブラリ表も、来年でも同じものを作れます。<code>cws-window</code> の基準値だけが、9月7日を最後に観測不能になります。一方で今回明らかになった弱点は、収益性が3案とも3点以下に留まったことです。<strong>観測窓の有無は競合優位性を説明できても、支払意思を説明できません。</strong> 次回の探索軸には、「その期限までにしか観測できないデータ」に加えて、<strong>そのデータを必要とする側が既に金銭で解決を試みた形跡があるか</strong>を置きます。既に金を払って解決を試みた記録は、支払意思の存在を事後的に証明します。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li><li>前回レポート (2026-08-31)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://groups.google.com/a/chromium.org/g/chromium-extensions/c/VJ6DcpEn51Y/m/yuxvHWdwCAAJ" target="_blank" rel="noopener noreferrer">PSA: Increase in review times for submissions to the Chrome Web Store（chromium-extensions グループ）</a><span class="u">https://groups.google.com/a/chromium.org/g/chromium-extensions/c/VJ6DcpEn51Y/m/yuxvHWdwCAAJ</span></li><li><a href="https://developer.chrome.com/blog/chrome-two-week-release" target="_blank" rel="noopener noreferrer">Get features faster with Chrome&#x27;s two-week release cycle（Chrome for Developers）</a><span class="u">https://developer.chrome.com/blog/chrome-two-week-release</span></li><li><a href="https://www.superchargebrowser.com/library/chrome-two-week-release-cycle-2026-explained/" target="_blank" rel="noopener noreferrer">Chrome&#x27;s 2-Week Release Cycle (Sept 2026): What Changes</a><span class="u">https://www.superchargebrowser.com/library/chrome-two-week-release-cycle-2026-explained/</span></li><li><a href="https://news.designrush.com/google-chrome-new-release-cycle-challenges-web-developers" target="_blank" rel="noopener noreferrer">Google Chrome Faster Release Cycle Reshapes Web Development（DesignRush）</a><span class="u">https://news.designrush.com/google-chrome-new-release-cycle-challenges-web-developers</span></li><li><a href="https://developer.chrome.com/docs/webstore/program-policies/policies" target="_blank" rel="noopener noreferrer">Chrome Web Store - Program Policies（Chrome for Developers）</a><span class="u">https://developer.chrome.com/docs/webstore/program-policies/policies</span></li><li><a href="https://developer.chrome.com/docs/webstore/review-process" target="_blank" rel="noopener noreferrer">Chrome Web Store review process（Chrome for Developers）</a><span class="u">https://developer.chrome.com/docs/webstore/review-process</span></li><li><a href="https://www.mhlw.go.jp/web_magazine/column/20260803.html" target="_blank" rel="noopener noreferrer">2026年10月からパートタイム・有期雇用のルールが変わります―3つの改正ポイント（厚生労働省 Webマガジン）</a><span class="u">https://www.mhlw.go.jp/web_magazine/column/20260803.html</span></li><li><a href="https://uenishi-sr.jp/20260525-2/" target="_blank" rel="noopener noreferrer">【2026年10月改正】パートタイム労働者・有期雇用労働者に対する労働条件の明示事項の追加（京都うえにし社会保険労務士事務所）</a><span class="u">https://uenishi-sr.jp/20260525-2/</span></li><li><a href="https://keiyaku-watch.jp/media/hourei/202610-parttime-koyo/" target="_blank" rel="noopener noreferrer">【2026年10月施行】パート・有期雇用労働者のルール改正のポイント（契約ウォッチ）</a><span class="u">https://keiyaku-watch.jp/media/hourei/202610-parttime-koyo/</span></li><li><a href="https://www.courier.com/blog/ios-27-uiscenedelegate-push-notification-deadline-what-breaks-and-how-to" target="_blank" rel="noopener noreferrer">iOS 27 UISceneDelegate Push Notification Deadline: What breaks &amp; how to prepare（Courier）</a><span class="u">https://www.courier.com/blog/ios-27-uiscenedelegate-push-notification-deadline-what-breaks-and-how-to</span></li><li><a href="https://www.developer.apple.com/news/upcoming-requirements/" target="_blank" rel="noopener noreferrer">SDK minimum requirements（Apple Developer News）</a><span class="u">https://www.developer.apple.com/news/upcoming-requirements/</span></li><li><a href="https://news.ycombinator.com/item?id=46345827" target="_blank" rel="noopener noreferrer">Ask HN: What developer tool do you wish existed in 2026?（Hacker News）</a><span class="u">https://news.ycombinator.com/item?id=46345827</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-01_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
