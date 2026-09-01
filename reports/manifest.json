@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T06:24:11+09:00",
+  "generated_at": "2026-09-02T03:27:25+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -81,6 +81,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-02_market_research_report.html",
+          "title": "2026-09-02: EU Data Act の出口義務・AAGUID 許可リストの空洞・インボイス経過措置の境界における穴場市場の特定",
+          "date": "2026-09-02",
+          "bytes": 86128
+        },
         {
           "file": "2026-09-01_market_research_report.html",
           "title": "2026-09-01: Chrome 2週間ケイデンス・待遇差説明の明示義務・iOS 27 の起動時強制における穴場市場の特定",
