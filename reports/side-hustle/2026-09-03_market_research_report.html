@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「金を受け取っていた側が利益相反で作れない道具か」を探索軸に置き、2026年9月7日に上流の保守が止まる OpenSSL 3.0 を中核に据えた3案を5軸評価した結果">
+<title>2026-09-03: OpenSSL 3.0 のサポート断崖・前払式支払手段の基準日・EUDI 依拠当事者登録における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-03</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / openssl / eol / sbom</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-03">市場リサーチ &amp; 5軸評価レポート (2026-09-03)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">eol-cliff</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 11 件（うち一次ソース 12 件）</div></div><div class="fig">18<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">eol-cliff</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">kijunbi-line</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">rp-declare</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-02）の終わりに、次回の探索軸を宣言しました。 <strong>金が動いた形跡があり、かつその金を受け取っていた側が構造的に手を出せない位置</strong>を探す、という軸です。 手を出せない理由として想定したのは利益相反でした。 乗り換えを助ける道具をクラウド事業者は作らず、許可リストの無効さを示す道具を IdP ベンダーは作らない、という構図です。</p><p>今回はこの軸を最初から当てて探索しました。 判定の手順は2段です。 第一に、その課題に対して<strong>現金の移動が公開情報として観測できる</strong>こと。 第二に、その現金を受け取っている事業者が、<strong>その道具を作ると自社の売上を削る</strong>こと。 両方を満たす領域だけを候補に残しました。</p><p>この手順で見たとき、変曲点は3つに絞れました。</p><p>1つ目は、OpenSSL 3.0 のサポート終了です。 2026年9月7日、つまり4日後に、2021年9月7日リリースの 3.0 系列が上流の保守を離れます。 ここで観測できる現金は、<strong>延命サポートの契約料</strong>です。 OpenSSL Corporation は 3.0 に対する有償の延長サポートを提供しており、HeroDevs や TuxCare も EOL 版の保守を商品として売っています。 延命に金を払う顧客が現に存在するということは、EOL が金銭に換算される課題であることの証明です。 そして延命ベンダーは、「あなたのビルドは実は distro 側がまだパッチを当てているので契約は不要です」とは言えません。</p><p>2つ目は、前払式支払手段の基準日です。 2026年9月30日、つまり4週間後が、資金決済法の定める年2回の基準日にあたります。 ここで観測できる現金は、<strong>発行保証金の供託額</strong>です。 基準日未使用残高が1,000万円を超えた発行者は、その2分の1以上を法務局へ供託しなければなりません。 現金が実際に法務局へ積まれるという、極めて明瞭な金銭の移動です。 そしてポイント基盤や決済 SaaS のベンダーは、「あなたの残高はまもなく規制ラインを超えます」と顧客に告げる道具を作りません。 それは自社サービスの利用を萎縮させる通知だからです。</p><p>3つ目は、EUDI ウォレットの依拠当事者登録です。 2026年12月24日から規則が適用され、ウォレットのクレデンシャルを受け取る側は国の登録簿へ登録しなければなりません。 ここで観測できる現金は、<strong>本人確認の単価</strong>です。 ウォレット経由の受け入れは、1件あたり70〜100ユーロかかっていた顧客オンボーディングを3〜8ユーロへ落とすと報告されています。 差額がそのまま、これまで KYC ベンダーへ支払われていた金額です。 そして KYC ベンダーは、自社への支払いを消す移行を加速させる道具を作りません。</p><p>この3件は、現金の見え方が異なります。 1つ目は<strong>延命に払われている契約料</strong>、2つ目は<strong>法務局へ積まれる供託金</strong>、3つ目は<strong>これまで検査1件ごとに払われていた単価</strong>です。 以下では、それぞれについて「受け取っていた側が作れない理由」を明示したうえで、個人が入れる位置を探しました。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-03)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-03)"><title>アイデア候補のポジショニングマップ (2026-09-03)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="345.2" cy="132.2" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="357.2" y="136.2" text-anchor="start" class="qpt-label">1</text><circle cx="345.2" cy="132.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: EOL Cliff 総合 18 / 25（Tier 2）" data-tv="Idea 1: EOL Cliff" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="470.2" cy="155.0" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="482.2" y="159.0" text-anchor="start" class="qpt-label">2</text><circle cx="470.2" cy="155.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Kijunbi Line 総合 18 / 25（Tier 2）" data-tv="Idea 2: Kijunbi Line" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="447.4" cy="183.4" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="459.4" y="187.4" text-anchor="start" class="qpt-label">3</text><circle cx="447.4" cy="183.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: RP Declare 総合 17 / 25（Tier 2）" data-tv="Idea 3: RP Declare" data-td="総合 17 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: EOL Cliff</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Kijunbi Line</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: RP Declare</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-eol-cliff-そのバイナリを誰がいつまでパッチするのかを出所から判定し-保守の断崖を先出しするローカル検査">アイデア 1: <code>eol-cliff</code> (そのバイナリを誰がいつまでパッチするのかを出所から判定し、保守の断崖を先出しするローカル検査)</h3><p>コンテナイメージやファイルツリーを走査し、含まれる各コンポーネントについて「<strong>このビルドを、誰が、いつまでパッチするのか</strong>」を出所の種別から判定するローカル CLI です。 出力は脆弱性の一覧ではありません。 <strong>保守の帰属先と、その帰属が切れる日付のカレンダー</strong>です。</p><p>この道具が答えるのは、既存のスキャナが答えない問いです。 既存のスキャナは「このバージョンに既知の CVE があるか」を答えます。 <code>eol-cliff</code> は「このバージョンに、これから CVE が出たとき、直す人がいるか」を答えます。</p><h4 id="検知した生の声">検知した生の声</h4><p>Sonatype の2026年版サプライチェーンレポートは、EOL 版が脆弱性情報から抜け落ちる構造を正面から書いています。</p><blockquote class="voice"><p><strong>EOL versions omitted from advisories</strong> gave organizations a false sense of security, masking risks that upstream maintainers no longer track.</p><p class="cite">— <a href="https://www.sonatype.com/state-of-the-software-supply-chain/2026/vulnerability-management" target="_blank" rel="noopener noreferrer">Vulnerability Management | 2026 Software Supply Chain Report（Sonatype）</a></p></blockquote><p>同レポートは、この構造が生む誤りを件数で示しています。</p><blockquote class="voice"><p>Sonatype identified <strong>20,362 false positives</strong>, or packages incorrectly marked as vulnerable ... and <strong>167,286 false negatives</strong>, meaning exploitable components went unflagged entirely.</p><p class="cite">— 同上</p></blockquote><p>見逃しが誤検知の8倍あります。 そして見逃しが起きる理由は、スキャナの実装ではなく、脆弱性情報そのものの作られ方にあります。</p><blockquote class="voice"><p>maintainers determine which versions are affected and file a CVE with a defined affected range. Every vulnerability scanner, SBOM tool, and CVE feed in the industry consumes that range. <strong>If your version falls outside it, you get no alert. Not because you're safe, but because no one checked.</strong></p><p class="cite">— <a href="https://www.bleepingcomputer.com/news/security/the-eol-blind-spot-in-your-cve-feed-what-sca-tools-miss/" target="_blank" rel="noopener noreferrer">The EOL Blind Spot in Your CVE Feed: What SCA Tools Miss（BleepingComputer）</a></p></blockquote><p>同記事は、EOL 版がその範囲から外れる理由と、外れた結果の規模を続けて書いています。</p><blockquote class="voice"><p><strong>EOL versions fall outside that range almost by default.</strong></p><p class="cite">— 同上</p></blockquote><blockquote class="voice"><p>... approximately <strong>80% of the time</strong> ... an unlisted EOL version is also affected ... Current tools track only ~7,000 EOL versions, yet analysis shows <strong>5.4 million package versions are actually end-of-life</strong> ... these are versions actively appearing in enterprise SBOMs today, with no CVE investigation coverage.</p><p class="cite">— 同上</p></blockquote><p>もう一方の誤り、つまり誤検知の側も、出所を見ないことから生じます。 Red Hat は、バージョン番号だけを見る検査が誤検知を出す構造を、自社の公式ドキュメントで説明しています。</p><blockquote class="voice"><p>Some security scanning and auditing tools make decisions about vulnerabilities based solely on the version number of components they find ... which results in false positives as the tools do not take into account backported security fixes.</p><p class="cite">— <a href="https://access.redhat.com/security/updates/backporting" target="_blank" rel="noopener noreferrer">Security Backporting Practice（Red Hat Customer Portal）</a></p></blockquote><p><strong>見逃しと誤検知は、同じ一つの欠落から出ています。</strong> すなわち、そのバイナリがどこから来たのかを見ていないことです。</p><h4 id="4日後に起きること">4日後に起きること</h4><p>2026年9月7日に、OpenSSL 3.0 系列のサポートが終了します。</p><div class="tw"><table><thead><tr><th>系列</th><th>リリース</th><th>サポート終了</th><th>位置づけ</th></tr></thead><tbody><tr><td class="tk">OpenSSL 3.0</td><td>2021-09-07</td><td><strong>2026-09-07</strong></td><td>LTS（今週終了）</td></tr><tr><td class="tk">OpenSSL 3.5</td><td>2025-04-08</td><td>2030-04-08</td><td>現行 LTS</td></tr><tr><td class="tk">OpenSSL 4.0</td><td>2026-04-14</td><td>2027-05-14</td><td>非 LTS</td></tr></tbody></table></div><p>出所: <a href="https://openssl-library.org/roadmap/index.html" target="_blank" rel="noopener noreferrer">Roadmap（OpenSSL Library）</a> および <a href="https://endoflife.date/openssl" target="_blank" rel="noopener noreferrer">endoflife.date</a></p><p>ここで決定的なのは、<strong>同じ <code>3.0.x</code> という文字列が、出所によって全く違う意味を持つ</strong>ことです。</p><p>Ubuntu 22.04 LTS が配布する <code>openssl</code> パッケージは、Canonical の標準セキュリティメンテナンスが2027年5月まで、Ubuntu Pro の拡張セキュリティメンテナンスが2032年5月まで続きます（<a href="https://ubuntu.com/about/release-cycle" target="_blank" rel="noopener noreferrer">Ubuntu release cycle</a>）。 つまり、Ubuntu 22.04 上の <code>3.0.x</code> は9月8日以降も<strong>パッチされ続けます</strong>。</p><p>一方、同じイメージの中に静的リンクされた、あるいは <code>vendor/</code> 配下へコピーされた <code>3.0.x</code> は、9月8日以降<strong>誰もパッチしません</strong>。 distro のセキュリティ情報は、distro が管理するパッケージにしか効かないからです。</p><p>同じ数字が並んでいるファイルツリーの中に、生きている 3.0 と死んだ 3.0 が混ざっています。 <strong>その区別を、いまのスキャナは出力しません。</strong></p><p>同じ形の断崖は、この数か月で連続して来ています。 Node.js 20 は2026年4月30日に、Python 3.10 は2026年10月31日に、それぞれ上流の保守を離れます。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p><code>market-analysis-patterns.md</code> の分類では、<strong>マイクロ DevEx ツール型</strong>に該当します。 毎日発生するが誰も測っていない地味な不確実性を、1コマンドで消す位置です。</p><p>Why Now は日付そのものです。 9月7日を越えると、世界中のイメージの中で <code>3.0.x</code> の意味が二分されます。 それまでは「まだ全部生きている」ため、この道具の出力は自明です。 <strong>8日から自明でなくなります。</strong></p><p>需要側の圧力も同時期に立ちます。 EU サイバーレジリエンス法の第14条にもとづく報告義務が、2026年9月11日から適用されます。 HeroDevs はこの義務と EOL 依存の関係を、次のように書いています。</p><blockquote class="voice"><p>A new CVE gets published, exploitation is confirmed, and your 24-hour clock starts ticking, but there's no patch coming from the community.</p><p class="cite">— <a href="https://www.herodevs.com/blog-posts/cra-reporting-obligations-start-september-2026-what-eol-dependencies-mean-for-your-compliance" target="_blank" rel="noopener noreferrer">CRA Reporting Obligations Start September 2026（HeroDevs）</a></p></blockquote><p>ただし本案は、この報告義務そのものを扱いません。 報告義務の起動判定と証跡管理は、2026-08-25 に <code>cra-clock</code> として別途提案済みであり、重複判定フィルタに触れます。 本案が扱うのは報告の<strong>前段</strong>、すなわち「パッチが来ない場所がどこにあるか」を先に知る工程です。</p><h4 id="受け取っていた側が作れない理由">受け取っていた側が作れない理由</h4><p>EOL 版の保守は、既に商品として売られています。 OpenSSL Corporation は 3.0 に対する有償の延長サポートを提供しており、HeroDevs は EOL 依存の追跡と保守を事業にしています。 <strong>この領域には、現に金が動いています。</strong></p><p>そして、その金を受け取っている側は、この道具を作れません。 <code>eol-cliff</code> の出力の半分は、「あなたのこの <code>3.0.x</code> は Ubuntu 22.04 のパッケージなので、2027年5月まで Canonical がパッチします。延命契約は要りません」という<strong>否定の答え</strong>だからです。 延命ベンダーにとって、これは自社の見込み客を減らす機能に他なりません。</p><p>スキャナベンダーの側にも、別の形の抑制が働きます。 EOL ブラインドスポットを製品の正面に置くことは、自社の検知率に構造的な穴があると認めることです。 Sonatype がレポートでこれを認めたのは、製品の機能としてではなく、業界分析としてでした。</p><hr><h3 id="アイデア-2-kijunbi-line-自社発行のポイント残高が資金決済法の基準額をいつ超えるかを-法定の合算単位で先出しするローカル計算機">アイデア 2: <code>kijunbi-line</code> (自社発行のポイント残高が資金決済法の基準額をいつ超えるかを、法定の合算単位で先出しするローカル計算機)</h3><p>有償のクレジットやポイントを自社で発行しているサービス提供者に対して、資金決済法上の<strong>基準日未使用残高</strong>を法令の定義に沿って算定し、1,000万円の基準額までの距離と、超過が見込まれる基準日を出すローカルツールです。</p><p>会計上の前受金残高とは別物を計算します。 両者は一致しません。 一致しない理由が、そのままこの道具の存在理由です。</p><h4 id="検知した生の声-1">検知した生の声</h4><p>財務省関東財務局は、届出義務の起動条件を明示しています。</p><blockquote class="voice"><p>自家型前払式支払手段発行者は、基準日（毎年3月31日、9月30日）における未使用残高が最初に基準額（1,000万円）を超えたとき、当局へ届出を行う必要があります。</p><p class="cite">— <a href="https://lfb.mof.go.jp/kantou/kinyuu/pagekthp00400036.html" target="_blank" rel="noopener noreferrer">前払式支払手段(商品券・プリペイドカード等)関係（財務省関東財務局）</a></p></blockquote><p>判定の単位が、事業者の直感と食い違います。</p><blockquote class="voice"><p>複数の自家型前払式支払手段を発行する場合、それぞれの自家型前払式支払手段について基準額を超えたかどうかを判断するのではなく、発行者が発行するすべての自家型前払式支払手段の基準日未使用残高を合計した額で判断します</p><p class="cite">— 同上</p></blockquote><p>超過した場合に発生するのは、届出だけではありません。 基準日未使用残高の2分の1以上に相当する額を、供託所へ供託する義務が生じます。 <strong>現金が実際に法務局へ積まれます。</strong></p><p>該当性の判定は、事業者が自分で行うには境界が細かすぎます。 日本資金決済業協会の Q&amp;A は、判定を誤りやすい点を具体的に書いています。</p><blockquote class="voice"><p>有効期間6月が明記されていれば、法の適用対象外となりますが、有効期間が切れても実質的に利用することができるものやシステム上有効期間経過後も利用できるような有効期間が形骸化しているものは、法の適用を受けることとなります。</p><p class="cite">— <a href="https://www.s-kessai.jp/businesses/prepaid/q_and_a/" target="_blank" rel="noopener noreferrer">前払式支払手段についてよくあるご質問（一般社団法人日本資金決済業協会）</a></p></blockquote><p>無償ポイントの扱いは、実装の細部で反転します。</p><blockquote class="voice"><p>無償ポイントは、利用者から対価を得て発行することがなく、無償でのみ発行されることから、前払式支払手段には該当しません。</p><p class="cite">— 同上</p></blockquote><blockquote class="voice"><p>無償発行分と有償発行分が①区分表示と②区分管理を満さない限り、無償発行分も法の適用対象となり、発行額・回収額・未使用残高に計上が必要となります。</p><p class="cite">— 同上</p></blockquote><p>複数価格帯のパッケージ販売も、区分がなければ不利に換算されます。</p><blockquote class="voice"><p>パッケージの単価ごとに届出・登録及び区別表示・区分管理がされていない場合は、ポイントの最大単価での換算となります。</p><p class="cite">— 同上</p></blockquote><p><strong>この3つは、いずれもデータベースの設計に依存します。</strong> 有効期限のカラムが存在しても、期限切れレコードが消費可能なままなら形骸化です。 付与テーブルに <code>is_free</code> フラグが無ければ、無償分も残高に乗ります。 単価を保持していなければ、最大単価で換算されます。</p><p>課金 DB がどう作られているかで、同じ事業の同じ残高が、規制対象になったりならなかったりします。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p><strong>規制・プラットフォーム変更対応型</strong>と、<strong>コミュニティ特化型</strong>の複合です。 特化先は、クレジット制・回数券制の課金モデルを採る国内の小規模 SaaS と個人開発サービスです。</p><p>Why Now は2026年9月30日です。 4週間後が基準日にあたり、そこで超過していれば届出期限は2か月後、供託はその時点の残高の2分の1です。 加えて、2026年6月12日に改正資金決済法が施行され、クロスボーダー収納代行が資金移動業の規律へ取り込まれるなど、周辺の線引きが動いた直後にあたります。</p><p>この課題には、成長そのものが引き金になるという性質があります。 クレジット制の課金は、売れるほど未使用残高が積み上がります。 <strong>事業が順調であることが、そのまま規制ラインへの接近です。</strong> そして残高は毎日少しずつ増えるため、越える瞬間に警報が鳴りません。</p><h4 id="受け取っていた側が作れない理由-1">受け取っていた側が作れない理由</h4><p>この課題には、現金の移動が二重に観測できます。 一つは供託金であり、もう一つは供託に代える保全契約・信託契約の手数料です。 金融機関と信託会社は、この手数料を現に受け取っています。</p><p>一方、ポイント基盤ベンダーと決済 SaaS は、この道具を作れません。 「あなたの残高は次の基準日に基準額を超え、供託義務が生じます」という通知は、<strong>顧客に自社サービスの利用を控えさせる通知</strong>だからです。 ポイント発行量は、そのまま自社の課金指標に直結します。</p><p>会計 SaaS が作らない理由は、利益相反ではなく管轄です。 会計 SaaS が計算するのは前受金であり、それは会計基準にもとづく数字です。 法令上の未使用残高は、無償分の区分管理という<strong>会計帳簿の外にある実装事実</strong>に依存します。 帳簿だけを見ている限り、この数字は出せません。</p><hr><h3 id="アイデア-3-rp-declare-eudi-登録簿へ申告した属性と-実装が実際に要求している属性の差分を突き合わせる検査">アイデア 3: <code>rp-declare</code> (EUDI 登録簿へ申告した属性と、実装が実際に要求している属性の差分を突き合わせる検査)</h3><p>EU デジタルアイデンティティウォレットのクレデンシャルを受け取る側、すなわち依拠当事者（Relying Party）に対して、<strong>国の登録簿へ申告した属性リスト</strong>と、<strong>本番の提示要求が実際に求めている属性</strong>の差分を機械的に突き合わせるローカル検査です。</p><h4 id="検知した生の声-2">検知した生の声</h4><p>eIDAS 2.0 は、依拠当事者が登録時に何を申告するかを条文で定めています。</p><blockquote class="voice"><p>the name of the relying party ... the contact details of the relying party ... <strong>the intended use of European Digital Identity Wallets, including an indication of the data to be requested</strong></p><p class="cite">— <a href="https://www.procivis.ch/insights/wallet-relying-party-registration" target="_blank" rel="noopener noreferrer">EUDI wallet-relying party registration（Procivis）</a> が引用する eIDAS 2.0 第5b条第2項</p></blockquote><p>Procivis は、この登録を実装上の難所として位置づけています。</p><blockquote class="voice"><p>one of the more complex parts</p><p class="cite">— 同上</p></blockquote><p>ドイツの公的サンドボックスで実際に何が詰まったかが、公開されています。</p><blockquote class="voice"><p><strong>Relying-party experience is the bottleneck.</strong> SPRIND's "how not to onboard" session is the most reusable lesson: 115 organizations already hit the same problems.</p><p class="cite">— <a href="https://www.corbado.com/blog/eudi-wallet-2026-deadline-rollout-eic-2026" target="_blank" rel="noopener noreferrer">EUDI Wallet 2026: Deadline, Rollout and Lessons（Corbado）</a></p></blockquote><blockquote class="voice"><p>Around 115 organizations active in the sandbox. Around 150 use cases in development. Production-readiness targeted for end of 2026.</p><p class="cite">— 同上</p></blockquote><p>期限側の準備も整っていません。</p><blockquote class="voice"><p><strong>Fewer than one third of member states currently meet the readiness benchmark</strong>, against a December 2026 deadline.</p><p class="cite">— 同上</p></blockquote><p>そして、この移行に金が動く理由も同記事が数字で書いています。</p><blockquote class="voice"><p>wallet-based onboarding cuts customer cost from 70 to 100 euro down to 3 to 8 euro, turning compliance into ROI.</p><p class="cite">— 同上</p></blockquote><h4 id="ギャップの境界線">ギャップの境界線</h4><p>登録は<strong>静的な書類</strong>です。 「これらの属性を、この目的で要求します」と一度申告します。</p><p>実装は<strong>動きます</strong>。 機能追加のたびに提示要求へ属性が足され、A/B テストのたびに要求の分岐が増えます。</p><p>申告と実装がずれたとき、それはデータ最小化義務の違反です。 そして<strong>このずれは、どちらの側からも見えません</strong>。 登録簿は実装を知らず、実装は登録簿を読みません。</p><p>商用スタックが埋めているのは、この手前です。 Procivis や walt.id は、証明書の発行フローと登録の手続きを一つの流れにまとめています。 <strong>登録を済ませるところまでが商品であり、済ませた後に実装がずれることは商品の対象外です。</strong></p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p><strong>規制対応型</strong>です。 適用日は2026年12月24日であり、3か月半後です。</p><p>加盟国の3分の1未満しか準備が整っていないという事実は、二方向に読めます。 需要の立ち上がりが遅れるリスクであると同時に、<strong>まだ誰も本番運用の失敗パターンを持っていない</strong>という意味でもあります。</p><h4 id="受け取っていた側が作れない理由-2">受け取っていた側が作れない理由</h4><p>ウォレット経由のオンボーディングは、1件70〜100ユーロを3〜8ユーロへ落とします。 その差額は、これまで KYC ベンダーが検査1件ごとに受け取っていた金額です。</p><p>KYC ベンダーは、この移行を速める道具を作りません。 自社の単価が消える方向の移行だからです。 ウォレット基盤ベンダーは登録の完了までを売っており、登録後の乖離検知は売上に結びつきません。 <strong>移行の前と後にそれぞれ売り手がいて、移行の途中を見る者がいません。</strong></p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>eol-cliff</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>kijunbi-line</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>rp-declare</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">9月7日確定、母数は最大だが期限の切迫感が薄い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">9月30日確定、対象事業者の母数が小さい</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">12月24日確定、加盟国側の準備が遅延</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">走査と結合は2週間圏内、静的リンクの同定が難所</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">残高積み上げ計算、区分の復元に前処理が要る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ARF・OpenID4VP の仕様追随が重い</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">開発者向けCLIは無償期待が強く法人販売が要る</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">供託という金額インパクト、届出後に動機が落ちる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">EU法人の調達導線が個人開発者から遠い</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">EOL DB は商用が先行、差別化は帰属判定に限られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">会計SaaSも基盤ベンダーも埋めていない、協会が塞げる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">登録後の乖離は空白、登録ベンダーが延長しうる</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、EOLデータ追随が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">法令追随と誤算定の責任が重い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">仕様更新の追随、EU顧客サポートの負荷</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-eol-cliff-18点-tier-2">Idea 1: <code>eol-cliff</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 2026年9月7日という日付が上流のリリース戦略に固定されており、動きません。対象は OpenSSL を含むイメージを配布・運用する全事業者であり、母数は3案で圧倒的に最大です。Node.js 20、Python 3.10 と同型の断崖が半年以内に3回来るため、単発の期限ではなく反復する構造になっています。<strong>減点材料</strong>: 期限の切迫感が薄い。9月8日に何かが壊れるわけではなく、壊れるのは「次に CVE が出たとき」です。切迫が条件付きである以上、購買は先送りできます。規制のように「この日までに対応しないと罰がある」という圧力を欠くため、5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: distro パッケージの同定は <code>dpkg</code>/<code>rpm</code> のメタデータで、言語パッケージの同定はロックファイルで足ります。サポート期限の結合は endoflife.date と各 distro のリリースサイクルを引けば組めます。2週間で「帰属先と期限のカレンダー」までは届きます。<strong>減点材料</strong>: 静的リンクとベンダリングの同定が非自明です。ELF の文字列抽出やビルド ID の照合を要し、しかも取りこぼしが「安全である」という誤った答えに直結します。この最も価値の高い部分が、最も難しい部分と一致しています。2週間で作れるのはヒューリスティックまでであり、確実な同定ではありません。</li><li><strong>収益性 3</strong>: 買い手は EU 向けに製品を出荷する事業者と、SBOM の提出を求められる受託開発事業者です。CI で回すチームライセンスの帯は説明できます。<strong>減点材料</strong>: 開発者向け CLI は無償が既定の領域です。Trivy も Grype も OSS であり、この隣に有償の CLI を置くのは構造的に不利です。個人が月10〜30ドルを払う動機は弱く、法人へ売る導線が別途必要になります。「100人で月10〜20万円」の条件を、単価ではなく販売経路の側で満たせません。</li><li><strong>競合優位性 3</strong>: 「見逃しと誤検知が同じ欠落から出ている」という説明は、既存製品のどれも正面に置いていません。帰属判定をローカルで完結させる設計は、SBOM を外部へ送りたくない相手にそのまま説得材料になります。<strong>減点材料</strong>: EOL データベースは商用が先行しています。HeroDevs は1,200万を超えるパッケージバージョンの EOL 状態を既に追跡しており、データの量では勝てません。<strong>大手が3か月で真似したら</strong>、Snyk や Sonatype が「このコンポーネントは distro がまだ保守している」という帰属表示を1カラム足すだけで、差別化の大半は消えます。技術的な障壁がないため、4点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル CLI として完結し、イメージも SBOM も外部へ送りません。サーバーもデータベースも持たず、生成物は JSON と静的な HTML です。<strong>減点材料</strong>: EOL データの追随が恒常的な作業として残ります。distro のリリースサイクルは変わり、上流の LTS 指定も変わります。データが古いと出力は静かに誤り、しかも誤りの方向が「安全である」に偏ります。この保守は、機能追加とは別に払い続ける固定費です。</li></ul><h4 id="idea-2-kijunbi-line-18点-tier-2">Idea 2: <code>kijunbi-line</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 3</strong>: 2026年9月30日という基準日は法定であり動きません。年2回、恒久的に反復します。<strong>減点材料</strong>: 3案で最も母数が小さい。対象は「有償のポイントやクレジットを自社発行し、かつ未使用残高が1,000万円規模へ育った国内事業者」に限られます。この2条件を同時に満たす層は薄く、しかも国内に閉じています。個人開発者が到達できる相手の数として、4点の水準に届きません。</li><li><strong>技術的実現可能性 4</strong>: 付与・消費・失効のトランザクションログを読み、基準日時点の残高を積み上げる計算そのものは平易です。合算判定も、複数の発行手段を横断して足すだけです。<strong>減点材料</strong>: 入力データの前提が満たされていないことが多い。無償分と有償分の区別がテーブルに存在しない場合、残高の復元は不可能であり、法令上は最も不利な扱い（全額を対象に算入）になります。この場合ツールが出せるのは「区分できていないので全額が対象です」という警告までであり、正確な数字ではありません。前処理の設計が製品の大半を占めます。</li><li><strong>収益性 4</strong>: 3案で最も強い軸です。基準額を超えた場合に発生するのは、届出という事務ではなく、<strong>基準日未使用残高の2分の1以上の現金の供託</strong>です。数千万円規模の資金拘束を事前に予測できることの価値は、買い切り数万円の帯を十分に説明します。金額インパクトが明確に金銭で表現できる、3案で唯一の案です。<strong>減点材料</strong>: 継続課金の根拠が弱い。一度届出を出して体制を作れば、以後は既存の残高管理に組み込まれます。年2回の基準日ごとに払い続ける理由を、届出後の事業者に対して説明できません。5点は付けられません。</li><li><strong>競合優位性 4</strong>: 会計 SaaS は前受金を計算し、法令上の未使用残高は計算しません。両者が一致しない理由（無償分の区分表示・区分管理、有効期間の形骸化、最大単価換算）は、いずれも会計帳簿の外にある実装事実に依存します。ポイント基盤ベンダーには、前述の利益相反があります。<strong>減点材料</strong>: 日本資金決済業協会が、この判定を支援する簡易ツールを公開すれば市場は消えます。同協会は既に詳細な Q&amp;A を無償で公開しており、次の一歩として自然です。優位性が「まだ協会が出していない」という一点に依存するため、5点は付けられません。</li><li><strong>個人開発適性 3</strong>: 3案で下位の軸です。ローカル CLI として完結し、課金データを外部へ送らない設計は取れます。<strong>減点材料</strong>: 法令とガイドラインの改正へ追随し続ける必要があり、2026年6月の改正のような変更が今後も来ます。より重いのは責任の所在です。この道具の誤算定は、事業者の無届出という法令違反に直結します。「該当性の判定」ではなく「該当し得る条件の網羅と数値の算定」に出力を限定する設計上の制約を恒久的に守る必要があり、その制約は製品を分かりにくくする方向に働きます。</li></ul><h4 id="idea-3-rp-declare-17点-tier-2">Idea 3: <code>rp-declare</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 2026年12月24日という適用日が規則に書かれています。対象は EU でウォレットのクレデンシャルを受け取る全ての事業者であり、金融・通信・EC・公共と業種を横断します。加盟国の3分の1未満しか準備が整っていないという状況は、参入余地が残っていることの裏返しでもあります。<strong>減点材料</strong>: その準備の遅れが、需要の立ち上がりを後ろへずらします。登録簿が稼働していない国では、依拠当事者は登録そのものができず、申告と実装の差分を検査する動機も生じません。市場の開始時期を自分で決められないため、5点は付けられません。</li><li><strong>技術的実現可能性 3</strong>: 3案で最も低い軸です。提示要求から要求属性を抽出し、申告した属性リストと突き合わせる中核処理そのものは平易です。<strong>減点材料</strong>: 到達すべき仕様の量が多い。ARF、OpenID4VP、ISO/IEC 18013-5、ETSI TS 119 475 を横断して読む必要があり、しかも仕様が確定していません。2週間で作れるのは、限られたクレデンシャル形式に対する属性抽出までです。仕様の追随そのものが製品の実体になる構造であり、実装の巧拙で差がつきません。</li><li><strong>収益性 3</strong>: 買い手は EU の中小規模の依拠当事者です。KYC 単価が70〜100ユーロから3〜8ユーロへ落ちるという差額の大きさは、この領域に予算があることを示します。<strong>減点材料</strong>: 買い手への到達経路が個人開発者から遠い。EU 法人の調達は稟議と契約を伴い、日本の個人事業者が売り手として入るには、言語・時差・請求形態の全てが障壁になります。単価は説明できても、販売可能性が説明できません。4点は付けられません。</li><li><strong>競合優位性 4</strong>: 商用スタックは登録の完了までを売っており、登録後に実装がずれることを検査する位置は空いています。この乖離は登録簿の側からも実装の側からも見えないという性質があり、指摘できる者が構造的に限られます。<strong>減点材料</strong>: Procivis や walt.id が、登録フローの延長線として乖離検知を足す可能性が高い。既に証明書発行と登録を一つの流れにまとめている以上、その流れの末尾に検査を置くのは自然な機能追加です。彼らが手を出さない理由が、利益相反ではなく単に優先度であるため、5点は付けられません。</li><li><strong>個人開発適性 3</strong>: 検査はローカルで完結し、クレデンシャルそのものを預かりません。<strong>減点材料</strong>: 仕様更新への追随が、Idea 1 の EOL データ追随より重い。ARF は改訂が続いており、改訂のたびに検査ルールの再確認が発生します。加えて顧客が EU 域内であるため、サポートの応答が時差をまたぎます。個人が副業として抱えるには、応答時間の期待値が合いません。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-eol-cliff-のリスクと対策">1. <code>eol-cliff</code> のリスクと対策</h3><p><strong>最大のリスクは、出力の誤りが「安全である」の方向へ偏ることです。</strong></p><p>この道具は「Ubuntu 22.04 のパッケージなので2027年5月まで保守されます」と言います。 その判定を誤ったとき、利用者は保守されていないバイナリを保守されていると信じます。 <strong>誤検知は無視されるだけですが、この方向の誤りは害になります。</strong></p><p>対策は、判定を三値にすることです。 「保守されている」「保守されていない」に加えて、「<strong>判定できない</strong>」を明示的に出します。 静的リンクの同定に確信が持てない場合は、必ず第三の値へ倒します。 判定できない件数が多いことは、この道具の弱点ではなく、正直さの指標として提示します。</p><p><strong>第二のリスクは、endoflife.date への依存です。</strong></p><p>サポート期限のデータを外部の1つのソースへ依存すると、そのデータの誤りや停止が製品の停止に直結します。</p><p>対策は、期限データをリポジトリへ同梱し、更新を明示的なコマンドにすることです。 実行時にネットワークへ出ないことは、SBOM を外へ出したくない相手に対する設計上の利点でもあります。 加えて、主要な distro については公式のリリースサイクルを一次ソースとして別途保持し、二重化します。</p><p><strong>第三のリスクは、大手が1カラム足すだけで差別化が消えることです。</strong></p><p>これは反証というより、確度の高い予測です。 帰属表示は技術的に難しくなく、価値が説明された後であれば追随は容易です。</p><p>対策は、追随されない場所へ価値を寄せることです。 候補は<strong>時系列</strong>です。 「このイメージは、3か月前は全て保守下にあったが、9月7日を境に3件が無保守になった」という履歴は、後から始めた者が遡って作れません。 無償の単発検査で価値を証明し、履歴の保持を有償側へ置きます。</p><h3 id="2-kijunbi-line-のリスクと対策">2. <code>kijunbi-line</code> のリスクと対策</h3><p><strong>最大のリスクは、対象事業者の母数が想定より小さいことです。</strong></p><p>有償ポイントを自社発行し、未使用残高が1,000万円へ育っている国内事業者が何社あるのか、公開情報からは分かりません。 届出済みの発行者は登録簿から数えられますが、<strong>これから超える事業者</strong>の数は数えられません。</p><p>対策は、順序を逆にすることです。 残高が1,000万円へ近づいている事業者を探すのではなく、<strong>クレジット制の課金を採用しているサービスの一覧</strong>から入ります。 その中で、無償ポイントの区分管理を実装していないものが、潜在的な対象です。 Day 1 の検証で、この母数の実在を確認してから実装へ進みます。</p><p><strong>第二のリスクは、法令判断の外観です。</strong></p><p>「あなたは届出が必要です」という出力は、事実の提示ではなく法令の当てはめです。 個人が提供する道具がこれを行うことには、責任上の問題があります。</p><p>対策は、出力を二層に分けることです。 第一層は<strong>事実の算定</strong>であり、「基準日時点の未使用残高は X 円です。うち無償発行分として区分管理されていない額が Y 円含まれます」まで。 第二層は<strong>条文の引用</strong>であり、「資金決済法第5条は、基準額を超えた場合に届出を求めています」まで。 両者を接続して結論を出す工程は、利用者と専門家に残します。 この分離は製品を分かりにくくしますが、この領域では譲れません。</p><p><strong>第三のリスクは、協会や当局が同等のツールを公開することです。</strong></p><p>対策は、公開されても価値が残る部分に寄せることです。 協会が作るとすれば、それは<strong>判定の手引き</strong>であって、<strong>自社の課金 DB からの算定</strong>ではありません。 この道具の価値は法令の説明ではなく、雑多なスキーマのトランザクションログから残高を復元する部分にあります。 実装をそちらへ寄せます。</p><h3 id="3-rp-declare-のリスクと対策">3. <code>rp-declare</code> のリスクと対策</h3><p><strong>最大のリスクは、市場の開始が自分で決められないことです。</strong></p><p>加盟国の登録簿が稼働しなければ、依拠当事者は登録できず、申告と実装の差分という課題自体が発生しません。 3分の1未満という準備状況は、2026年内に需要が立たない可能性を含みます。</p><p>対策は、登録簿の稼働を前提としない価値を先に置くことです。 「登録簿へ申告すべき属性リストを、実装から生成する」機能は、登録の<strong>前</strong>に必要になります。 提示要求のコードから要求属性を抽出し、申告用のリストを作る。 これなら登録簿が動く前から使えます。 差分検査は、その後の拡張として置きます。</p><p><strong>第二のリスクは、仕様の非確定です。</strong></p><p>ARF は改訂が続いており、検査ルールが仕様の改訂に追随できなければ、出力の信頼性が落ちます。</p><p>対策は、検査ルールを仕様バージョンごとに分離し、どの版に対する検査かを出力へ必ず刻むことです。 「ARF 2.x に対する検査結果」と明示すれば、仕様が動いても出力の意味は保たれます。</p><p><strong>第三のリスクは、販売経路です。</strong></p><p>EU 法人へ日本の個人が売る導線が細いという問題は、製品の設計では解けません。</p><p>対策は、直接販売を最初から諦めることです。 無償の OSS として公開し、EU の実装コンサルタントやウォレット基盤ベンダーに<strong>使われる側</strong>へ回ります。 収益化するなら、彼らへのライセンス提供か、検査ルールの受託開発です。 これは個人開発の理想形ではありませんが、この案の販売経路に合った形です。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>eol-cliff</code> について、14日間の想定を置きます。 Day 1 は実装ではなく、リスク分析で挙げた前提の検証に充てます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) 手元とチームのコンテナイメージを10本選び、既存のスキャナ（Trivy / Grype）を当てて、出力に「EOL」「サポート終了」に相当する情報が含まれるかを目視で確認する。(b) 同じイメージの中に、<code>3.0.x</code> の distro パッケージと静的リンク版が<strong>同時に</strong>存在する例を1件でも見つける。(c) 見つからない場合、この道具が指摘できる差分は実在しない。<strong>10本中1本も混在が無いなら着手しない。</strong></td></tr><tr><td class="tk">Day 2-3</td><td>出所の同定</td><td>イメージまたはファイルツリーを走査し、コンポーネントを3種に分類するだけの器を書く。distro パッケージ（<code>dpkg -l</code> / <code>rpm -qa</code> 相当のメタデータ）、言語パッケージ（ロックファイル）、それ以外（静的リンク・ベンダリング）。ここでは期限の判定を一切行わず、<strong>分類の取りこぼし率だけを測る。</strong> 第三分類が正しく取れるかが、この案の生死を決める。</td></tr><tr><td class="tk">Day 4-5</td><td>期限データの同梱</td><td>endoflife.date のデータと、主要 distro の公式リリースサイクルを取得し、リポジトリへ同梱する。実行時にネットワークへ出ない構成にする。二重化の目的は冗長性ではなく、<strong>両者が食い違ったときにそれを検出すること</strong>にある。食い違いはそのまま「判定できない」へ倒す。</td></tr><tr><td class="tk">Day 6-8</td><td>帰属の判定</td><td>Day 2-3 の分類と Day 4-5 の期限を結合し、コンポーネントごとに「誰が、いつまで」を出す。出力は三値とし、確信が持てないものは必ず「判定できない」へ倒す。<strong>OpenSSL 3.0 を含む Ubuntu 22.04 ベースのイメージで、distro パッケージが「Canonical / 2027年5月」、静的リンク版が「該当なし / 2026年9月7日」と分かれて出ることを、この工程の合格条件とする。</strong></td></tr><tr><td class="tk">Day 9-10</td><td>断崖カレンダー</td><td>帰属が切れる日付順にコンポーネントを並べ、90日以内に無保守へ落ちるものを先頭へ出す。出力は JSON と静的な HTML の2形式。CI から実行し、しきい値を超えたら失敗させられる終了コードを持たせる。</td></tr><tr><td class="tk">Day 11-12</td><td>履歴の記録</td><td>実行結果をリポジトリ内の追記型ファイルへ記録し、前回実行との差分を出せるようにする。「先週まで保守下だったが、今週から無保守になった」という遷移を検出する。<strong>この時系列が、後発が遡って作れない唯一の資産である。</strong> ここまでを無償の CLI として公開する。</td></tr><tr><td class="tk">Day 13-14</td><td>有償化の判断</td><td>成功指標はインストール数ではなく、<strong>「検査の結果、ベースイメージまたはビルド構成を変更した件数」</strong>に置く。指摘が構成変更を引き起こさないなら、それは知って終わりの情報であり、有償化へ進まない。</td></tr></tbody></table></div><p>課金設計は、単発の検査と断崖カレンダーを恒久的に無償、複数リポジトリの横断監視と履歴の長期保持を有償とする二層構成を想定します。 無償側は模倣可能です。 有償側が持つのは<strong>遷移の記録</strong>であり、これは後から始めた者が過去に遡って作れません。 CRA のもとで「いつからパッチが来ない状態だったか」を後から示す必要が生じたとき、この記録がそのまま証跡になります。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>eol-cliff</code></strong>（総合18点、Tier 2）を最有力候補として選定しました。選定理由は、<strong>今回の探索軸「受け取っていた側が構造的に作れない道具」に、最も明快に当てはまる</strong>からです。EOL の延命は既に有償の商品として売られており、金が動いていることは疑いようがありません。そして延命ベンダーは、この道具の出力の半分を占める「あなたのビルドは distro がまだ保守しているので契約は不要です」という否定の答えを、自社製品として作れません。加えて、見逃し（167,286件）と誤検知（20,362件）が<strong>同じ一つの欠落から出ている</strong>という説明は、既存製品のどれも正面に置いていない切り口です。Tier 1 に届かなかった理由は二点です。第一に、切迫感が条件付きであること。9月8日に壊れるものはなく、壊れるのは次の CVE が出たときであり、購買は先送りできます。第二に、大手が帰属表示を1カラム足すだけで差別化の大半が消えること。技術的な参入障壁がありません。</li></ul><ul><li><strong><code>kijunbi-line</code></strong>（総合18点、Tier 2）は、<strong>金銭インパクトの明瞭さで3案の最上位</strong>です。基準額の超過が引き起こすのは事務ではなく、基準日未使用残高の2分の1以上の現金の供託です。数千万円規模の資金拘束を4週間前に予測できることの価値は、他の2案のどれよりも直接的に金額へ換算できます。それでも18点に留まったのは、<strong>市場規模と個人開発適性が同時に3点</strong>であることによります。対象は国内の、クレジット制課金を採り、かつ残高が1,000万円規模へ育った事業者に限られます。この層へ到達する導線と、法令判断の責任を個人が負う構造が、同時に重石になります。着手するなら、判定ツールとしてではなく、<strong>課金 DB のスキーマ監査</strong>として設計する場合に限ります。無償分の区分管理が実装されていないことは、残高が育つ前に直すべき設計の問題であり、そこなら法令判断を含みません。</li></ul><ul><li><strong><code>rp-declare</code></strong>（総合17点、Tier 2）は、ギャップの説明が3案で最も構造的です。登録簿は実装を知らず、実装は登録簿を読まないため、両者の乖離は<strong>どちらの側からも原理的に見えません</strong>。見えないものを見せる道具には、常に位置があります。しかし技術的実現可能性3点と収益性3点が重く、17点に留まりました。仕様の量が多く、買い手が遠い。着手するなら、差分検査からではなく、<strong>提示要求のコードから申告用の属性リストを生成する</strong>機能から入るべきです。登録簿が稼働していない国でも、登録の前段として使えます。市場の開始を他者に握られている案では、他者の準備を待たずに使える機能を先に置く以外にありません。</li></ul><ul><li><strong>今回の探索で候補から落とした案が5件あります。</strong><ul><li><strong>EU 包装規則（PPWR）の空隙率検査</strong>: 二次記事の多くが「2026年8月12日から空隙率40%以下」と書いており、EC 事業者向けの実測ツールとして有望に見えました。<strong>しかし規則本文を確認したところ、この前提は誤りでした。</strong> Regulation (EU) 2025/40 第24条が定める上限は50%であり、適用は2030年1月1日（または実施法の発効から3年後のいずれか遅い方）です。2026年8月12日に始まったのは規則そのものの適用であり、空隙率の数値基準ではありません。<strong>期日と数値の両方が誤っていたため、候補から除外しました。</strong> 二次情報の要約だけで採点していれば、存在しない期限を根拠にした提案になっていました。</li><li><strong>EU CRA 第14条の報告義務対応</strong>: 2026年9月11日から実際に適用が始まり、ENISA の単一報告プラットフォームが同日稼働します。期日として今回最も鋭い変化でしたが、課題の形が「24時間の報告義務の起動判定と証跡管理」であり、2026-08-25 の <code>cra-clock</code> と実質的に同一です。重複判定フィルタに該当するため、総合13点で却下しました。本レポートでは <code>eol-cliff</code> の需要側の圧力として言及するに留めています。</li><li><strong>Chrome Manifest V2 拡張の棚卸し</strong>: 2026年8月31日にウェブストアから全ての MV2 拡張が削除されました。ただし調査の結果、MV2 の実行そのものは2025年7月に停止済みであり、8月31日はストアの掃除に相当する日付でした。<strong>まだ MV2 拡張が動いている環境は Chrome 138 以前に固定された端末に限られ、母数が薄い</strong>ため、総合12点で却下しました。同型の案は2026-09-02 でも却下しています。</li><li><strong>Android 開発者確認の9月施行</strong>: ブラジル・インドネシア・シンガポール・タイで2026年9月から適用され、F-Droid のリポジトリの約85%が配布不能になると報じられています。課題として切実ですが、パッケージ名と署名鍵の組で判定される構造への対応は、2026-08-30 の <code>signkey-gate</code> と同一です。総合14点で却下しました。</li><li><strong>2026年分年末調整の「源泉控除対象親族」対応</strong>: 扶養控除等申告書の様式が変わり、特定親族特別控除が月次の源泉徴収税額計算にも影響するようになりました。年の途中の異動が月次へ反映されないと、年末調整で追徴が発生します。ただし買い手は給与計算 SaaS を既に使っており、<strong>freee・マネーフォワード・弥生が正面に立つ領域</strong>です。除外フィルタの「大手との正面衝突」に該当するため、総合13点で却下しました。</li></ul></li></ul><ul><li><strong>9回連続で Tier 1 に到達していません。</strong> 今回の探索軸は、狙った軸で機能しました。<strong>競合優位性の平均が3.67点</strong>であり、前回の3.0点、前々回の2.7点から明確に改善しています。「受け取っていた側が利益相反で作れない」という条件で絞ったことが、そのまま差別化の説明力になりました。3案とも「なぜ既存プレイヤーが手を出さないか」を、優先度ではなく構造で説明できています。 一方で、<strong>今回沈んだのは技術的実現可能性と個人開発適性です。</strong> 軸2の平均が3.67点、軸5の平均が3.33点であり、いずれも過去数回より低い水準です。理由は、探索軸の選び方に内在しています。<strong>利益相反で先客が作らない領域は、先客が既に持っている知識や資産を、後から個人が独力で揃え直さなければならない領域だからです。</strong> 延命ベンダーは EOL データベースを持ち、ポイント基盤ベンダーは課金スキーマの実例を持ち、ウォレットベンダーは仕様の追随体制を持っています。彼らが作らないのは、作れないからではなく、作りたくないからです。<strong>作りたくない者と、作れない者の差が、そのまま個人開発者の工数として現れます。</strong> 次回の探索軸には、この非対称を埋める条件を足します。すなわち、<strong>先客が利益相反で作らず、かつ必要な資産が公開情報として既に揃っている</strong>位置を探します。今回の3案でこの条件を満たしていたのは <code>kijunbi-line</code> だけでした。判定に必要な法令・Q&amp;A・様式は全て無償で公開されており、揃え直す資産がありません。一方 <code>eol-cliff</code> は EOL データを、<code>rp-declare</code> は仕様追随を、それぞれ自前で抱える必要がありました。<strong>公開情報の完備性</strong>を、次回の判定基準に加えます。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://openssl-library.org/roadmap/index.html" target="_blank" rel="noopener noreferrer">Roadmap（OpenSSL Library 公式・リリース系列とサポート期限）</a><span class="u">https://openssl-library.org/roadmap/index.html</span></li><li><a href="https://endoflife.date/openssl" target="_blank" rel="noopener noreferrer">OpenSSL（endoflife.date・系列別のサポート終了日）</a><span class="u">https://endoflife.date/openssl</span></li><li><a href="https://ubuntu.com/about/release-cycle" target="_blank" rel="noopener noreferrer">Ubuntu release cycle（Canonical 公式・LTS のサポート期間）</a><span class="u">https://ubuntu.com/about/release-cycle</span></li><li><a href="https://www.sonatype.com/state-of-the-software-supply-chain/2026/vulnerability-management" target="_blank" rel="noopener noreferrer">Vulnerability Management | 2026 Software Supply Chain Report（Sonatype）</a><span class="u">https://www.sonatype.com/state-of-the-software-supply-chain/2026/vulnerability-management</span></li><li><a href="https://www.bleepingcomputer.com/news/security/the-eol-blind-spot-in-your-cve-feed-what-sca-tools-miss/" target="_blank" rel="noopener noreferrer">The EOL Blind Spot in Your CVE Feed: What SCA Tools Miss（BleepingComputer）</a><span class="u">https://www.bleepingcomputer.com/news/security/the-eol-blind-spot-in-your-cve-feed-what-sca-tools-miss/</span></li><li><a href="https://access.redhat.com/security/updates/backporting" target="_blank" rel="noopener noreferrer">Security Backporting Practice（Red Hat Customer Portal）</a><span class="u">https://access.redhat.com/security/updates/backporting</span></li><li><a href="https://www.herodevs.com/blog-posts/cra-reporting-obligations-start-september-2026-what-eol-dependencies-mean-for-your-compliance" target="_blank" rel="noopener noreferrer">CRA Reporting Obligations Start September 2026: What EOL Dependencies Mean for Your Compliance（HeroDevs）</a><span class="u">https://www.herodevs.com/blog-posts/cra-reporting-obligations-start-september-2026-what-eol-dependencies-mean-for-your-compliance</span></li><li><a href="https://lfb.mof.go.jp/kantou/kinyuu/pagekthp00400036.html" target="_blank" rel="noopener noreferrer">前払式支払手段(商品券・プリペイドカード等)関係（財務省関東財務局）</a><span class="u">https://lfb.mof.go.jp/kantou/kinyuu/pagekthp00400036.html</span></li><li><a href="https://www.s-kessai.jp/businesses/prepaid/q_and_a/" target="_blank" rel="noopener noreferrer">前払式支払手段についてよくあるご質問（一般社団法人日本資金決済業協会）</a><span class="u">https://www.s-kessai.jp/businesses/prepaid/q_and_a/</span></li><li><a href="https://www.corbado.com/blog/eudi-wallet-2026-deadline-rollout-eic-2026" target="_blank" rel="noopener noreferrer">EUDI Wallet 2026: Deadline, Rollout and Lessons（Corbado）</a><span class="u">https://www.corbado.com/blog/eudi-wallet-2026-deadline-rollout-eic-2026</span></li><li><a href="https://www.procivis.ch/insights/wallet-relying-party-registration" target="_blank" rel="noopener noreferrer">EUDI wallet-relying party registration（Procivis）</a><span class="u">https://www.procivis.ch/insights/wallet-relying-party-registration</span></li><li><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202500040" target="_blank" rel="noopener noreferrer">Regulation (EU) 2025/40 on packaging and packaging waste（EUR-Lex 原文・第24条）</a><span class="u">https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202500040</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-03_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

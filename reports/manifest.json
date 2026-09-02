@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T06:23:13+09:00",
+  "generated_at": "2026-09-03T03:25:47+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -87,6 +87,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-03_market_research_report.html",
+          "title": "2026-09-03: OpenSSL 3.0 のサポート断崖・前払式支払手段の基準日・EUDI 依拠当事者登録における穴場市場の特定",
+          "date": "2026-09-03",
+          "bytes": 99209
+        },
         {
           "file": "2026-09-02_market_research_report.html",
           "title": "2026-09-02: EU Data Act の出口義務・AAGUID 許可リストの空洞・インボイス経過措置の境界における穴場市場の特定",
