@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「先客が利益相反で作らず、かつ判定に必要な資産が公開情報として既に揃っている」を探索軸に置き、2026年10月1日に自動遮断が始まる Exchange Web Services を中核に据えた3案を5軸評価した結果">
+<title>2026-09-04: EWS の自動遮断・最低賃金発効日の分散・モデル退役日の不一致における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-04</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / exchange-web-services / microsoft-graph / minimum-wage</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-04">市場リサーチ &amp; 5軸評価レポート (2026-09-04)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">ews-verdict</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 10 件（うち一次ソース 12 件）</div></div><div class="fig">19<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">ews-verdict</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">chingin-split</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">pin-drift</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-03）の終わりに、探索軸へ条件をひとつ足すと宣言しました。 <strong>先客が利益相反で作らず、かつ判定に必要な資産が公開情報として既に揃っている</strong>位置を探す、という条件です。</p><p>前回の失敗を先に書きます。 利益相反だけで絞ると、先客が長年かけて溜めた資産を個人が独力で揃え直す羽目になりました。 <code>eol-cliff</code> は EOL データベースを、<code>rp-declare</code> は仕様追随体制を、それぞれ自前で抱える必要がありました。 作りたくない者と作れない者の差が、そのまま個人開発者の工数として現れたわけです。</p><p>そこで今回は、判定に要する材料が<strong>既に無償で公開されているか</strong>を先に確認し、揃っていない領域を最初から捨てました。 残った変曲点は3つです。</p><p>1つ目は、Exchange Web Services の自動遮断です。 2026年10月1日、つまり27日後に、Microsoft がテナント単位の自動遮断を開始します。 公開されている資産は3つあります。 テナント管理者が無償で取得できる<strong>EWS 使用状況レポート</strong>、EWS 操作と Graph API の<strong>対応表</strong>、そして Microsoft 自身が公式ドキュメントに列挙した<strong>パリティギャップの一覧</strong>です。 判定に必要な材料が、全て Microsoft の側から公開されています。 そして、この判定を最も作らないのはバックアップ・移行ツールのベンダーです。 彼らの製品が使う EWS 操作こそ Graph に代替が無い筆頭であり、中立な判定を出せば自社製品が「移行先なし」と表示されます。</p><p>2つ目は、地域別最低賃金の発効日の分散です。 2026年度は、発効日が10月1日から12月1日まで散らばりました。 月の途中に発効する県が複数あり、その月は同一の賃金計算期間の中に新旧2つの下限が同居します。 公開されている資産は、都道府県ごとの答申額と発効日、そして派遣労働者には派遣先の最低賃金が適用されるという法解釈です。 どちらも無償で読めます。 そして、この検査を作らないのは給与計算 SaaS のベンダーです。 自社の出力を監査する道具は、自社の対応漏れを可視化する道具でもあります。</p><p>3つ目は、ホスト型 AI モデルの退役日の不一致です。 同一のモデルに対して、提供元の公式ページ、クラウドのポータル、提供元の別の公式発表が、<strong>それぞれ異なる退役日を表示</strong>しています。 公開されている資産は、各プロバイダの退役日一覧ページと、自テナントのデプロイ情報を返す API です。 両方とも認証さえあれば無償で読めます。 そして、この突き合わせを作らないのはモデルの提供元です。 複数プロバイダを横断して「どのモデルがいつ死ぬか」を一枚に並べる道具は、そのまま乗り換え支援の道具になります。</p><p>この3件は、公開情報の完備度が異なります。 1つ目は<strong>ベンダーが判定材料を全て公開済み</strong>、2つ目は<strong>法令と行政公表で完備</strong>、3つ目は<strong>公開されてはいるが記述同士が矛盾している</strong>という状態です。 以下では、それぞれについて「公開されているのに誰も突き合わせていない理由」を明示したうえで、個人が入れる位置を探しました。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-04)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-04)"><title>アイデア候補のポジショニングマップ (2026-09-04)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="356.6" cy="103.8" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="368.6" y="107.8" text-anchor="start" class="qpt-label">1</text><circle cx="356.6" cy="103.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: EWS Verdict 総合 19 / 25（Tier 2）" data-tv="Idea 1: EWS Verdict" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="288.4" cy="183.4" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="300.4" y="187.4" text-anchor="start" class="qpt-label">2</text><circle cx="288.4" cy="183.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Chingin Split 総合 17 / 25（Tier 2）" data-tv="Idea 2: Chingin Split" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="390.6" cy="149.3" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="402.6" y="153.3" text-anchor="start" class="qpt-label">3</text><circle cx="390.6" cy="149.3" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Pin Drift 総合 18 / 25（Tier 2）" data-tv="Idea 3: Pin Drift" data-td="総合 18 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: EWS Verdict</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Chingin Split</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Pin Drift</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-ews-verdict-使用状況レポートの-soap-操作を-graph-の到達可否へ翻訳し-アプリごとに-移行できる-許可リストで延命するしかない-移行先が存在しない-を判定する検査">アイデア 1: <code>ews-verdict</code> (使用状況レポートの SOAP 操作を Graph の到達可否へ翻訳し、アプリごとに「移行できる / 許可リストで延命するしかない / 移行先が存在しない」を判定する検査)</h3><p>Microsoft 365 テナント管理者が管理センターから落とせる EWS 使用状況レポートの CSV を入力に取り、アプリケーションごとに三値の判定を返すローカル CLI です。 出力は使用量の一覧ではありません。 <strong>アプリごとの進退</strong>です。</p><p>この道具が答えるのは、既存のツールが答えない問いです。 Microsoft の使用状況レポートは「誰が、どの SOAP 操作を、何回呼んだか」を答えます。 <code>ews-verdict</code> は「<strong>その操作は Graph でできるのか</strong>」を答えます。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>第一に、遮断の起動条件が「設定していないこと」である点です。</p><blockquote class="voice"><p>October 1, 2026: Microsoft begins tenant-by-tenant automatic blocking - any tenant still set to <code>EWSEnabled = $null</code> gets switched to <code>$false</code> — <a href="https://www.a6n.co.uk/2026/04/preparing-exchange-web-services.html" target="_blank" rel="noopener noreferrer">Artic6 Blog, Preparing: Exchange Web Services Retirement: The AppID Allowlist Challenge</a></p></blockquote><p>何もしなかったテナントが遮断されます。 明示的に有効化し、かつ許可するアプリケーションの GUID を列挙したテナントだけが除外されます。 そして恒久的な猶予ではありません。</p><blockquote class="voice"><p>Phased blocking begins on 1 October 2026, according to the Microsoft Learn deprecation page and Message Center notice MC1227454. EWS is then disabled permanently on 1 April 2027 with no re-enablement. — <a href="https://ecorpit.com/ews-retirement-october-2026-allow-list-graph-migration-runbook/" target="_blank" rel="noopener noreferrer">ecorpit, EWS is blocked from 1 October 2026: set the allow list now</a></p></blockquote><p>第二に、許可リストへ何を書くべきかを、レポートが教えてくれない点です。</p><blockquote class="voice"><p>The report shows raw GUIDs like <code>5d661950-3475-41cd-a2c3-d671a3162bc1</code> instead of friendly names. — <a href="https://www.a6n.co.uk/2026/04/preparing-exchange-web-services.html" target="_blank" rel="noopener noreferrer">Artic6 Blog</a></p></blockquote><p>この不便に対しては、既に無償の解が出ています。 GUID をアプリ名へ解決する PowerShell モジュールが公開されており、その README は解決すべき問題をこう書いています。</p><blockquote class="voice"><p>the EWS Usage report gives you App IDs, not app names — <a href="https://github.com/peterschmidtdk/EWS-App-Identifier" target="_blank" rel="noopener noreferrer">peterschmidtdk/EWS-App-Identifier (GitHub)</a></p></blockquote><p><strong>名前解決は、既に埋まった穴です。</strong> そしてこのモジュール自身が、解決できないものを残しています。 データベースにも Entra ID にも存在しない GUID は、<code>INVESTIGATE - high volume, unidentified</code> という札を付けて手作業へ差し戻されます。</p><p>第三に、<strong>名前が分かっても進退が決まらない</strong>という、より根本的な空白です。 Microsoft 自身が、Graph に代替が無い機能領域を公式ドキュメントで列挙しています。</p><blockquote class="voice"><p>There are a few major EWS feature areas that the Microsoft Graph API doesn't fully support. — <a href="https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-ews-exchange-online" target="_blank" rel="noopener noreferrer">Microsoft Learn, Deprecation of Exchange Web Services in Exchange Online</a></p></blockquote><p>列挙されているのは、パブリックフォルダーのインポート/エクスポート、Microsoft 365 グループのインポート/エクスポート、インプレースアーカイブ、定期イベントの差分取得、Sticky Notes の CRUD などです。 このうち一部は「今後も対応しない」と明言されています。</p><blockquote class="voice"><p>Create calendar event without inviting attendees will not be supported in Microsoft Graph API. — <a href="https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-ews-exchange-online" target="_blank" rel="noopener noreferrer">Microsoft Learn, 同上</a></p></blockquote><p>パブリックフォルダーについても、CRUD API は提供されないと公式に告知済みです。 つまり<strong>移行先が存在しないまま遮断される用途が、公式に確定している</strong>わけです。</p><p>第四に、許可リストが解ではないという、実務家自身の認識です。</p><blockquote class="voice"><p>Microsoft 365 architect Tiago Carvalho describes it as a stopgap rather than a strategy, and every allow-listed application still needs a delivered migration plan. — <a href="https://ecorpit.com/ews-retirement-october-2026-allow-list-graph-migration-runbook/" target="_blank" rel="noopener noreferrer">ecorpit, 同上</a></p></blockquote><p>許可リストへ入れても、2027年4月1日に同じ問題が再来します。 そのとき再有効化はできません。</p><p>第五に、既存の代替制御が効かないことです。</p><blockquote class="voice"><p>Application Access Policy...has a fatal flaw for my use case: it restricts which mailboxes an app can access, not whether the app can use EWS at all. — <a href="https://www.a6n.co.uk/2026/04/preparing-exchange-web-services.html" target="_blank" rel="noopener noreferrer">Artic6 Blog, 同上</a></p></blockquote><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p><code>market-analysis-patterns.md</code> の<strong>マイクロDevEx型</strong>と<strong>海外タイムラグ型</strong>の重なりに該当します。 判定ロジックそのものは軽量ですが、判定に使う知識（どの SOAP 操作がどの Graph API へ写るか、どれが写らないか）が英語の公式ドキュメントに分散しており、日本語圏ではほとんど束ねられていません。</p><p>なぜ今、個人が入れるのか。 理由は3つあります。</p><p>第一に、<strong>判定材料が全て Microsoft 側から公開済み</strong>である点です。 使用状況レポートは管理センターから CSV で落ちます。 その列は、アプリケーション ID、SOAP アクション、呼び出し回数、最終アクティビティ日です。 EWS 操作と Graph API の対応表も、パリティギャップの一覧も、公式ページに載っています。 個人が独力で溜めるべき資産がありません。 <strong>前回のレポートで工数の主因になった「資産の揃え直し」が、この案には存在しません。</strong></p><p>第二に、<strong>誰も突き合わせていない</strong>点です。 Microsoft は使用状況レポートを出し、対応表を出し、パリティギャップの一覧を出していますが、この3つを結合して「あなたのアプリ X は移行できない」と言い切る出力は提供していません。 コードアナライザーはソースコードを要求するため、自社開発アプリにしか当たりません。 テナントで動いている第三者製アプリのソースは手元にありません。</p><p>第三に、<strong>バックアップ・移行ツールのベンダーが構造的に作れない</strong>点です。 Graph に代替が無い筆頭がインポート/エクスポートとパブリックフォルダーであり、これはまさにバックアップ・移行ツールが叩いている領域です。 中立な判定を出せば、自社製品に「移行先なし」の札が付きます。 彼らが出すのは「当社は Graph 対応済みです」という自社限定の告知であり、テナント全体の棚卸しではありません。</p><h4 id="5軸スコアリング-判定">5軸スコアリング &amp; 判定</h4><p>総合 <strong>19 / 25 点 (Tier 2: HOLD)</strong>。詳細は第3章。</p><h4 id="リスク・反証分析">リスク・反証分析</h4><p><strong>最大のリスクは、Microsoft が使用状況レポートに「Graph 対応可否」の列を足すことです。</strong> Microsoft には、この列を足す動機があります。 移行を促進したいからです。 利益相反が無いどころか、利害が一致しています。 前回の <code>eol-cliff</code> では「延命ベンダーは否定の答えを作れない」という構造がありましたが、<strong>この案にその構造はありません。</strong> Microsoft は作れるし、作りたい。作っていないのは優先度の問題にすぎません。 これがこの案の最も弱い点です。</p><p>対策は、<strong>Microsoft が足せない部分に製品の重心を置く</strong>ことです。 Microsoft が出せるのは「この操作は Graph にある/ない」までです。 出せないのは、「<strong>このアプリを許可リストから外したら、誰の何が止まるか</strong>」という影響範囲の推定です。 それには、SOAP 操作の呼び出し回数と最終アクティビティ日から、そのアプリの用途（バックアップか、署名挿入か、会議室予約か、CRM 連携か）を推定する必要があります。 用途の推定は、Microsoft が公式に断定できない種類の出力です。 誤ればテナントの業務を止めるからです。 第三者だからこそ「推定です」と書いて出せます。</p><p><strong>第二のリスクは、市場の寿命です。</strong> 2027年4月1日に EWS は完全停止し、この道具の需要は消えます。 残り19か月の市場です。 対策は、判定エンジンを EWS 専用にしないことです。 「使用状況ログ × 後継 API の対応表 × 公式のパリティギャップ一覧 → アプリごとの進退」という構造は、EWS に固有ではありません。 Microsoft Advertising の SOAP API も2026年10月1日に機能凍結し、2027年1月31日に停止します。 同じ器が次の退役にも使えるかを、最初の設計で確認しておきます。</p><p><strong>第三のリスクは、レポートのデータ制約です。</strong></p><blockquote class="voice"><p>Because data aggregates weekly and stops at 90 days, add the Unified Audit Log, Entra sign-in logs, and app registration grants. — <a href="https://ecorpit.com/ews-retirement-october-2026-allow-list-graph-migration-runbook/" target="_blank" rel="noopener noreferrer">ecorpit, 同上</a></p></blockquote><p>週次集計かつ90日で切れるため、四半期に1度しか動かないバッチ処理が<strong>レポートに現れません</strong>。 年次の監査エクスポートや、決算期だけ動くアーカイブ処理が該当します。 これらは許可リストから漏れ、遮断後に静かに失敗します。 対策は、出力に「レポートに現れなかった＝安全」と書かないことです。 「観測窓は90日であり、それより低頻度の処理は検出できない」という限界を、出力の先頭に固定文言として置きます。</p><h4 id="参考ロードマップ">参考ロードマップ</h4><p>第5章に14日間の想定を置きます。</p><hr><h3 id="アイデア-2-chingin-split-勤務地と勤務日から適用すべき最低賃金を日単位で決め-月の途中の発効と派遣先適用のずれを洗い出すローカル検査">アイデア 2: <code>chingin-split</code> (勤務地と勤務日から適用すべき最低賃金を日単位で決め、月の途中の発効と派遣先適用のずれを洗い出すローカル検査)</h3><p>賃金台帳の勤務日・勤務地・時間単価を入力に取り、日ごとに適用されるべき地域別最低賃金を決定し、下回っている日を列挙するローカル CLI です。 出力は月額の合否ではありません。 <strong>日単位の不足額と、その根拠となった県と発効日</strong>です。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>第一に、発効日が県ごとに大きくずれた事実です。</p><blockquote class="voice"><p>⚠ <strong>発効日は都道府県によって大きく異なります</strong> — <a href="https://taxlabor.com/minimum-wage-japan/" target="_blank" rel="noopener noreferrer">taxlabor, 2026年度 都道府県別最低賃金一覧</a></p></blockquote><p>2026年度の答申では、最も早い発効日が10月1日、最も遅い発効日が12月1日でした。 その間に、10月14日（秋田）、10月29日（青森）、10月30日（山形）、11月15日（佐賀）、11月16日（京都）といった<strong>月の途中の発効日</strong>が並びます。 月末締めの給与計算では、これらの県の10月分・11月分の賃金計算期間の中に、旧額と新額が同居します。</p><p>第二に、判定の基準が支払日ではない点です。</p><blockquote class="voice"><p>最低賃金の適用は<strong>「いつ払ったか」ではなく「いつ働いたか」が基準</strong>です。 — <a href="https://taxlabor.com/minimum-wage-japan/" target="_blank" rel="noopener noreferrer">taxlabor, 同上</a></p></blockquote><blockquote class="voice"><p>月をまたぐ場合は日ごとに新旧賃金を計算して合算する必要があります — <a href="https://taxlabor.com/minimum-wage-japan/" target="_blank" rel="noopener noreferrer">taxlabor, 同上</a></p></blockquote><p>つまり、月単位の平均時給が新額を上回っていても、発効日以降の労働日だけを取り出すと下回っている、という状態が成立します。 月次の集計では見えません。</p><p>第三に、派遣における適用先のずれです。</p><blockquote class="voice"><p>派遣労働者には、派遣元の事業場の所在地にかかわらず、派遣先の最低賃金が適用されます。 — <a href="https://www.jtuc-rengo.or.jp/activity/roudou/chingin/saiteichingin_qa.html" target="_blank" rel="noopener noreferrer">日本労働組合総連合会, 最低賃金Q&amp;A</a></p></blockquote><p>派遣元が東京で、派遣先が岩手なら、適用されるのは岩手の額と岩手の発効日（12月1日）です。 派遣元の給与システムは自社の事業所所在地を持っており、派遣先の所在地を賃金判定に使っている保証がありません。 複数県へ派遣している事業者では、<strong>同じ賃金計算期間の中で、労働者ごとに発効日が異なります。</strong></p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p><strong>マイクロDevEx型</strong>ではなく、<strong>コミュニティ特化型</strong>に該当します。 対象は「複数県に事業所を持つ、または複数県へ派遣している、かつ給与計算を自社の表計算または自作システムで行っている事業者」です。</p><p>なぜ今か。 2026年度は、発効日の散らばりが例年より大きく、月の途中の発効が複数県で発生しました。 散らばりが大きいほど、県別マスタの更新漏れと、日割り計算の失念が起きます。</p><p>公開情報の完備度は3案で最も高いと言えます。 都道府県ごとの答申額と発効日は行政と各種一覧サイトが公表しており、派遣先適用の法解釈も無償で読めます。 揃え直す資産がありません。</p><h4 id="5軸スコアリング-判定-1">5軸スコアリング &amp; 判定</h4><p>総合 <strong>17 / 25 点 (Tier 2: HOLD)</strong>。詳細は第3章。</p><h4 id="リスク・反証分析-1">リスク・反証分析</h4><p><strong>最大のリスクは、除外フィルタの「大手との正面衝突」に近接していることです。</strong> freee・マネーフォワード・弥生は、いずれも都道府県別の最低賃金マスタを持ち、発効日での自動切り替えを実装しています。 2026-09-03 のレポートでは、年末調整の様式変更対応案を<strong>まさにこの理由で総合13点として却下</strong>しました。 同じ理由でこの案も落とすべきかを、正面から検討する必要があります。</p><p>落とさなかった理由は、大手が扱っていない2点があるからです。 第一が、<strong>派遣先ベースの判定</strong>です。給与計算 SaaS が持つのは雇用主側の事業所であり、就業場所ではありません。 第二が、<strong>日単位の分割</strong>です。月の途中で発効する県について、その月の賃金を発効日で二分して別々に判定する処理は、月次締めを前提としたシステムの構造と噛み合いません。</p><p>しかし、この2点だけでは製品として細すぎます。 <strong>対策は、給与計算の代替ではなく「出力の監査」として位置づけることです。</strong> 既存の SaaS が出した賃金台帳の CSV を入力に取り、判定だけを行います。 競合しない位置に立てば、正面衝突は避けられます。 それでも軸4に4点を付けられないのは、大手が同じ監査機能を自社の警告として実装できるからです。</p><p><strong>第二のリスクは、誤判定の責任です。</strong> 最低賃金法違反は、罰則と遡及是正を伴います。 この道具が「問題なし」と出したせいで見逃しが起きた場合、責任の所在が問われます。 対策は、出力を「違反である」ではなく「<strong>発効日をまたぐ計算期間があり、日単位の再計算が必要な労働者</strong>」の列挙に限定することです。 判定ではなく、要確認対象の抽出に出力を絞ります。</p><p><strong>第三のリスクは、需要が年1回である点です。</strong> 発効期を過ぎれば動機が消えます。 対策は、対象を最低賃金に限定せず、<strong>発効日をまたぐ賃金改定一般</strong>へ広げることです。 特定（産業別）最低賃金は地域別と別の発効日を持ち、しかも地域別より高い場合はそちらが適用されます。 この二重判定を含めれば、年内に複数回の利用機会が生じます。</p><h4 id="参考ロードマップ-1">参考ロードマップ</h4><p>第5章に14日間の想定を置きます。</p><hr><h3 id="アイデア-3-pin-drift-コードに固定したモデル文字列と-自テナントのデプロイ実態を突き合わせ-静かに差し替わる箇所と確実に落ちる箇所を分けて示す検査">アイデア 3: <code>pin-drift</code> (コードに固定したモデル文字列と、自テナントのデプロイ実態を突き合わせ、静かに差し替わる箇所と確実に落ちる箇所を分けて示す検査)</h3><p>リポジトリを走査してモデル識別子の固定箇所を抽出し、各プロバイダのデプロイ情報 API と突き合わせ、呼び出し箇所ごとに三値を返すローカル CLI です。 出力は退役日の一覧ではありません。 <strong>壊れ方の分類</strong>です。 すなわち、退役日に<strong>エラーで落ちる</strong>箇所、退役日に<strong>別バージョンへ静かに差し替わる</strong>箇所、そして<strong>期日が確定していない</strong>箇所の3つに分けます。</p><p>この分類が中核です。 エラーで落ちる箇所は、監視で検出できます。 静かに差し替わる箇所は、検出できません。 出力の質が変わるだけで、例外は上がらず、ログにも残りません。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>第一に、同じモデルに対して複数の退役日が表示され、開発者が判断できない状態です。</p><blockquote class="voice"><p>Can you please advise which is the correct and official retirement date. — <a href="https://learn.microsoft.com/en-us/answers/questions/5820577/clarification-on-oai-model-expiration-date" target="_blank" rel="noopener noreferrer">Microsoft Q&amp;A, Clarification on OAI Model Expiration Date</a></p></blockquote><p>この質問への回答は、公式ドキュメントを権威とせよ、というものでした。</p><blockquote class="voice"><p>If a discrepancy is ever seen for the same model name and version, the model deprecations page is the authoritative source — <a href="https://learn.microsoft.com/en-us/answers/questions/5820577/clarification-on-oai-model-expiration-date" target="_blank" rel="noopener noreferrer">Microsoft Q&amp;A, 同上</a></p></blockquote><p>ところが、<strong>別の質問には正反対の回答が付いています。</strong></p><blockquote class="voice"><p>For planning purposes, we recommend continuing to treat the retirement date currently displayed in the Azure AI Foundry portal as the authoritative date for this deployment version — <a href="https://learn.microsoft.com/en-us/answers/questions/5881436/azure-ai-foundry-sora-2-retirement-date-feels-too" target="_blank" rel="noopener noreferrer">Microsoft Q&amp;A, Azure AI Foundry Sora 2 retirement date feels too early</a></p></blockquote><p>一方は公式ドキュメントが権威だと言い、他方はポータルの表示が権威だと言っています。 <strong>同一ベンダーの公式回答が、権威の所在について食い違っています。</strong></p><p>第二に、質問者がその説明に納得していない点です。</p><blockquote class="voice"><p>That answer is precisely the problem: Azure's "version-level" explanation does not resolve the inconsistency with official OpenAI timing or Microsoft's own public statement that Foundry would continue Sora 2 support for six months. — <a href="https://learn.microsoft.com/en-us/answers/questions/5881436/azure-ai-foundry-sora-2-retirement-date-feels-too" target="_blank" rel="noopener noreferrer">Microsoft Q&amp;A, 同上</a></p></blockquote><p>Foundry のポータルは6月2日を、OpenAI 自身の告知は9月24日を示していました。 Microsoft の広報は6か月の継続提供を表明していました。 3つの公式情報が、3つの異なる日付を指しています。</p><p>第三に、同じモデルがプロバイダをまたぐと退役日が変わる点です。 複数プロバイダの退役日をまとめた公開カレンダーによれば、Claude Sonnet 4 は Anthropic の API 上と Amazon Bedrock 上で異なる終了日を持ちます（<a href="https://hidekazu-konishi.com/entry/ai_model_deprecation_and_lifecycle_calendar.html" target="_blank" rel="noopener noreferrer">AI Model Deprecation and Lifecycle Calendar</a>）。 同一のモデル文字列を3つのプロバイダで使い分けているアプリケーションは、<strong>3つの異なる日付で順に壊れます。</strong></p><p>第四に、退役が現実に起きている点です。 OpenAI は Sora のアプリを2026年4月26日に、API を9月24日に終了します（<a href="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" target="_blank" rel="noopener noreferrer">OpenAI Help Center</a>）。 20日後です。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p><strong>マイクロDevEx型</strong>に該当します。</p><p>なぜ今か。 理由は2つあります。</p><p>第一に、<strong>モデルの退役が単発の事件から定常の運用へ変わった</strong>ことです。 2026年に入って、GitHub Models の完全撤退、Assistants API の停止、Sora API の終了、Azure OpenAI の複数モデルの退役が連続しました。 一度きりの移行ではなく、四半期ごとに来る保守作業になりました。</p><p>第二に、<strong>判定材料が公開されている</strong>ことです。 各プロバイダは退役日一覧を公開しています。 自テナントのデプロイ情報は、認証さえあれば API で読めます。 必要なのは突き合わせだけです。</p><p>そして、この突き合わせをモデル提供元は作りません。 複数プロバイダを横断して退役日を一枚に並べる表は、そのまま<strong>乗り換え検討の材料</strong>になるからです。 自社の退役スケジュールだけを自社ページで示すのが、提供元にとっての合理です。</p><h4 id="5軸スコアリング-判定-2">5軸スコアリング &amp; 判定</h4><p>総合 <strong>18 / 25 点 (Tier 2: HOLD)</strong>。詳細は第3章。</p><h4 id="リスク・反証分析-2">リスク・反証分析</h4><p><strong>最大のリスクは、退役日そのものが解決済みの情報だと見なされることです。</strong> 既に無償の横断カレンダーが個人ブログとして公開されています。 「日付を並べるだけ」なら、この道具は不要です。</p><p>対策は、製品の重心を日付から<strong>壊れ方の分類</strong>へ完全に移すことです。 価値があるのは「9月24日に終わる」という事実ではなく、「<strong>この呼び出し箇所は、その日に例外を投げずに別バージョンへ差し替わる</strong>」という予測です。 自動アップグレードの対象になっているデプロイは、退役日に落ちません。 出力が変わるだけです。 評価パイプラインを持たないチームは、この変化に気づけません。 日付は誰でも並べられますが、自動アップグレードの設定は<strong>自テナントのデプロイ情報を読まなければ分かりません。</strong> ここが第三者の道具でなければ埋まらない部分です。</p><p><strong>第二のリスクは、静的抽出の取りこぼしです。</strong> モデル識別子は、ソースコードの定数だけでなく、環境変数、IaC のテンプレート、データベースの設定行、プロンプトテンプレートの内部に散在します。 取りこぼしは「該当なし＝安全」という誤った答えに直結します。 <strong>この案で最も価値の高い部分が、最も難しい部分と一致しています。</strong> 対策は、静的抽出に加えて、実行時のリクエストログからモデル文字列を回収する経路を用意することです。 静的抽出だけを信頼しない設計にします。</p><p><strong>第三のリスクは、認証情報の扱いです。</strong> デプロイ情報の照会には、各プロバイダの認証情報が要ります。 開発者は、素性の分からない CLI に本番の API キーを渡しません。 対策は、既定で読み取り専用スコープのみを要求し、認証情報をディスクへ書かず、照会結果をローカルへ保存する構成にすることです。 それでも初回の信頼獲得は重く、この摩擦は消えません。</p><h4 id="参考ロードマップ-2">参考ロードマップ</h4><p>第5章に14日間の想定を置きます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>ews-verdict</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>chingin-split</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>pin-drift</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月1日に自動遮断、母数は最大だが市場寿命が19か月</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">発効日は確定だが対象が自作給与計算と派遣に限られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">退役が定常化、ただし単一の期限がなく切迫感が拡散</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">CSV 結合は2週間圏内、操作対応表の手作業が難所</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">日単位の突合は平易、算入賃金の前処理が本体</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">抽出と照会は2週間圏内、静的抽出の取りこぼしが致命</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">企業ITとMSPに予算、ただし移行後に再購入がない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">中小企業の年1回需要、社労士の無償チェック表と競合</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">開発者向けCLIは無償期待が強く法人販売が要る</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Microsoft が1列足せば消える、利益相反が存在しない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">大手給与SaaSの隣接領域、派遣と日割りだけが空白</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">無償カレンダーが既出、差別化は自動昇格検出に限られる</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、対応表の追随が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">年1回のデータ更新、誤判定の責任が重い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、認証情報を預かる信頼負荷</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-ews-verdict-19点-tier-2">Idea 1: <code>ews-verdict</code> — 19点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 2026年10月1日という日付が Microsoft のメッセージセンター告知で固定されており、動きません。しかも遮断の起動条件が「何もしなかったこと」であるため、無自覚なテナントほど当たります。対象は Exchange Online を使う全組織であり、母数は3案で最大です。2027年4月1日には再有効化不能の完全停止が続き、圧力が二段構えになっています。<strong>減点材料</strong>: 市場の寿命が19か月で切れる。EWS が消えれば需要も消えます。「直近の規制変更の直後」という基準文には合致しますが、反復しない一回性の期限であるため、5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: 入力は管理センターから落ちる CSV であり、列はアプリケーション ID、SOAP アクション、呼び出し回数、最終アクティビティ日です。判定は対応表との突き合わせであり、外部への送信も不要です。2週間で三値判定までは届きます。<strong>減点材料</strong>: EWS 操作と Graph API の対応表が、公式ページでは人間向けの文書として提供されており、機械可読な形式ではありません。SOAP アクションは数百種あり、対応表を手作業で構造化する工数が MVP の大半を占めます。しかもこの表は Microsoft がパリティギャップを埋めるたびに変わります。</li><li><strong>収益性 4</strong>: 3案で最も強い軸です。買い手は情報システム部門と MSP であり、予算が個人ではなく組織にあります。金額インパクトも明瞭です。許可リストの設定を誤れば、10月1日に業務メールの自動処理・バックアップ・署名挿入が止まります。テナント単位の買い切りと、MSP 向けの複数テナント版という二段の価格帯を説明できます。<strong>減点材料</strong>: 継続課金の根拠が無い。一度棚卸しを終えれば再購入の動機が消えます。年に一度の点検として売る理由も、EWS が消える以上ありません。5点は付けられません。</li><li><strong>競合優位性 3</strong>: 使用状況レポート・対応表・パリティギャップ一覧の3つを結合した出力は、現時点で公式にも第三者にも存在しません。GUID の名前解決は既に無償モジュールが埋めていますが、その先の進退判定は空白です。<strong>減点材料</strong>: この案には利益相反が存在しません。前回までの探索軸の中核だった「作りたくない先客」が、ここには居ないのです。Microsoft は使用状況レポートに「Graph 対応可否」の列を足せますし、足す動機（移行促進）もあります。<strong>大手が3か月で真似したら</strong>、差別化は影響範囲の推定だけに縮みます。この一点で4点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル CLI として完結し、CSV を外部へ送りません。サーバーもデータベースも持ちません。<strong>減点材料</strong>: 対応表の追随が恒常的な固定費として残ります。Microsoft は四半期ごとにパリティギャップを埋めており、古い表は「移行先なし」と誤って言い続けます。誤りの方向が「移行できない」に偏るため、ユーザーに不要な延命コストを負わせる形で害が出ます。</li></ul><h4 id="idea-2-chingin-split-17点-tier-2">Idea 2: <code>chingin-split</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 3</strong>: 発効日は既に答申で確定しており、10月1日から12月1日まで散らばりました。月の途中の発効が複数県で発生した点は、例年より鋭い変化です。<strong>減点材料</strong>: 3案で最も対象が薄い。給与計算 SaaS を導入済みの事業者は県別マスタの自動更新で足ります。実際に困るのは、表計算または自作システムで給与計算をしており、かつ複数県に跨っている事業者に限られます。この2条件を同時に満たす層は薄く、しかも国内に閉じています。4点の水準に届きません。</li><li><strong>技術的実現可能性 4</strong>: 賃金台帳から勤務日・勤務地・時間単価を読み、日ごとに適用額を決めて突き合わせる処理は平易です。発効日テーブルは47行の静的データであり、年1回の更新で足ります。<strong>減点材料</strong>: 最低賃金と比較すべき「算入される賃金」の復元が本体になります。精皆勤手当・通勤手当・家族手当・時間外割増は最低賃金の算入から除外され、月給者は所定労働時間で割り戻す必要があります。台帳の列名が事業者ごとに異なるため、この前処理のマッピングが工数の大半を占めます。</li><li><strong>収益性 3</strong>: 是正勧告と遡及支払いという金銭インパクトはありますが、買い手は中小企業であり単価が低い領域です。買い切り数千円から1万円台が上限でしょう。<strong>減点材料</strong>: 社労士事務所が顧問先向けに無償のチェック表を配る領域です。年1回のイベントであり、継続課金の根拠がありません。「100人で月10〜20万円」を満たすには、年1回の買い切りでは母数が足りず、単価を上げる理由も説明できません。</li><li><strong>競合優位性 3</strong>: 派遣先ベースの判定と、月の途中で発効する県の日単位分割は、月次締めを前提とした既存システムの構造と噛み合いません。ここは空いています。<strong>減点材料</strong>: 除外フィルタの「大手との正面衝突」に近接しています。freee・マネーフォワード・弥生が県別マスタと発効日切り替えを既に実装しており、<strong>大手が3か月で真似したら</strong>、派遣先の就業場所を1列足すだけで空白は埋まります。しかも2026-09-03 で同型の年末調整案をこの理由で却下しており、判断の一貫性としても4点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル完結で台帳を外部へ送らず、年1回のデータ更新で維持できます。3案で最も保守が軽い構造です。<strong>減点材料</strong>: 誤判定が最低賃金法違反の見逃しへ直結します。出力を「違反である」ではなく「日単位の再計算が必要な対象の列挙」に限定する制約を恒久的に守る必要があり、その制約は製品を分かりにくくする方向へ働きます。</li></ul><h4 id="idea-3-pin-drift-18点-tier-2">Idea 3: <code>pin-drift</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 対象は LLM を本番で使う全チームであり、母数は Idea 2 を大きく上回ります。2026年に GitHub Models の撤退、Assistants API の停止、Sora API の終了、Azure OpenAI の複数モデル退役が連続し、退役が四半期ごとの定常保守へ変わりました。反復する構造である点は Idea 1 より優れます。<strong>減点材料</strong>: 単一の期限がありません。9月24日に壊れるチームと、2027年2月に壊れるチームが混在し、切迫感が個々のチームへ分散します。「この日までに対応しないと罰がある」という共通の圧力を欠くため、購買のトリガーが立ちません。5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: モデル識別子の抽出と、各プロバイダのデプロイ情報 API の照会は、いずれも2週間圏内です。三値の分類ロジックそのものは平易です。<strong>減点材料</strong>: 静的抽出の取りこぼしが「該当なし＝安全」という誤答へ直結します。モデル文字列は環境変数・IaC・DB の設定行・プロンプトテンプレートに散在し、リポジトリの走査だけでは網羅できません。最も価値の高い部分が、最も難しい部分と一致しています。</li><li><strong>収益性 3</strong>: 買い手は LLM を本番運用するチームであり、静かな品質劣化のコストは説明できます。<strong>減点材料</strong>: 開発者向け CLI は無償が既定の領域です。しかも無償の横断カレンダーが個人ブログとして既に公開されており、「日付を知る」だけなら金を払う理由がありません。個人が月10〜30ドルを払う動機は弱く、法人の LLMOps 予算へ載せる導線が別途必要になります。</li><li><strong>競合優位性 3</strong>: 自動アップグレード対象のデプロイを検出し、「退役日に落ちずに出力だけ変わる」箇所を名指しする出力は、現時点で存在しません。ベンダーの公式回答が権威の所在について食い違っているという事実は、第三者の突き合わせに位置がある根拠です。<strong>減点材料</strong>: 差別化が自動昇格の検出という一点に依存します。<strong>大手が3か月で真似したら</strong>、各プロバイダの公式 SDK が起動時に「このデプロイは N 日後に自動昇格します」と警告を出すだけで消えます。実装は数十行です。技術的な参入障壁がありません。</li><li><strong>個人開発適性 4</strong>: ローカル CLI として完結し、コードもログも外部へ送りません。<strong>減点材料</strong>: デプロイ情報の照会に各プロバイダの認証情報を要求する点が、信頼の障壁になります。開発者は素性の分からない CLI に本番の API キーを渡しません。読み取り専用スコープに限定しても、この摩擦は消えず、導入率の上限を押し下げます。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="1-ews-verdict-のリスクと対策">1. <code>ews-verdict</code> のリスクと対策</h3><p><strong>この案が失敗する最も蓋然性の高い筋書きは、10月1日を過ぎてから道具ができあがることです。</strong> 27日後に自動遮断が始まります。 遮断された組織は、その場で許可リストを設定するか、業務を止めるかの二択に追い込まれます。 そのとき必要なのは棚卸しの道具ではなく、<strong>今すぐ書くべき GUID のリスト</strong>です。 14日で作っても、残る猶予は13日です。</p><p>対策は、出力の順序を逆転させることです。 「移行計画の作成支援」ではなく、<strong>「今日、許可リストへ入れるべき GUID の一覧」を最初の画面に置きます。</strong> その下に、それぞれの進退（移行できる／延命するしかない／移行先が無い）を添えます。 緊急の需要へ先に答え、計画の需要へ後から答える構成にします。</p><p><strong>第二の筋書きは、Microsoft が10月中に対応可否の列を足すことです。</strong> この案には利益相反による防壁がありません。 そうなった場合、残る差別化は影響範囲の推定だけです。 着手前に、この一点だけで製品が成立するかを判断します。 成立しないなら、着手しないのが正しい判断です。</p><h3 id="2-chingin-split-のリスクと対策">2. <code>chingin-split</code> のリスクと対策</h3><p><strong>この案が失敗する最も蓋然性の高い筋書きは、対象者が存在しないことです。</strong> 複数県に跨り、かつ表計算で給与計算をしている事業者が、実在するのか。 実在しても、その事業者が有償の道具を探しているのか。 表計算で給与計算を続けている組織は、そもそも道具に金を払わない選択をした組織である可能性があります。</p><p>対策は、着手前に対象者の実在を確認することです。 確認できないなら着手しません。</p><p><strong>第二の筋書きは、大手が派遣先の就業場所を1列足すことです。</strong> そうなれば残る空白は月の途中の日割りだけになり、製品として細すぎます。 この案は、着手する場合でも「最低賃金の検査」としてではなく、<strong>賃金台帳の列マッピングを起点とした汎用の突合器</strong>として設計すべきです。 最低賃金は最初の適用例にすぎない、という位置づけにします。</p><h3 id="3-pin-drift-のリスクと対策">3. <code>pin-drift</code> のリスクと対策</h3><p><strong>この案が失敗する最も蓋然性の高い筋書きは、自動昇格が実際には起きていないことです。</strong> この案の価値は「静かに差し替わる箇所がある」という前提に全て乗っています。 もし調査対象のデプロイが全て手動更新に設定されており、退役日に例外を投げるだけなら、既存の監視で足ります。 その場合、この道具の存在理由が消えます。</p><p>対策は、着手前にこの前提を実測することです。 手元とチームのデプロイを列挙し、自動昇格が設定されているものが1件でもあるかを確認します。 1件も無いなら着手しません。</p><p><strong>第二の筋書きは、プロバイダの SDK が警告を出すことです。</strong> 実装は数十行であり、いつ来てもおかしくありません。 対策は、SDK が出せない出力を製品の中心に置くことです。 SDK が出せるのは「このデプロイは昇格します」までです。 出せないのは、「<strong>昇格後に出力がどう変わるか</strong>」という差分の実測です。 昇格前後の両バージョンへ同じプロンプトを流し、差分を記録する工程を製品へ含めます。 これはプロバイダが自社の SDK に組み込めない種類の機能です。 自社モデルの世代間差分を、自ら定量化して見せることになるからです。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補である <code>ews-verdict</code> について、14日間の想定を置きます。 Day 1 は実装ではなく、リスク分析で挙げた前提の検証に充てます。</p><div class="tw"><table><thead><tr><th>期間</th><th>工程</th><th>内容</th></tr></thead><tbody><tr><td class="tk">Day 1</td><td>事前検証</td><td>リスク分析の前提を潰す工程。実装には入らない。(a) 手元または知人の M365 テナントで EWS 使用状況レポートを実際に落とし、<strong>列が想定どおり（アプリケーション ID・SOAP アクション・呼び出し回数・最終アクティビティ日）か</strong>を確認する。(b) 落ちた CSV に、Graph へ対応が無い操作（パブリックフォルダー系・インポート/エクスポート系・アーカイブ系）が1件でも含まれるかを確認する。(c) 含まれないなら、この道具が出す「移行先が存在しない」という判定は空振りする。<strong>テナント3件で1件も該当が無いなら着手しない。</strong></td></tr><tr><td class="tk">Day 2-3</td><td>対応表の構造化</td><td>公式の EWS-to-Graph 対応表と、公式ドキュメントのパリティギャップ一覧を、機械可読な JSON へ手作業で写す。ここでは判定を一切行わず、<strong>対応表の被覆率だけを測る。</strong> Day 1 の CSV に現れた SOAP アクションのうち、表に載っている割合を出す。被覆率が5割を切るなら、この案の中核が成立しない。</td></tr><tr><td class="tk">Day 4-5</td><td>三値判定</td><td>CSV と対応表を結合し、アプリケーション ID ごとに「移行できる／許可リストで延命するしかない／移行先が存在しない」を出す。<strong>確信が持てないものは必ず「判定できない」へ倒す。</strong> 曖昧を「移行できる」へ倒すと、遮断後に業務が止まる。</td></tr><tr><td class="tk">Day 6-7</td><td>緊急出力</td><td>判定結果から、<strong>今日 <code>Set-OrganizationConfig -EwsAllowedAppIDs</code> へ渡すべき GUID の一覧</strong>を、コピー可能な一行として出す。10月1日までの残日数を先頭に表示する。ここが最初の画面であり、移行計画はその下に置く。</td></tr><tr><td class="tk">Day 8-9</td><td>名前解決の統合</td><td>既存の無償モジュールが持つ AppID → アプリ名の対応を取り込み、GUID に名前を添える。<strong>解決できない GUID を隠さず、「未解決・呼び出し量 N 回」として最上位へ出す。</strong> 未解決かつ高頻度のものが、最も危険な取りこぼしである。</td></tr><tr><td class="tk">Day 10-11</td><td>観測窓の明示</td><td>出力の先頭に、レポートの観測窓（週次集計・最大90日）と、そこから導かれる限界を固定文言として置く。<strong>「レポートに現れなかったこと」を「使っていないこと」として出力しない。</strong> 四半期バッチや年次エクスポートは原理的に検出できないため、その旨を明記する。</td></tr><tr><td class="tk">Day 12-13</td><td>影響範囲の推定</td><td>SOAP アクションの構成と呼び出し量から、各アプリの用途（バックアップ／署名挿入／会議室予約／CRM 連携）を推定し、「許可リストから外した場合に止まる業務」を推定として添える。<strong>これが Microsoft には出せない出力であり、この案の唯一の防壁である。</strong> 断定せず、根拠となった SOAP アクションを必ず併記する。</td></tr><tr><td class="tk">Day 14</td><td>有償化の判断</td><td>成功指標はダウンロード数ではなく、<strong>「検査の結果、許可リストへ GUID を追加した、または移行の発注を行った件数」</strong>に置く。判定が行動を引き起こさないなら、それは知って終わりの情報であり、有償化へ進まない。</td></tr></tbody></table></div><p>課金設計は、単一テナントの検査を無償、MSP 向けの複数テナント横断と影響範囲の推定を有償とする二層構成を想定します。 無償側は Microsoft が模倣可能です。 有償側が持つのは<strong>用途の推定</strong>であり、これは Microsoft が公式には断定できません。 誤ればテナントの業務を止めるからです。 第三者だから「推定です」と書いて出せる、という一点にこの製品の存在理由があります。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><h3 id="aiエージェントによる評価・分析結果">AIエージェントによる評価・分析結果</h3><ul><li><strong><code>ews-verdict</code></strong>（総合19点、Tier 2）を最有力候補として選定しました。選定理由は、<strong>今回の探索軸「判定材料が公開情報として既に揃っている」に、3案で最も明快に当てはまる</strong>からです。使用状況レポートも、EWS-to-Graph の対応表も、パリティギャップの一覧も、全て Microsoft が無償で公開しています。個人が独力で溜めるべき資産がありません。前回のレポートで工数の主因となった「資産の揃え直し」が、この案には存在しません。加えて、期限が27日後に確定しており、遮断の起動条件が「何もしなかったこと」であるため、無自覚な組織ほど当たります。Tier 1 に届かなかった理由は二点です。第一に、<strong>この案には利益相反が存在しないこと。</strong> Microsoft は対応可否の列を足せるし、足す動機もあります。前回まで探索軸の中核だった「作りたくない先客」が、ここには居ません。第二に、市場の寿命が19か月で切れること。2027年4月1日に EWS が完全停止すれば、需要も消えます。</li></ul><ul><li><strong><code>pin-drift</code></strong>（総合18点、Tier 2）は、<strong>課題の反復性で3案の最上位</strong>です。モデルの退役は一度きりの事件ではなく、四半期ごとに来る保守作業へ変わりました。Idea 1 が19か月で終わるのに対し、この案の需要は終わりません。それでも18点に留まったのは、<strong>収益性と競合優位性が同時に3点</strong>であることによります。無償の横断カレンダーが既に存在し、差別化は自動昇格の検出という一点に依存します。その一点も、プロバイダの SDK が数十行の警告を足せば消えます。着手するなら、日付の可視化からではなく、<strong>昇格前後の出力差分の実測</strong>から入るべきです。差分の記録だけは、プロバイダが自社の SDK に組み込めません。自社モデルの世代間差分を自ら定量化して見せることになるからです。</li></ul><ul><li><strong><code>chingin-split</code></strong>（総合17点、Tier 2）は、公開情報の完備度が3案で最も高い案でした。都道府県別の発効日も、派遣先適用の法解釈も、全て無償で読めます。しかしタイミング3点・収益性3点・競合優位性3点が重なり、17点に留まりました。<strong>除外フィルタの「大手との正面衝突」に近接している</strong>ことが最大の理由です。2026-09-03 で同型の年末調整案を同じ理由で却下しており、判断の一貫性を保つ以上、この案だけを高く採点することはできません。着手するなら、最低賃金の検査としてではなく、<strong>賃金台帳の列マッピングを起点とした汎用の突合器</strong>として設計する場合に限ります。最低賃金は最初の適用例にすぎない、という位置づけであれば、大手の1列追加で消える構造から抜けられます。</li></ul><ul><li><strong>今回の探索で候補から落とした案が4件あります。</strong><ul><li><strong>Python 3.10 のサポート終了対応</strong>: 2026年10月31日に上流の保守が止まり、Azure App Service の拡張サポートも10月1日に終わります。期日として鋭く母数も大きいのですが、課題の形が「どのコンポーネントを誰がいつまでパッチするか」であり、2026-09-03 の <code>eol-cliff</code> と実質的に同一です。重複判定フィルタに該当するため、総合13点で却下しました。</li><li><strong>Microsoft Advertising SOAP API の退役</strong>: 2026年10月1日に機能凍結、2027年1月31日に完全停止します。EWS と同型の「SOAP から REST への移行棚卸し」であり、期日も近接しています。<strong>単独の案としてではなく、<code>ews-verdict</code> の判定エンジンが次に適用できる領域として扱うのが正しい</strong>と判断し、独立案としては総合14点で却下しました。買い手が広告代理店に限られ、母数が EWS より一桁小さい点も理由です。</li><li><strong>Sora API 終了に伴う生成資産の退避</strong>: 2026年9月24日に API が終了し、期限を過ぎるとユーザーデータは削除されます。20日後という切迫度は3案のどれよりも高いのですが、対象が「Sora で生成した資産を本番で参照しているアプリ」に限られ、しかも作業内容がエクスポートと参照書き換えという一度きりの単純作業です。有償化の余地がなく、総合11点で却下しました。</li><li><strong>npm の Granular トークン90日期限への追随</strong>: クラシックトークンの失効後、新規の Granular トークンは有効期限が最大90日となりました。CI の公開パイプラインが四半期ごとに静かに失敗する構造ですが、2026-08-29 の <code>token-clock</code> と同一の課題です。重複判定フィルタに該当するため、総合12点で却下しました。</li></ul></li></ul><ul><li><strong>10回連続で Tier 1 に到達していません。</strong> 今回の探索軸は、狙った軸では機能しました。<strong>技術的実現可能性の平均が4.0点</strong>であり、前回の3.67点から改善しています。「判定材料が公開済みか」で先に絞ったことが、そのまま MVP 工数の低さとして現れました。3案とも、揃え直すべき資産を持ちません。 一方で、<strong>今回沈んだのは競合優位性です。</strong> 軸4の平均が3.0点であり、前回の3.67点から明確に後退しました。理由は探索軸の交換にあります。<strong>公開情報が完備している領域とは、誰でも同じ材料に手が届く領域です。</strong> 材料が公開されているということは、先客も同じ材料を持っているということです。前回の軸（利益相反）は差別化を作りましたが工数を膨らませ、今回の軸（公開情報の完備）は工数を削りましたが差別化を溶かしました。<strong>2つの軸は交換関係にあります。</strong> この交換関係が、10回 Tier 1 に届かない構造的な理由だと考えます。軸2と軸4を同時に高く保つには、<strong>材料は公開されているが、突き合わせた結果を出すことが先客にとって不都合</strong>という第三の条件が要ります。今回の3案でこれを満たしていたのは <code>pin-drift</code> だけでした。退役日は各社が公開していますが、それを横断して一枚に並べることは提供元にとって不都合です。<code>ews-verdict</code> は材料も公開・突き合わせも Microsoft に不都合でなく、<code>chingin-split</code> は材料も公開・突き合わせも大手に不都合ではありません。 次回の探索軸は、<strong>「材料が公開されている」かつ「突き合わせた結果が先客に不都合」</strong>の積で絞ります。材料の公開だけでも、不都合だけでも足りません。両方が同時に成立する位置だけを候補に残します。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-ews-exchange-online" target="_blank" rel="noopener noreferrer">Deprecation of Exchange Web Services in Exchange Online（Microsoft Learn 公式・パリティギャップ一覧とタイムライン）</a><span class="u">https://learn.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-ews-exchange-online</span></li><li><a href="https://techcommunity.microsoft.com/blog/exchange/introducing-ewsallowedappids-preparing-for-the-final-phase-of-ews-retirement/4529471" target="_blank" rel="noopener noreferrer">Introducing EWSAllowedAppIDs: Preparing for the Final Phase of EWS Retirement（Microsoft Community Hub）</a><span class="u">https://techcommunity.microsoft.com/blog/exchange/introducing-ewsallowedappids-preparing-for-the-final-phase-of-ews-retirement/4529471</span></li><li><a href="https://github.com/peterschmidtdk/EWS-App-Identifier" target="_blank" rel="noopener noreferrer">peterschmidtdk/EWS-App-Identifier（GitHub・AppID を名前へ解決する PowerShell モジュール）</a><span class="u">https://github.com/peterschmidtdk/EWS-App-Identifier</span></li><li><a href="https://www.a6n.co.uk/2026/04/preparing-exchange-web-services.html" target="_blank" rel="noopener noreferrer">Preparing: Exchange Web Services Retirement: The AppID Allowlist Challenge（Artic6 Blog）</a><span class="u">https://www.a6n.co.uk/2026/04/preparing-exchange-web-services.html</span></li><li><a href="https://ecorpit.com/ews-retirement-october-2026-allow-list-graph-migration-runbook/" target="_blank" rel="noopener noreferrer">EWS is blocked from 1 October 2026: set the allow list now（ecorpit・移行ランブック）</a><span class="u">https://ecorpit.com/ews-retirement-october-2026-allow-list-graph-migration-runbook/</span></li><li><a href="https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/ews-usage" target="_blank" rel="noopener noreferrer">EWS usage reports（Microsoft Learn・レポートの列定義）</a><span class="u">https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/ews-usage</span></li><li><a href="https://taxlabor.com/minimum-wage-japan/" target="_blank" rel="noopener noreferrer">2026年度 都道府県別最低賃金一覧（taxlabor・答申額と発効日）</a><span class="u">https://taxlabor.com/minimum-wage-japan/</span></li><li><a href="https://www.jtuc-rengo.or.jp/activity/roudou/chingin/saiteichingin_qa.html" target="_blank" rel="noopener noreferrer">最低賃金Q&amp;A（日本労働組合総連合会・派遣労働者への適用）</a><span class="u">https://www.jtuc-rengo.or.jp/activity/roudou/chingin/saiteichingin_qa.html</span></li><li><a href="https://learn.microsoft.com/en-us/answers/questions/5820577/clarification-on-oai-model-expiration-date" target="_blank" rel="noopener noreferrer">Clarification on OAI Model Expiration Date（Microsoft Q&amp;A）</a><span class="u">https://learn.microsoft.com/en-us/answers/questions/5820577/clarification-on-oai-model-expiration-date</span></li><li><a href="https://learn.microsoft.com/en-us/answers/questions/5881436/azure-ai-foundry-sora-2-retirement-date-feels-too" target="_blank" rel="noopener noreferrer">Azure AI Foundry Sora 2 retirement date feels too early and conflicts with Azure communication（Microsoft Q&amp;A）</a><span class="u">https://learn.microsoft.com/en-us/answers/questions/5881436/azure-ai-foundry-sora-2-retirement-date-feels-too</span></li><li><a href="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" target="_blank" rel="noopener noreferrer">What to know about the Sora discontinuation（OpenAI Help Center）</a><span class="u">https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation</span></li><li><a href="https://hidekazu-konishi.com/entry/ai_model_deprecation_and_lifecycle_calendar.html" target="_blank" rel="noopener noreferrer">AI Model Deprecation and Lifecycle Calendar - Anthropic, OpenAI, Google, and Amazon Bedrock</a><span class="u">https://hidekazu-konishi.com/entry/ai_model_deprecation_and_lifecycle_calendar.html</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-04_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
