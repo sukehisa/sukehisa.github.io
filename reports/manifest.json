@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T06:21:10+09:00",
+  "generated_at": "2026-09-05T03:19:16+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -99,6 +99,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-05_market_research_report.html",
+          "title": "2026-09-05: ステータスページの未報告障害・SDK申告の不整合・ZDR の黙認的逸脱における穴場市場の特定",
+          "date": "2026-09-05",
+          "bytes": 88391
+        },
         {
           "file": "2026-09-04_market_research_report.html",
           "title": "2026-09-04: EWS の自動遮断・最低賃金発効日の分散・モデル退役日の不一致における穴場市場の特定",

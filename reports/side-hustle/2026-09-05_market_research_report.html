@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「判定材料が公開されている」かつ「突き合わせた結果が先客に不都合」の積を探索軸に置き、ベンダーが公開した記述と実際の挙動の差分を扱う3案を5軸評価した結果">
+<title>2026-09-05: ステータスページの未報告障害・SDK申告の不整合・ZDR の黙認的逸脱における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-05</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / sla / status-page / google-play</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-05">市場リサーチ &amp; 5軸評価レポート (2026-09-05)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">outage-ledger</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 12 件（うち一次ソース 13 件）</div></div><div class="fig">19<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">outage-ledger</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">sdk-declare</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">zdr-drift</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-04）の終わりに、探索軸を積で絞ると宣言しました。 <strong>材料が公開されている</strong>かつ<strong>突き合わせた結果が先客に不都合</strong>、この2条件を同時に満たす位置だけを候補に残す、という条件です。</p><p>前々回までの失敗を要約すると、2つの軸が交換関係にありました。 利益相反だけで絞ると、先客が長年かけて溜めた資産を個人が独力で揃え直す羽目になりました。 公開情報の完備だけで絞ると、材料が誰の手にも届くために差別化が溶けました。 片方ずつでは、軸2（実現可能性）と軸4（競合優位性）が交互に沈みます。</p><p>今回はこの積を機械的に適用しました。 まず「その判定に必要な材料が、無償の公開ページまたは公開データセットとして既に存在するか」を確認しました。 次に「その材料を突き合わせた結果が、材料を公開している当人にとって不都合か」を確認しました。 残った変曲点は3つで、いずれも<strong>ベンダーが自ら公開した記述と、実際の挙動または顧客の権利との差分</strong>という同じ形をしています。</p><p>1つ目は、ステータスページが語らない障害です。 IsDown は2026年4月の1か月間に、ベンダーが公式には一切報告しなかったインシデントを104件検知しました。 同社の集計では1月に101件、3月に87件と、この規模が毎月続いています。 さらに GitHub は2026年4月に稼働率の算出方法を公開しましたが、その方法では Degraded Performance が停止時間ゼロとして扱われます。 材料は公開されています。 ステータスページの履歴は JSON と RSS で読め、主要クラウドの SLA クレジット表は CC-BY-4.0 の機械可読データセットとして公開されています。 そして、この突き合わせを最も作らないのはベンダー自身です。 稼働率の記述を書く側と、クレジットを払う側が同一だからです。</p><p>2つ目は、Google Play のデータ安全性申告と SDK の実挙動の差分です。 Google は申告責任を開発者に一本化しており、第三者 SDK が収集するデータも開発者の申告対象だと明記しています。 材料は公開されています。 Google は SDK 提供者に「Play data disclosure」ページの公開を促しており、AdMob も Maps も、自 SDK が収集するデータ型を一覧で公開しています。 そして、この突き合わせを作らないのは SDK 提供者です。 「当 SDK を入れると広告 ID の申告が必須になります」と依存ツリー全体で集計して見せる道具は、そのまま自社 SDK の導入障壁の一覧になります。</p><p>3つ目は、ZDR 契約と実際の API 呼び出しの乖離です。 Anthropic は機能ごとの ZDR 適格性を表として公開したうえで、ZDR では不適格機能の呼び出しを<strong>ブロックしないと明記</strong>しています。 HIPAA では 400 を返して止めるのに、ZDR では止めません。 材料は公開されています。 適格性の表も、Google 側の同種の記述も、認証なしで読めます。 そして、この突き合わせを作らないのはモデル提供元です。 「あなたのコードは自分で結んだ ZDR の外へ出ている」と名指しする道具は、自社の高機能 API の利用を抑制します。</p><p>3件は、差分の見つけ方が異なります。 1つ目は<strong>自社の観測</strong>と公開記述を突き合わせ、2つ目は<strong>依存ツリー</strong>と公開記述を突き合わせ、3つ目は<strong>自社のコード</strong>と公開記述を突き合わせます。 以下では、それぞれについて先客が止まっている境界線を明示したうえで、個人が入れる位置を探しました。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-05)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-05)"><title>アイデア候補のポジショニングマップ (2026-09-05)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="430.4" cy="109.5" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="442.4" y="113.5" text-anchor="start" class="qpt-label">1</text><circle cx="430.4" cy="109.5" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Outage Ledger 総合 19 / 25（Tier 2）" data-tv="Idea 1: Outage Ledger" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="333.8" cy="143.6" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="345.8" y="147.6" text-anchor="start" class="qpt-label">2</text><circle cx="333.8" cy="143.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: SDK Declare 総合 18 / 25（Tier 2）" data-tv="Idea 2: SDK Declare" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="345.2" cy="189.0" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="357.2" y="193.0" text-anchor="start" class="qpt-label">3</text><circle cx="345.2" cy="189.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: ZDR Drift 総合 17 / 25（Tier 2）" data-tv="Idea 3: ZDR Drift" data-td="総合 17 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Outage Ledger</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: SDK Declare</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: ZDR Drift</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-outage-ledger-自社のログが記録した障害時間と-ベンダーが公開したインシデント史・稼働率算出方法を突き合わせ-未報告と過小分類の差分を請求期限つきの台帳として出すローカル検査">アイデア 1: <code>outage-ledger</code> (自社のログが記録した障害時間と、ベンダーが公開したインシデント史・稼働率算出方法を突き合わせ、未報告と過小分類の差分を請求期限つきの台帳として出すローカル検査)</h3><p>自社の既存ログ（ロードバランサのアクセスログ、アプリの外部呼び出しエラー、監視の合成チェック）を入力に取り、ベンダーが公開したインシデント履歴と突き合わせるローカル CLI です。 出力は稼働率のダッシュボードではありません。 <strong>差分の台帳</strong>です。</p><p>行は3種類しかありません。 自社は落ちたがベンダーは何も報告していない区間、ベンダーは報告したが Degraded として稼働率に算入していない区間、そして双方が一致した区間です。 一致した区間には、SLA のしきい値とクレジット率、そして請求の締切日が付きます。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>第一に、未報告の障害が例外ではなく毎月の定量である点です。</p><blockquote class="voice"><p>Perhaps more concerning than delayed acknowledgments are the 104 incidents that vendors never officially reported at all. — <a href="https://isdown.app/blog/april-2026-isdown-users-saved-16-5-hours-with-early-outage-detection" target="_blank" rel="noopener noreferrer">IsDown, April 2026: IsDown Users Saved 16.5 Hours with Early Outage Detection</a></p></blockquote><p>同じ記事は、この状態を次のように表現しています。</p><blockquote class="voice"><p>These "invisible outages" represent real user experiences that teams relying solely on vendor status pages would never know about — <a href="https://isdown.app/blog/april-2026-isdown-users-saved-16-5-hours-with-early-outage-detection" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第二に、報告された障害であっても、分類の選択によって稼働率が動かない構造がある点です。 GitHub が2026年4月に導入した稼働率の算出方法について、次の指摘があります。</p><blockquote class="voice"><p>A service can have visible customer pain without lowering the published uptime percentage if GitHub classifies the incident as Degraded Performance. — <a href="https://solomonneas.dev/blog/github-availability-agentic-load-report" target="_blank" rel="noopener noreferrer">Solomon Neas, GitHub Availability in April 2026: What the Status Page Misses</a></p></blockquote><blockquote class="voice"><p>Degraded Performance counts as zero downtime in the published uptime calculation, so the headline percentages can stay high while developer pain is acute. — <a href="https://solomonneas.dev/blog/github-availability-agentic-load-report" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第三に、当事者が実際に請求で詰まっている点です。 Microsoft Q&amp;A に投稿された顧客の記述です。</p><blockquote class="voice"><p>We are writing to raise a serious concern about our support request # 2510290040010571, opened in relation to the significant outage on October 29, 2025 (which affected Azure services globally). Despite the magnitude of the incident and the serious business impact we experienced, we have not received any meaningful response — no email, no phone call, no escalation. — <a href="https://learn.microsoft.com/en-us/answers/questions/5604846/we-were-impacted-by-azure-downtime-open-support-ca" target="_blank" rel="noopener noreferrer">Microsoft Q&amp;A, We Were Impacted by Azure Downtime, Open Support Case Ignored</a></p></blockquote><p>同じスレッドには、1か月後の追記があります。</p><blockquote class="voice"><p>After ONE MONTH we opened the case still not a solution — <a href="https://learn.microsoft.com/en-us/answers/questions/5604846/we-were-impacted-by-azure-downtime-open-support-ca" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第四に、判定に必要な契約側の材料が既に公開データセットとして存在する点です。</p><blockquote class="voice"><p>Open dataset of standard SLA credit schedules for the major cloud providers. — <a href="https://velprove.github.io/sla-terms/" target="_blank" rel="noopener noreferrer">Velprove, Cloud Provider SLA Terms</a></p></blockquote><p>このデータセットは AWS・Google Cloud・Azure・Cloudflare・Vercel を対象とし、「Machine-readable JSON, maintained as terms change」として CC-BY-4.0 で配布されています。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p><code>references/market-analysis-patterns.md</code> の<strong>マイクロDevExツール型</strong>と<strong>価格破壊・ローカルファースト型</strong>の複合です。</p><p>Why Now は3つあります。 第一に、大規模障害が2026年に密集し、GitHub の8月17日の停止のように開発の主要導線ごと止まる事例が続いています。 第二に、稼働率の算出方法をベンダー自身が公開し始めたことで、<strong>分類が稼働率に与える影響を第三者が計算できる</strong>ようになりました。 公開されていなければ突き合わせようがなかった材料が、透明性の名目で出てきています。 第三に、SLA クレジット表の機械可読な公開データセットが CC-BY で利用できるため、契約条件の構造化という最も面倒な工程が既に済んでいます。</p><h4 id="先客が止まっている境界線">先客が止まっている境界線</h4><p>この領域には既に製品があります。 境界線を引くために、先客自身の記述を読みます。</p><p>ServicePulse は次のように述べています。</p><blockquote class="voice"><p>AI reads your vendor contracts, tracks uptime against SLA targets, and drafts the credit-request email when a vendor breaches — <a href="https://servicepulse.dev/" target="_blank" rel="noopener noreferrer">ServicePulse</a></p></blockquote><p>Reclivio は、監視の入力元を次のように明示しています。</p><blockquote class="voice"><p>Connects to status pages, API health endpoints, and public incident feeds. — <a href="https://reclivio.com/" target="_blank" rel="noopener noreferrer">Reclivio</a></p></blockquote><p>境界線はここです。 <strong>先客は全員、ベンダーが公開した記述を真として起点に置いています。</strong> だから、ベンダーが何も書かなかった104件も、Degraded と書いた区間も、先客の出力には現れません。 先客が解決したのは「ベンダーが認めた障害を、契約条件へ換算する」ところまでです。 解決していないのは「ベンダーの記述が、自社の観測と食い違っている」ところです。</p><p>この非対称には理由があります。 ステータス集約サービスの商品は、ベンダーの公開フィードそのものです。 その一次情報の正しさを否定する出力は、自社の商品の前提を否定します。</p><h4 id="リスク・反証分析">リスク・反証分析</h4><p><strong>最大のリスクは、差分を出しても請求が通らないことです。</strong> SLA の多くは自社観測を証拠として受け付けず、ベンダー側のインシデント ID を要求します。 Azure の申請要件がまさにこれで、Service Health のインシデント ID が必要です。 未報告の障害には、定義上インシデント ID がありません。 つまり、最も価値のある差分（未報告分）が、最もクレジットになりにくい差分です。</p><p>対策は、出力の主目的をクレジット請求から<strong>交渉と調達の材料</strong>へずらすことです。 更新交渉の場に「過去12か月で貴社が報告しなかった障害が自社観測で N 分」という表を持ち込む用途、および複数ベンダーの候補比較で「公開稼働率と実測の乖離」を並べる用途は、インシデント ID を必要としません。</p><p>第二のリスクは、自社観測そのものが誤りである可能性です。 自社側のネットワーク・DNS・クライアント実装の問題をベンダー障害として数えれば、台帳は信用を失います。 対策は、単一の障害を「ベンダー障害」と断定せず、<strong>同一ベンダーの複数リージョン・複数経路で同時に観測された区間だけを差分候補へ昇格させる</strong>制約を初期から入れることです。</p><p>第三のリスクは、先客の追随です。 自社テレメトリの取り込みは、技術的に難しい機能ではありません。 ServicePulse が月額29ドルで既に価格の天井を作っているため、追随された場合の価格競争は不利です。</p><hr><h3 id="アイデア-2-sdk-declare-依存ツリーを解析し-各-sdk-が公開しているデータ安全性の開示内容を合算して-google-play-へ提出済みの申告との差分を出すローカル検査">アイデア 2: <code>sdk-declare</code> (依存ツリーを解析し、各 SDK が公開しているデータ安全性の開示内容を合算して、Google Play へ提出済みの申告との差分を出すローカル検査)</h3><p>Gradle または Podfile の依存ツリーを入力に取り、各 SDK が公開している「Play data disclosure」ページの内容を突き合わせるローカル CLI です。 出力は申告フォームの下書きではありません。 <strong>申告漏れの候補一覧</strong>です。</p><p>行は「この依存が公開ページで宣言しているデータ型」と「あなたの提出済み申告に含まれているか」の対で構成されます。 推移的依存で入ってきた SDK も対象に含めます。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>第一に、Google が申告責任を開発者へ一本化している点です。</p><blockquote class="voice"><p>You alone are responsible for making complete and accurate declarations in your app's store listing on Google Play. — <a href="https://support.google.com/googleplay/android-developer/answer/10787469" target="_blank" rel="noopener noreferrer">Play Console Help, Provide information for Google Play's Data safety section</a></p></blockquote><p>そのうえで、第三者 SDK の収集も申告対象だと明示しています。</p><blockquote class="voice"><p>This includes data collected and handled through any third-party libraries or SDKs used in their apps. — <a href="https://support.google.com/googleplay/android-developer/answer/10787469" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>執行についても記述があります。</p><blockquote class="voice"><p>When Google becomes aware of a discrepancy between your app behavior and your declaration, we may take appropriate action, including enforcement action. — <a href="https://support.google.com/googleplay/android-developer/answer/10787469" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第二に、当事者が実際にリリースを止められている点です。 OSS の Wikimedia Commons Android アプリのイシューに、Google からの通知が記録されています。</p><blockquote class="voice"><p>We detected user data transmitted off device that you have not disclosed in your app's Data safety form as user data collected. — <a href="https://github.com/commons-app/apps-android-commons/issues/5708" target="_blank" rel="noopener noreferrer">commons-app/apps-android-commons Issue #5708</a></p></blockquote><p>同じ通知には、Google 自身が網羅性を保証しない旨の但し書きが含まれます。</p><blockquote class="voice"><p>this list of SDKs may not be exhaustive — <a href="https://github.com/commons-app/apps-android-commons/issues/5708" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第三に、判定材料が SDK 側から公開されている点です。 AdMob の公開ページは、自 SDK が収集するデータ型を明示しています。</p><blockquote class="voice"><p>Collects Android advertising (ad) ID, app set ID, and, if applicable, other identifiers related to signed-in accounts on the device. — <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" target="_blank" rel="noopener noreferrer">Google, Google Play data disclosure (AdMob)</a></p></blockquote><p>第四に、開発者が自力では確かめられないという学術的な裏づけです。</p><blockquote class="voice"><p>the opacity of SDKs' operations and their "black-box" nature hinders meaningful assessments, leaving both end-users and app developers in the dark — <a href="https://arxiv.org/html/2409.10411v2" target="_blank" rel="noopener noreferrer">A Large-Scale Privacy Assessment of Android Third-Party SDKs</a></p></blockquote><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p><strong>規制・プラットフォーム変更対応型</strong>と<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は2つです。 第一に、Play Console が提出前の自動チェックを走らせるようになり、申告漏れが人手のポリシーレビューではなく<strong>機械判定でのブロック</strong>として返るようになりました。 不整合が確率的な指摘から、決定論的な障害へ変わっています。 第二に、Google が SDK 提供者に開示ページの公開を求めた結果、<strong>突き合わせの右辺が公開ドキュメントとして揃いました。</strong> 数年前は各 SDK のプライバシーポリシーを人手で読むしかありませんでした。</p><h4 id="先客が止まっている境界線-1">先客が止まっている境界線</h4><p>隣接する先客は3種類います。 MMP（Adjust、Singular）は自社 SDK 分の申告ガイドを配りますが、対象は自社 SDK に限られます。 プライバシー静的解析（動的トラフィック解析を含む学術系ツール）は実挙動を測りますが、Play の申告フォームの語彙へ写像しません。 汎用のページ変更監視は、SDK の開示ページが変わったことを教えますが、あなたの依存ツリーを知りません。</p><p>境界線はここです。 <strong>誰も、依存ツリーと公開開示ページと提出済み申告の3つを同時に見ていません。</strong> 先客が解決したのは「1つの SDK について、何を申告すべきか」までです。 解決していないのは「あなたのアプリ全体で、申告すべき集合は何か」です。</p><p>この非対称にも理由があります。 SDK 提供者にとって、自 SDK の開示を依存ツリー全体で合算して見せる道具は、導入の心理的コストを可視化する道具でもあります。</p><h4 id="リスク・反証分析-1">リスク・反証分析</h4><p><strong>最大のリスクは、公開開示ページ自体が正しくないことです。</strong> 先の学術調査は、SDK の公開ポリシーと実挙動の乖離を定量しています。</p><blockquote class="voice"><p>40 out of 109 (36.7%) SDKs collected excessive privacy data compared with their privacy policies — <a href="https://arxiv.org/html/2409.10411v2" target="_blank" rel="noopener noreferrer">A Large-Scale Privacy Assessment of Android Third-Party SDKs</a></p></blockquote><p>つまり、公開ページを信じて申告を作ると、実挙動より過小な申告になり得ます。 これは Google の機械判定が拾う方向の誤りであり、この道具が防ぎたい事象そのものです。</p><p>対策は、出力を「申告すべき集合」と断定せず、<strong>「公開開示に基づく下限」と明示する</strong>ことです。 下限を満たしていない申告は確実に不整合であり、下限を満たしていても安全とは限らない、という二段の表現に限定します。</p><p>第二のリスクは、対応表の維持です。 AdMob の開示ページは人間向けの表であり、機械可読ではありません。 しかもバージョン別ではなく最新版のみの記載です。 上位50 SDK に絞っても、追随は恒常的な固定費として残ります。</p><p>第三のリスクは、買い手の財布です。 個人の Android 開発者は無償を期待する層であり、法人のモバイルチームへ届ける導線を別に作る必要があります。</p><hr><h3 id="アイデア-3-zdr-drift-コードと設定から-llm-api-の機能利用箇所を抽出し-各社が公開している-zdr-hipaa-適格性の表と突き合わせて-黙って契約の外へ出ている呼び出しを名指しする検査">アイデア 3: <code>zdr-drift</code> (コードと設定から LLM API の機能利用箇所を抽出し、各社が公開している ZDR / HIPAA 適格性の表と突き合わせて、黙って契約の外へ出ている呼び出しを名指しする検査)</h3><p>リポジトリと実行時設定を入力に取り、使用している API 機能とモデルを抽出するローカル CLI です。 出力はコード品質の指摘ではありません。 <strong>契約外へ出ている呼び出しの位置</strong>です。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>第一に、ZDR では不適格機能の呼び出しが<strong>止まらない</strong>点です。 Anthropic の公式ドキュメントの記述です。</p><blockquote class="voice"><p>Under ZDR, the API does not block these features; using one is a choice to step outside your ZDR arrangement for that specific data, and the feature's own documented retention policy applies. — <a href="https://platform.claude.com/docs/en/manage-claude/api-and-data-retention" target="_blank" rel="noopener noreferrer">Claude Platform Docs, API and data retention</a></p></blockquote><p>同じ段落は、HIPAA 側の挙動を対比しています。</p><blockquote class="voice"><p>Under HIPAA readiness, the API blocks requests that include a "No" feature and returns a <code>400</code> error, unless the feature's Details column says otherwise. — <a href="https://platform.claude.com/docs/en/manage-claude/api-and-data-retention" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>不適格になる理由も明示されています。</p><blockquote class="voice"><p>Features marked "No" for ZDR are typically stateful (they store jobs, files, or container state), which is why they cannot be zero-retention. — <a href="https://platform.claude.com/docs/en/manage-claude/api-and-data-retention" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第二に、同じ構造が他社にもある点です。 Gemini の ZDR ドキュメントは、無効化できない保存を明記しています。</p><blockquote class="voice"><p>There is no way to disable the storage of this information if you use Grounding with Google Search. — <a href="https://ai.google.dev/gemini-api/docs/zdr" target="_blank" rel="noopener noreferrer">Google AI for Developers, Zero data retention in the Gemini Developer API</a></p></blockquote><p>つまり、ZDR を結んだ組織が Batch API・Files API・コード実行・MCP コネクタ・グラウンディングのいずれかを足した瞬間、エラーは出ないまま契約の前提が崩れます。 壊れ方が「静か」である点が、この課題の本質です。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p><strong>規制・プラットフォーム変更対応型</strong>です。</p><p>Why Now は、各社が機能別の適格性を<strong>表として公開し始めた</strong>ことです。 数か月前まで、この情報は営業担当への問い合わせでしか得られませんでした。 公開された結果、突き合わせが第三者にも可能になりました。</p><h4 id="先客が止まっている境界線-2">先客が止まっている境界線</h4><p>コンプライアンス SaaS（Vanta、Drata）は、契約と方針の層で「ZDR を締結しているか」を管理します。 LLM 向けスキャナ（promptfoo など）は、プロンプトインジェクションや PII 露出という<strong>セキュリティ</strong>の層を見ます。</p><p>境界線はここです。 <strong>誰も、コードの機能利用と契約の適格性表を突き合わせていません。</strong> 先客が解決したのは「契約が存在するか」と「コードが安全か」です。 解決していないのは「コードが契約の内側にあるか」です。</p><p>提供元がこれを作らない理由も明確です。 不適格機能は、いずれも上位の高機能 API です。 利用を抑制する方向の警告を、提供元は自ら出しません。 実際、Anthropic は HIPAA では 400 で止める一方、ZDR では止めないという設計を選んでいます。</p><h4 id="リスク・反証分析-2">リスク・反証分析</h4><p><strong>最大のリスクは、買い手の母数です。</strong> ZDR や BAA を締結している組織は限られます。 個人開発者の顧客層ではなく、医療・金融の AI 導入チームです。 そこへ個人が売る場合、信頼の壁が価格より先に立ちます。</p><p>対策は、初期の配布を<strong>監査法人・コンプライアンスコンサル経由</strong>に絞り、直販を狙わないことです。 彼らは既に信頼を持ち、検査の道具を欲しています。</p><p>第二のリスクは、静的抽出の取りこぼしです。 機能利用は SDK の引数、設定ファイル、環境変数に散在します。 「該当なし」を安全と誤読させる出力は、無いより有害です。 対策は、<strong>検出できなかった経路を明示的に列挙する</strong>設計にすることです。</p><p>第三のリスクは、表の追随です。 適格性の表は機能追加のたびに変わります。 古い表は、既に適格になった機能を不適格と言い続けます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>outage-ledger</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>sdk-declare</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>zdr-drift</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">未報告が月100件規模で継続、ただし法定期限がない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">提出前の機械判定でブロック、対象はAndroid開発者に限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">壊れ方は静かだが買い手がZDR締結組織に限られる</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">履歴とSLA表は公開済み、自社ログの正規化が難所</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">依存解析は平易、開示ページが機械可読でない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">走査と突合は軽量、取りこぼしが致命的</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">月額29ドルの先客が価格の天井を作っている</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">個人Android開発者の無償期待が強い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">単価は取れるが母数が薄く直販が効かない</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">先客は全員ベンダーの公開記述を起点にしている</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">公開開示自体が不正確で、突き合わせの上限が低い</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">コンプラSaaSが降りてくれば消える</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、ステータスページ差分の追随が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、SDK対応表の維持が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結、適格性表の追随が固定費</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-outage-ledger-19点-tier-2">Idea 1: <code>outage-ledger</code> — 19点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 未報告インシデントが1月101件・3月87件・4月104件と、単月の異常ではなく定常の水準で続いています。加えて GitHub が稼働率の算出方法を公開したことで、分類が稼働率に与える影響を外部から計算できるようになりました。対象は SaaS を業務で使う全組織であり、母数は3案で最大です。<strong>減点材料</strong>: 「この日までに対応しないと罰がある」という共通の期限がありません。請求期限はベンダーごとに散らばり、しかも請求が主目的にならない（後述）ため、購買のトリガーが弱い。5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: 右辺の材料は揃っています。Statuspage 系の履歴は JSON と RSS で読め、SLA クレジット表は CC-BY-4.0 の機械可読データセットが存在します。突き合わせのロジック自体は区間演算であり平易です。<strong>減点材料</strong>: 左辺、つまり自社観測の取り込み口が事業者ごとに異なります。ALB のアクセスログ、CloudFront のログ、アプリの構造化ログ、監視 SaaS のエクスポートと、入力形式が散らばります。2週間で1系統は届きますが、複数系統の正規化は MVP の外へ出さざるを得ません。</li><li><strong>収益性 3</strong>: 買い手は情報システム部門と SRE であり、予算は組織にあります。<strong>減点材料</strong>: 価格の天井が既に外部から決まっています。ServicePulse が月額29ドル・99ドルの階梯を、Reclivio が月額99ドル・399ドルの階梯を公開しており、後発が上を取る理由を説明できません。加えて、クレジット請求の成功報酬という個人にとって最も収益性の高い形は、契約主体になれない以上取れません。「誰がいくら払うか」を具体的に書けるのは月額10〜20ドルの水準までであり、4点は付けられません。</li><li><strong>競合優位性 4</strong>: 3案で最も明確に境界線が引けます。Reclivio は入力元を「Connects to status pages, API health endpoints, and public incident feeds」と自ら明示しており、顧客側のテレメトリを見ていません。ServicePulse も契約と稼働率の突き合わせに留まります。<strong>未報告と過小分類は、構造上、先客の出力に現れません。</strong> しかもステータス集約の商品はベンダーの公開フィードそのものであり、その正しさを否定する出力は自社商品の前提と衝突します。利益相反が実在します。<strong>減点材料</strong>: <strong>大手が3か月で真似したら</strong>、自社ログの取り込みを1系統足すだけで境界線は消えます。技術的な参入障壁ではなく、動機の非対称に依存した優位です。5点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル CLI として完結し、ログを外部へ送りません。サーバーもデータベースも不要で、判定はすべて手元で完結します。<strong>減点材料</strong>: ステータスページの形式差分の追随が恒常的な固定費です。Statuspage、Instatus、自社実装が混在し、履歴の粒度も統一されていません。追随を止めると、静かに「差分なし」を返し続けます。</li></ul><h4 id="idea-2-sdk-declare-18点-tier-2">Idea 2: <code>sdk-declare</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: Play Console が提出前に自動チェックを走らせるようになり、不整合が人手のレビュー指摘から機械判定のブロックへ変わりました。リリースが止まるという直接の損失があり、購買動機は明確です。<strong>減点材料</strong>: 対象が Android アプリの配信者に限られ、Idea 1 より母数が一桁小さい。また期限型の圧力ではなく常時圧であるため、「今月中に買う」理由がありません。5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: Gradle の依存ツリー出力から推移的依存まで列挙する処理は既存コマンドで済みます。突き合わせは集合演算であり、2週間で下限判定までは届きます。<strong>減点材料</strong>: 右辺の材料が機械可読ではありません。AdMob の開示ページは人間向けの表であり、しかも最新バージョンの記載しかありません。バージョン別の差異を扱えないため、対応表は「最新版前提の近似」に留まります。</li><li><strong>収益性 3</strong>: 1回のリリースブロックの損失は大きく、法人のモバイルチームには支払い理由があります。<strong>減点材料</strong>: この領域の道具は無償が既定です。個人の Android 開発者に月額を課すのは難しく、CI 組み込みの法人向けに切り替えるにはサポート負荷が上がります。「100人で月10〜20万円」を満たす価格を説明できません。</li><li><strong>競合優位性 3</strong>: 依存ツリー・公開開示・提出済み申告の3点を同時に見る道具は見つかりませんでした。ここは空いています。<strong>減点材料</strong>: 突き合わせの上限が、右辺の正確さで決まってしまいます。SDK の36.7%が公開ポリシーより多く収集しているという調査結果がある以上、公開開示だけの突き合わせでは Google の機械判定に届きません。<strong>大手が3か月で真似したら</strong>、Play Console が「あなたの AAB に含まれる SDK の宣言済み収集」を表示するだけで消えます。しかも Google は既に検出側の実装を持っています。4点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル完結で、AAB もソースも外部へ送りません。<strong>減点材料</strong>: 上位 SDK の対応表を人手で維持する必要があり、Idea 1 と同種の固定費が残ります。加えて、誤って「申告漏れなし」と返した場合の損害がリリース停止として直接ユーザーに当たります。</li></ul><h4 id="idea-3-zdr-drift-17点-tier-2">Idea 3: <code>zdr-drift</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 3</strong>: 各社が機能別の適格性表を公開したのは直近であり、突き合わせが可能になったこと自体は新しい変化です。ZDR では不適格機能がブロックされないため、違反が無音で発生する構造も明確です。<strong>減点材料</strong>: 3案で最も母数が薄い。ZDR や HIPAA readiness を締結している組織に限られ、しかもそうした組織は既に法務レビューの体制を持っています。「明確な課金動機」はありますが、対象が狭すぎるため4点には届きません。</li><li><strong>技術的実現可能性 4</strong>: 適格性の表は公開済みで、機能とエンドポイントの対応が明示されています。SDK の引数と設定を走査して突き合わせる処理は軽量です。<strong>減点材料</strong>: 静的抽出の取りこぼしが「該当なし＝安全」という誤答に直結します。機能の有効化は引数・設定ファイル・環境変数・上位フレームワークの既定値に分散し、リポジトリ走査だけでは網羅できません。最も価値の高い判定が、最も難しい部分に依存しています。</li><li><strong>収益性 3</strong>: 監査の文脈に載れば、検査1回あたりの単価は3案で最も高く取れます。<strong>減点材料</strong>: 母数が薄く、直販が効きません。信頼が価格より先に効く領域であり、個人が売り手として立つには代理店経由の導線が要ります。その導線の構築は MVP の外にあり、収益化までの距離が3案で最長です。</li><li><strong>競合優位性 3</strong>: コードの機能利用と契約の適格性表を突き合わせる道具は見つかりませんでした。提供元が作らない理由も明快で、不適格機能はいずれも上位の高機能 API です。<strong>減点材料</strong>: 差別化が「表を機能利用へ写像する」一点に依存します。<strong>大手が3か月で真似したら</strong>、公式 SDK が ZDR 契約テナントに対して HIPAA と同じ警告を出すだけで消えます。実装は数十行であり、しかも Anthropic は HIPAA 側で既にその実装を持っています。設計判断が変われば一夜で消える優位です。</li><li><strong>個人開発適性 4</strong>: ローカル完結で、コードを外部へ送りません。認証情報も不要です（デプロイ照会を行わない設計に限る）。<strong>減点材料</strong>: 適格性表の追随が固定費であり、しかも誤りの方向が「不適格」に偏ると、ユーザーに不要な機能制限を負わせます。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><p>3案に共通する構造的なリスクを1つ挙げます。</p><p><strong>「先客に不都合な突き合わせ」は、差別化を作る一方で、受益者を支払意思の低い側へ寄せます。</strong></p><p>今回の探索軸は、材料の公開と利益相反の積で絞りました。 狙いどおり、3案とも境界線を先客自身の記述から引くことができました。 Reclivio の入力元の記述、Google の申告責任の記述、Anthropic のブロックしない旨の記述が、それぞれ空白の存在証明になっています。</p><p>しかし、突き合わせの結果が不都合なのは<strong>支払う側</strong>であって、<strong>買う側</strong>ではありません。 買う側は、その不都合を突きつける立場の顧客企業です。 そして顧客企業にとって、この突き合わせが生む金額は小さい。 未報告障害のクレジットは請求できず、申告漏れの回避は損失の予防であり、ZDR の逸脱は監査の指摘の予防です。 いずれも「増える金」ではなく「減らない金」です。</p><p>この構造が、3案とも軸3（収益性）が3点で止まった直接の理由です。</p><p>対策として現実的なのは2つです。 第一に、<strong>支払意思の高い代理人へ売る</strong>ことです。 Idea 3 の監査法人経由がこれに当たり、彼らは検査結果を自社の商品に組み込めるため、予防価値をそのまま価格へ転嫁できます。 第二に、<strong>予防ではなく交渉の材料として売る</strong>ことです。 Idea 1 の更新交渉用途がこれに当たり、値引き交渉の根拠になれば金額が確定します。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>最有力候補 <code>outage-ledger</code> を対象とします。</p><div class="tw"><table><thead><tr><th>期間</th><th>フェーズ</th><th>実施内容</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提の事前検証（実装しない）</strong></td><td>手元にある任意の1ベンダー（GitHub または主要クラウド1社）について、過去90日の自社ログとベンダーの公開インシデント履歴を<strong>手作業で</strong>突き合わせる。差分（未報告または Degraded 分類）が実際に1件以上出るかを確認する。<strong>差分がゼロなら仮説は死んでおり、以降の13日を投じない。</strong></td></tr><tr><td class="tk"><strong>Day 2</strong></td><td>反証の事前検証</td><td>Day 1 で出た差分について、自社側の要因（DNS・クライアント実装・ネットワーク）で説明できないかを検証する。複数経路で同時に観測されていない差分は候補から除く。残存率が5割を切る場合は、判定制約を先に設計し直す。</td></tr><tr><td class="tk"><strong>Day 3-5</strong></td><td>右辺の取り込み</td><td>Statuspage 系の履歴 JSON と RSS の取得・正規化。SLA クレジット表の公開データセットを取り込み、しきい値・クレジット率・請求期限を構造化する。</td></tr><tr><td class="tk"><strong>Day 6-8</strong></td><td>左辺の取り込み</td><td>自社ログの取り込みを<strong>1系統に限定</strong>して実装する（ALB アクセスログまたは構造化アプリログのいずれか）。ベンダー単位の障害区間を、複数経路の同時観測という制約つきで抽出する。</td></tr><tr><td class="tk"><strong>Day 9-11</strong></td><td>差分台帳の生成</td><td>3種類の行（未報告 / 過小分類 / 一致）へ分類し、一致行にのみ請求期限を付す。未報告行には「インシデント ID なし・請求不可」を明示し、交渉用途であることを出力上で区別する。</td></tr><tr><td class="tk"><strong>Day 12-13</strong></td><td>検証と誤判定の抑制</td><td>既知の大規模障害（2026年8月17日の GitHub 停止など）を含む期間で回帰させ、既報告の障害を取りこぼさないことを確認する。誤検知率を測り、しきい値を調整する。</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td>配布と反応の観測</td><td>CLI を公開し、更新交渉での利用例を1本添えて Zenn と GitHub で公開する。<strong>クレジット請求ではなく交渉材料としての反応</strong>が得られるかを、この時点で観測する。</td></tr></tbody></table></div><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><ul><li><strong>最優先で検証すべき候補</strong>: <code>outage-ledger</code> (総合19点、Tier 2)。境界線が先客自身の記述から引けており、右辺の材料が公開データセットとして揃っている点が3案で最も強い。着手は Day 1 の事前検証の結果を見てから判断すべきであり、差分が出なければ全体を破棄する。</li></ul><ul><li><strong>今回却下した候補と理由</strong>:<ul><li><strong>サイバー対処能力強化法の届出・報告対応（2026年10月1日施行）</strong>: 期日圧は今回調べた中で最も強く、届出は原則導入日から4か月以内、施行時点で導入済みの機器は2027年3月31日が期限、違反には200万円以下の罰金が科されます。しかし対象は15業種257社の基幹インフラ事業者に限定され、調達が個人開発者へ開いていません。買い手の母数と参入経路の両方で成立せず、総合13点で却下しました。</li><li><strong>サブプロセッサ変更の異議申立期限の追跡</strong>: Microsoft が2026年5月22日に AI サブプロセッサの通知期間を6か月から30日へ短縮しており、探索軸には合致します。しかし PageCrawl・PageGuard・Registora など変更監視の先客が密集しており、差分は「自社 DPA の異議期限を計算する」一点のみです。模倣に3か月かからず、総合14点で却下しました。</li><li><strong>Microsoft Advertising SOAP API の移行棚卸し（2026年10月1日 feature lock / 2027年1月31日 shutdown）</strong>: 2026-09-04 のレポートで既に検討し、<code>ews-verdict</code> の判定エンジンの適用先として扱うべきと判断済みです。重複判定フィルタに該当するため却下しました。</li><li><strong>HubSpot Pipelines API V1 の廃止対応（2026年11月2日）</strong>: 期限は明確ですが、作業は一度きりの移行であり、有償化の余地がありません。総合11点で却下しました。</li></ul></li></ul><ul><li><strong>11回連続で Tier 1 に到達していません。</strong> 今回の探索軸は、狙った軸では機能しました。<strong>軸4（競合優位性）の平均が3.33点</strong>であり、前回の3.00点から改善しています。3案とも、先客が止まっている位置を先客自身の記述から特定できました。境界線が引けないアイデアを落とすという Phase 2 の制約が、初めて実質的に働いています。 同時に、<strong>軸2（実現可能性）の平均は4.00点を維持</strong>しました。前回崩れた交換関係が、今回は崩れていません。材料の公開と利益相反の積で絞る方法は、この2軸を同時に保つという当初の目的を達成しています。 一方で、<strong>3案とも軸3（収益性）が3点で揃いました。</strong> 平均3.00点であり、前回と同水準です。理由は第4節に書いたとおりで、<strong>突き合わせの結果が不都合な相手は支払う側であり、買う側ではない</strong>という構造にあります。買う側が得るのは「減らない金」であって「増える金」ではないため、価格を説明できる上限が低く止まります。 次回の探索軸は、この積に第三の条件を足します。<strong>「材料が公開されている」かつ「突き合わせが先客に不都合」かつ「突き合わせの結果が買い手にとって金額または期限として即座に確定する」</strong>の積で絞ります。予防価値で止まる案は、軸4がいくら高くても軸3で頭打ちになることが、今回の3案で揃って確認できました。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://isdown.app/blog/april-2026-isdown-users-saved-16-5-hours-with-early-outage-detection" target="_blank" rel="noopener noreferrer">April 2026: IsDown Users Saved 16.5 Hours with Early Outage Detection（未報告インシデントの月次件数）</a><span class="u">https://isdown.app/blog/april-2026-isdown-users-saved-16-5-hours-with-early-outage-detection</span></li><li><a href="https://learn.microsoft.com/en-us/answers/questions/5604846/we-were-impacted-by-azure-downtime-open-support-ca" target="_blank" rel="noopener noreferrer">We Were Impacted by Azure Downtime, Open Support Case Ignored: Seeking Mandatory Credit &amp; Assistance（Microsoft Q&amp;A・当事者の投稿）</a><span class="u">https://learn.microsoft.com/en-us/answers/questions/5604846/we-were-impacted-by-azure-downtime-open-support-ca</span></li><li><a href="https://solomonneas.dev/blog/github-availability-agentic-load-report" target="_blank" rel="noopener noreferrer">GitHub Availability in April 2026: Merge Queue Corruption, Search Collapse, and What the Status Page Misses</a><span class="u">https://solomonneas.dev/blog/github-availability-agentic-load-report</span></li><li><a href="https://velprove.github.io/sla-terms/" target="_blank" rel="noopener noreferrer">Cloud Provider SLA Terms: Public Dataset of Credit Schedules（CC-BY-4.0 の機械可読データセット）</a><span class="u">https://velprove.github.io/sla-terms/</span></li><li><a href="https://reclivio.com/" target="_blank" rel="noopener noreferrer">Reclivio - SLA Breach Detection &amp; Recovery（先客のデータソース記述）</a><span class="u">https://reclivio.com/</span></li><li><a href="https://servicepulse.dev/" target="_blank" rel="noopener noreferrer">ServicePulse — Vendor Status Intelligence（先客の機能・価格）</a><span class="u">https://servicepulse.dev/</span></li><li><a href="https://support.google.com/googleplay/android-developer/answer/10787469" target="_blank" rel="noopener noreferrer">Provide information for Google Play&#x27;s Data safety section（Play Console ヘルプ・申告責任と執行）</a><span class="u">https://support.google.com/googleplay/android-developer/answer/10787469</span></li><li><a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" target="_blank" rel="noopener noreferrer">Google Play data disclosure（AdMob・SDK が収集するデータ型の公開ページ）</a><span class="u">https://developers.google.com/admob/android/privacy/play-data-disclosure</span></li><li><a href="https://github.com/commons-app/apps-android-commons/issues/5708" target="_blank" rel="noopener noreferrer">App rejected by Google Play because \&quot;Data Safety Section: Location Data Type - Approximate Location\&quot;（GitHub Issue・当事者の記録）</a><span class="u">https://github.com/commons-app/apps-android-commons/issues/5708</span></li><li><a href="https://arxiv.org/html/2409.10411v2" target="_blank" rel="noopener noreferrer">A Large-Scale Privacy Assessment of Android Third-Party SDKs（SDK の公開ポリシーと実挙動の乖離の定量）</a><span class="u">https://arxiv.org/html/2409.10411v2</span></li><li><a href="https://platform.claude.com/docs/en/manage-claude/api-and-data-retention" target="_blank" rel="noopener noreferrer">API and data retention（Claude Platform Docs・ZDR / HIPAA の機能別適格性表）</a><span class="u">https://platform.claude.com/docs/en/manage-claude/api-and-data-retention</span></li><li><a href="https://ai.google.dev/gemini-api/docs/zdr" target="_blank" rel="noopener noreferrer">Zero data retention in the Gemini Developer API（Google AI for Developers）</a><span class="u">https://ai.google.dev/gemini-api/docs/zdr</span></li><li><a href="https://xtech.nikkei.com/atcl/nxt/mag/nnw/18/041800012/051800328/" target="_blank" rel="noopener noreferrer">サイバー対処能力強化法が10月施行（日経クロステック・対象事業者と届出期限）</a><span class="u">https://xtech.nikkei.com/atcl/nxt/mag/nnw/18/041800012/051800328/</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-05_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
