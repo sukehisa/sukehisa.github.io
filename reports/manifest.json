@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T12:37:28+09:00",
+  "generated_at": "2026-09-06T05:09:32+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -209,6 +209,12 @@
       "description": "その週に「掘り下げる」と決めた記事だけを編集した、個人ナレッジベース発の週刊ダイジェスト。",
       "icon": "📰",
       "reports": [
+        {
+          "file": "2026-09-06_weekly_news.html",
+          "title": "Weekly Promo Dispatch Vol.3 — 2026年9月6日号",
+          "date": "2026-09-06",
+          "bytes": 24784
+        },
         {
           "file": "2026-08-30_weekly_news.html",
           "title": "Weekly Promo Dispatch Vol.2 — 2026年8月30日号",

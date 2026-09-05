@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="対象期間: 2026-08-30（日）〜 2026-09-05（土） ／ 収録 6 本">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今週読んだもの">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<title>Weekly Promo Dispatch Vol.3 — 2026年9月6日号</title>
+<style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
+:root {
+  color-scheme: light;
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
+  --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+           Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.85;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
+}
+a { color: inherit; text-decoration: none; }
+
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
+/* --- マストヘッド --- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
+  text-align: center;
+}
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.masthead .tagline {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.issue-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-3);
+}
+.issue-bar .vol { color: var(--accent); }
+
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
+/* --- リード（今週の総括） --- */
+.lede {
+  margin: 38px auto 0;
+  max-width: 60ch;
+}
+.lede p {
+  margin: 0 0 14px;
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+.lede p:first-child::first-letter {
+  float: left;
+  font-size: 2.8em;
+  line-height: 0.9;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- リード記事 --- */
+.lead-story {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
+.lead-story h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
+}
+.lead-story .dek {
+  margin: 20px 0 0;
+  max-width: 48ch;
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
+}
+
+/* --- 編集後記 --- */
+.note {
+  margin: 20px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+.note .byline { display: block; color: var(--accent); margin-bottom: 4px; }
+.note p { margin: 0; }
+.lead-story .note { max-width: 52ch; font-size: 1.02rem; }
+
+/* --- 記事メタ --- */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.meta .dot { color: var(--hairline); }
+.tag {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 1px 7px;
+}
+
+/* --- セクション --- */
+.section { margin-top: 56px; scroll-margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--accent);
+  padding-top: 10px;
+  margin-bottom: 26px;
+}
+.section-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.section-head .count {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.section-intro {
+  margin: -8px 0 26px;
+  max-width: 60ch;
+  color: var(--ink-2);
+  font-size: 0.97rem;
+}
+.stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
+}
+.story { padding-bottom: 4px; }
+.story h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
+
+/* --- 編集メモ --- */
+.colophon {
+  margin-top: 62px;
+  padding: 28px 30px;
+  background: var(--band);
+  border-top: 2px solid var(--accent);
+}
+.colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
+.colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
+.colophon p:last-child { margin-bottom: 0; }
+
+/* --- 索引 --- */
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.index ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 44px; }
+.index li { margin-bottom: 8px; break-inside: avoid; font-size: 0.92rem; color: var(--ink-2); }
+.index li a:hover { color: var(--accent); }
+@media (max-width: 719px) { .index ol { columns: 1; } }
+
+/* --- フッタ --- */
+.foot {
+  margin-top: 54px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.foot code { font-size: 0.9em; }
+
+@media print {
+  body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
+  .stories { grid-template-columns: 1fr 1fr; }
+  .story { break-inside: avoid; }
+  .sectionnav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">Weekly Dispatch from a Personal Knowledge Base</span>
+  <h1 class="wordmark">今週読んだもの</h1>
+  <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
+  <div class="issue-bar"><span class="vol">Vol. 3</span><span>2026年9月6日（日） 発行</span><span>収録期間 2026年8月30日（日） 〜 2026年9月5日（土）</span><span>6 本</span></div>
+</header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">地球規模のRDBが引き受けたもの</a><a class="navlink" href="#sec1">実行計画という共通言語</a><a class="navlink" href="#sec2">標準SQLの顔をした分散SQL</a></nav>
+<section class="lede has-drop"><p>今週読んだ6本は、宣言だけでは何も分からない、という一点でつながっている。Spanner の5本は、SQL という宣言的な表面の裏で実際にどのノードがどれだけ動くのかを、実行計画と演算子とスキーマ設計の側から見に行く資料だった。残る1本は、AI の能力という曖昧な言葉の裏側で、誰がどんな条件に点を付けているのかを開示したデータセットである。主題は分散データベースと評価基準という別々の領域だが、見ようとしていたものは同じく「抽象の下にある採点表」だった。</p></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://huggingface.co/datasets/openai/gdpval/viewer/default/train" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://huggingface.co/front/thumbnails/datasets-viewer.png" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://huggingface.co/datasets/openai/gdpval/viewer/default/train" rel="noopener"><span class="grow-underline">openai/gdpval · Datasets at Hugging Face</span></a></h2><div class="lead-body"><div><p class="dek">OpenAI が公開した評価用データセット <code>openai/gdpval</code> のデータビューア。専門職の日常タスクやビジネス課題への応答精度を検証し、実務における経済的有用性を測ることを目的としている。</p><p class="meta"><span>huggingface.co</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">AI</span><span class="tag">Benchmark</span><span class="tag">Dataset</span><span class="tag">Eval</span><span class="tag">Hugging Face</span><span class="tag">OpenAI</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>気になったのはスコアではなく、誰がどんな基準で採点しているかだった。中身はタスクIDと業種・職種、プロンプトと参照ファイル、そして成果物ごとに加点条件を並べた採点基準（ルーブリック）で構成されており、タスクは平均14年の実務経験を持つ専門家と組んで日々の業務から起こされている。採点は専門家がAIと人間の別を伏せて比較する方式と自動採点ツールの二本立てで、後者は専門家ほどの信頼性はないと作り手自身が断っている点が、この種のベンチマークの読み方を決める。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>地球規模のRDBが引き受けたもの</h2><span class="count">2 本</span></div><p class="section-intro">Spanner を道具として使う前に、それが何を解こうとして生まれたのかを押さえる2本。</p><div class="stories"><article class="story"><a class="thumb" href="https://www.publickey1.jp/blog/17/google_cloud_spannerdbnosqlsql.html" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://www.publickey1.jp/fbico_pblky.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://www.publickey1.jp/blog/17/google_cloud_spannerdbnosqlsql.html" rel="noopener"><span class="grow-underline">「Google Cloud Spanner」発表。地球規模の大規模分散環境で稼働するミッションクリティカルなリレーショナルDB。NoSQL並のスケーラビリティでSQL対応、トランザクション処理を実現</span></a></h3><p class="dek">分散リレーショナルデータベース「Google Cloud Spanner」の概要と技術的特徴を解説した記事。NoSQL 並みの水平スケーラビリティと高可用性を持ちながら、SQL による問い合わせと ACID 特性を備えたトランザクションを両立し、その基盤に原子時計と GPS による時刻同期機構 TrueTime API を置く。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>登場時の紹介記事だが、いま設計指針から読み始めるより先にここを通したほうが早い。スケーラビリティと強い一貫性は本来引き換えの関係にあり、それを同時に成立させると宣言したことがこの製品の出発点だからである。</p></div><p class="meta"><span>publickey1.jp</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">Beginner</span><span class="tag">Spanner</span></p></article><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/whitepapers/optimizing-schema-design" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/whitepapers/optimizing-schema-design" rel="noopener"><span class="grow-underline">Optimizing Schema Design for Spanner  |  Google Cloud Documentation</span></a></h3><p class="dek">Spanner の性能とスケーラビリティを引き出すためのスキーマ設計指針をまとめた公式ホワイトペーパー。ホットスポットの回避、行インターリーブによる局所性の最大化、セカンダリインデックスの選択、シャード分割戦略を体系的に扱う。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>大規模 RDBMS としてそのまま載せても性能は出ない、という前提から書かれている。性能問題が出てから開く資料ではなく、テーブルを切る前に読む資料であり、分散を前提にした設計の基礎知識という位置づけで扱うのがよい。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article></div></section>
+<section class="section" id="sec1"><div class="section-head"><h2>実行計画という共通言語</h2><span class="count">2 本</span></div><p class="section-intro">書いた SQL と実際に走る処理のあいだの落差を読むための2本。</p><div class="stories"><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/query-execution-plans" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/query-execution-plans" rel="noopener"><span class="grow-underline">Query execution plans | Spanner | Google Cloud Documentation</span></a></h3><p class="dek">Spanner のクエリ実行プランの構造と動作を解説した公式ドキュメント。SQL は取得対象を宣言し、クエリオプティマイザがリレーショナル演算子のツリーを組み立て、各演算子が下位ノードから行を受け取って上位へ渡し、ルートの出力が結果セットになる。コンソールではサンプリングされた過去の実行プランを照会し、時系列での性能変化を比較できる。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実行計画は、宣言した内容と実際に走る処理のあいだの落差を見るための窓である。分散環境ではその落差が大きいぶん、読めることの価値も大きい。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">Cloud Spanner</span><span class="tag">Database</span><span class="tag">Google Cloud</span><span class="tag">クエリ最適化</span><span class="tag">実行計画</span></p></article><article class="story"><a class="thumb" href="https://cloud.google.com/spanner/docs/query-execution-operators" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://cloud.google.com/spanner/docs/query-execution-operators" rel="noopener"><span class="grow-underline">Query execution operators  |  Spanner  |  Google Cloud</span></a></h3><p class="dek">実行計画に現れるクエリ実行演算子のリファレンス。Distributed Cross Apply、Distributed Union、Scan、Filter、Hash Join、Merge Join、Sort などの動作原理とデータフローを示し、どれがノード間通信を伴い、どれがローカルで済むのかを明らかにする。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>通読する種類の文書ではなく、実行計画を開いた手元に置いて辞書として引く文書である。演算子の名前と通信コストの対応を知っているかどうかが、そのままボトルネックを読めるかどうかになる。</p></div><p class="meta"><span>cloud.google.com</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">Spanner</span></p></article></div></section>
+<section class="section" id="sec2"><div class="section-head"><h2>標準SQLの顔をした分散SQL</h2><span class="count">1 本</span></div><div class="stories"><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/reference/standard-sql/query-syntax" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/reference/standard-sql/query-syntax" rel="noopener"><span class="grow-underline">Query syntax in GoogleSQL  |  Spanner  |  Google Cloud Documentation</span></a></h3><p class="dek">Spanner における GoogleSQL のクエリ構文リファレンス。SELECT・FROM・JOIN・WHERE・GROUP BY・WINDOW 関数・WITH 句・SET 演算子の構文と評価順序に加え、分散クエリ最適化のためのテーブルヒントや結合ヒント、Spanner 固有の型変換ルールを扱う。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>構文リファレンスでありながら、チューニングの入口でもある。ヒント句のような分散固有の仕様が標準 SQL の構文と同じ場所に同居しているため、見慣れた SQL の延長として読むと取りこぼす。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.3</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article></div></section>
+<section class="colophon"><span class="section-label">編集メモ</span><p>Spanner 側は語彙を揃えた段階で止まっている。実行計画を読む道具は手に入ったので、次は手元のスキーマとクエリに当てて、演算子の並びが設計のどこに由来するかを言えるところまで持っていきたい。gdpval 側で残った問いは、自動採点は専門家に及ばないという作り手の但し書きを、ベンチマークの数字を読むときにどう割り引くかである。</p></section>
+<nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://huggingface.co/datasets/openai/gdpval/viewer/default/train" rel="noopener">openai/gdpval · Datasets at Hugging Face</a> <span class="meta" style="display:inline">huggingface.co</span></li><li><a href="https://www.publickey1.jp/blog/17/google_cloud_spannerdbnosqlsql.html" rel="noopener">「Google Cloud Spanner」発表。地球規模の大規模分散環境で稼働するミッションクリティカルなリレーショナルDB。NoSQL並のスケーラビリティでSQL対応、トランザクション処理を実現</a> <span class="meta" style="display:inline">publickey1.jp</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/whitepapers/optimizing-schema-design" rel="noopener">Optimizing Schema Design for Spanner  |  Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/query-execution-plans" rel="noopener">Query execution plans | Spanner | Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://cloud.google.com/spanner/docs/query-execution-operators" rel="noopener">Query execution operators  |  Spanner  |  Google Cloud</a> <span class="meta" style="display:inline">cloud.google.com</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/reference/standard-sql/query-syntax" rel="noopener">Query syntax in GoogleSQL  |  Spanner  |  Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li></ol></nav>
+<footer class="foot"><p>生成: 2026-09-06 05:08 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+</div>
+</body>
+</html>
