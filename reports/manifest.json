@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T06:19:48+09:00",
+  "generated_at": "2026-09-05T12:37:28+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -220,6 +220,20 @@
           "title": "Weekly Promo Dispatch Vol.1 — 2026年8月23日号",
           "date": "2026-08-23",
           "bytes": 69511
+        }
+      ]
+    },
+    {
+      "slug": "notes-articles",
+      "title": "テーマ別 解説記事 (Notes Long-form)",
+      "description": "個人ナレッジベースの恒久ノートを素材に、テーマごとの論旨へ組み直した解説記事。人間のレビューを通ったものだけを掲載している。",
+      "icon": "📝",
+      "reports": [
+        {
+          "file": "2026-09-05_ai-era-engineer-architect-roles.html",
+          "title": "コードを書く人から「検証の構造」を設計する人へ —— AI時代におけるエンジニアとアーキテクトの変容",
+          "date": "2026-09-05",
+          "bytes": 32401
         }
       ]
     }
