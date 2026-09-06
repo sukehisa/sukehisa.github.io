@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「一度与えた許可が、許可された実体が変わった後も効き続ける」構造を探索軸に置き、許可の台帳と実体の乖離を出力する3案を5軸評価した結果">
+<title>2026-09-07: 承認の陳腐化 — npm 12 の許可リスト・名前のみ許可の休眠特権・従事者名簿と実アクセス権の乖離における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-07</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / supply-chain / npm / install-scripts</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-07">市場リサーチ &amp; 5軸評価レポート (2026-09-07)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">script-jury</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 13 件（うち一次ソース 13 件）</div></div><div class="fig">18<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">script-jury</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">koeki-reach</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">release-path</div><div class="val">14<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-06）の終わりに、次の探索軸を宣言しました。 <strong>結果が金額として確定する</strong>、かつ<strong>その金額の元になる数字が買い手の内部ではなく公開領域にあり、買い手側の入力が識別子だけで済む</strong>、という条件です。</p><p>今回、この軸で探索した結果を先に書きます。 <strong>入力を識別子まで縮める条件は満たせましたが、出力を金額として確定させる条件は満たせませんでした。</strong></p><p>見つかったのは、金額ではなく<strong>権限</strong>を出力する構造でした。 買い手が差し出す入力は lockfile や名簿といった識別子の集合であり、突き合わせる相手はレジストリの公開物や法文です。 入力の軽さという点で軸2と軸5は取り戻せます。 一方で出力が「いくら消えるか」ではなく「いま何が許されているか」であるため、軸3（収益性）は前回の水準へ届きません。</p><p>この交換を承知したうえで、今回は一つの構造に絞って探索しました。 <strong>一度与えた許可が、許可された実体が変わった後も効き続ける</strong>という構造です。 以下の3つの変曲点は、いずれもこの構造が2026年後半に一斉に表面化したことを示しています。</p><h3 id="変曲点-1-npm-12-が-暗黙の実行-を終わらせ-承認という工程を全チームへ配った">変曲点 1: npm 12 が「暗黙の実行」を終わらせ、承認という工程を全チームへ配った</h3><p>GitHub は2026年6月9日、npm v12 の破壊的変更を予告しました。</p><blockquote class="voice"><p><code>allowScripts</code> defaults to off: <code>npm install</code> will no longer execute <code>preinstall</code>, <code>install</code>, or <code>postinstall</code> scripts from dependencies unless they are explicitly allowed in your project. — <a href="https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/" target="_blank" rel="noopener noreferrer">GitHub Changelog, 2026-06-09</a></p></blockquote><p>同じ告知には、依存の取得元に関する2つの既定変更も並んでいます。 <code>--allow-git</code> の既定が <code>none</code> となり、Git 依存が解決されなくなります。 <code>--allow-remote</code> の既定も <code>none</code> となり、HTTPS の tarball 依存が解決されなくなります。</p><p>ユーザーに求められる作業は、告知に明記されています。</p><blockquote class="voice"><p>approve the ones you trust, and commit the updated <code>package.json</code> — <a href="https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/" target="_blank" rel="noopener noreferrer">GitHub Changelog, 2026-06-09</a></p></blockquote><p>npm 12 は2026年8月にリリースされました。 つまり<strong>いま、npm を使うすべてのチームが「どれを信頼するか」を一度だけ決めて、その決定をリポジトリへ commit している最中</strong>です。</p><p>この工程はライブラリの保守側にも波及しています。 Microsoft の vscode-eslint には、告知の4日後に issue が立ちました。</p><blockquote class="voice"><p>npm v12 will block scripts by default (affecting this extension's <code>postinstall</code> script) — Gabriel Boehme, 2026-06-13, <a href="https://github.com/microsoft/vscode-eslint/issues/2190" target="_blank" rel="noopener noreferrer">microsoft/vscode-eslint Issue #2190</a></p></blockquote><h3 id="変曲点-2-承認の中身が空であることを-推進側と観測側の双方が認めている">変曲点 2: 承認の中身が空であることを、推進側と観測側の双方が認めている</h3><p>承認という工程が配られた一方で、<strong>承認の判断材料は配られていません。</strong></p><p>第一に、承認が反射になるという指摘があります。</p><blockquote class="voice"><p>by the third time a build breaks at 5pm because some transitive dependency needs its postinstall hook, the approval becomes a reflex — OpenSourceMalware, 2026-06-10, <a href="https://opensourcemalware.com/blog/npm-v12-security-theatre" target="_blank" rel="noopener noreferrer">The Pros and Cons of NPM v12's Security Improvements</a></p></blockquote><p>同じ記事は、規制が攻撃を消すのではなく移動させるとも書いています。</p><blockquote class="voice"><p>if install scripts are off by default, some package authors...will move the work somewhere NPM can't turn it off — OpenSourceMalware, 2026-06-10, <a href="https://opensourcemalware.com/blog/npm-v12-security-theatre" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第二に、承認の前段にある「出所の証明」が、この種の攻撃に対して機能しないことが実証されています。 2026年8月4日に keyv のメンテナが侵害され、CHAINDROP と呼ばれるワームが自己増殖しました。</p><blockquote class="voice"><p>The worm did not forge that signature. It earned it, the way a legitimate release would. — Louis Columbus, 2026-08-05, <a href="https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one" target="_blank" rel="noopener noreferrer">VentureBeat</a></p></blockquote><blockquote class="voice"><p>Provenance attestation answers whether a package came from the pipeline it claims. It does not answer whether the human or token that triggered that pipeline was supposed to. — Louis Columbus, 2026-08-05, <a href="https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p><strong>署名は「正規の経路から来たか」に答え、許可リストは「正規の名前か」に答えます。</strong> どちらも「そのスクリプトが何をするか」には答えません。</p><p>第三に、許可リストの意味論がパッケージマネージャごとに違います。 npm はバージョンで固定しますが、pnpm は名前のみで許可します。 その帰結を、pnpm の issue が名指ししています。</p><blockquote class="voice"><p>Currently, <code>pnpm</code> silently ignores unused entries in <code>onlyBuiltDependencies</code>. — martinfrancois, <a href="https://github.com/pnpm/pnpm/issues/10253" target="_blank" rel="noopener noreferrer">pnpm/pnpm Issue #10253</a></p></blockquote><blockquote class="voice"><p>If a package is listed in <code>onlyBuiltDependencies</code> but doesn't currently have scripts, it is effectively a "dormant" privilege. — martinfrancois, <a href="https://github.com/pnpm/pnpm/issues/10253" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><blockquote class="voice"><p>If that package is later compromised...and the attacker re-introduces a malicious <code>preinstall</code> script, <code>pnpm</code> will execute it immediately because the package is already whitelisted. — martinfrancois, <a href="https://github.com/pnpm/pnpm/issues/10253" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>エコシステム全体の状況は、Andrew Nesbitt が整理しています。 npm 11 系の挙動は助言に止まると書かれています。</p><blockquote class="voice"><p>Behaviour in 11.x is advisory: scripts still execute, an end-of-install summary names anything unreviewed — Andrew Nesbitt, 2026-06-05, <a href="https://nesbitt.io/2026/06/05/install-script-allowlists.html" target="_blank" rel="noopener noreferrer">Install-script allowlists</a></p></blockquote><p>Bun の挙動は、許可リストの追加が既定を壊す形になっています。</p><blockquote class="voice"><p>opting a single package in drops the default-trusted set entirely — Andrew Nesbitt, 2026-06-05, <a href="https://nesbitt.io/2026/06/05/install-script-allowlists.html" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><h3 id="変曲点-3-2026年12月1日-日本の内部通報が-誰が読めるか-を刑事罰の射程に入れる">変曲点 3: 2026年12月1日、日本の内部通報が「誰が読めるか」を刑事罰の射程に入れる</h3><p>改正公益通報者保護法が2026年12月1日に施行されます。 改正の中身は、通報の入口ではなく<strong>通報の取扱い</strong>に踏み込んでいます。</p><blockquote class="voice"><p>通報者を探索する行為を禁止し、これに違反してされた合意等の法律行為を無効 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>罰則も新設されています。</p><blockquote class="voice"><p>６月以下の拘禁刑又は30万円以下の罰金、両罰規定あり — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><blockquote class="voice"><p>3,000万円以下の罰金刑 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>体制整備義務と従事者指定義務の対象は、規模で切られています。</p><blockquote class="voice"><p>常時使用する従業員が301人以上 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>BUSINESS LAWYERS は、行政側の権限強化も併記しています。</p><blockquote class="voice"><p>立入検査権 — <a href="https://www.businesslawyers.jp/articles/1451" target="_blank" rel="noopener noreferrer">BUSINESS LAWYERS</a></p></blockquote><p>ここで起きているのは、変曲点2と同じ構造です。 <strong>従事者の指定は名簿という台帳に書かれ、実際に通報を読める範囲は共有メールボックスや共有ドライブの権限設定に書かれています。</strong> 名簿は法務が持ち、権限設定は情報システムが持ちます。 両者を突き合わせる工程は、どちらの職務にも属していません。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-07)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-07)"><title>アイデア候補のポジショニングマップ (2026-09-07)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="413.4" cy="120.9" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="425.4" y="124.9" text-anchor="start" class="qpt-label">1</text><circle cx="413.4" cy="120.9" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Script Jury 総合 18 / 25（Tier 2）" data-tv="Idea 1: Script Jury" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="430.4" cy="189.0" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="442.4" y="193.0" text-anchor="start" class="qpt-label">2</text><circle cx="430.4" cy="189.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Koeki Reach 総合 16 / 25（Tier 2）" data-tv="Idea 2: Koeki Reach" data-td="総合 16 / 25（Tier 2）"/></g><g><circle cx="277.0" cy="217.4" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="289.0" y="221.4" text-anchor="start" class="qpt-label">3</text><circle cx="277.0" cy="217.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Release Path 総合 14 / 25（Tier 3）" data-tv="Idea 3: Release Path" data-td="総合 14 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Script Jury</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Koeki Reach</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Release Path</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-script-jury-npm-12-の承認待ちパッケージについて-スクリプト本文・挙動の分類・前回承認バージョンとの差分・名前のみ許可リストの休眠特権を出し-承認の判断材料そのものを供給するローカル-cli">アイデア 1: <code>script-jury</code> (npm 12 の承認待ちパッケージについて、スクリプト本文・挙動の分類・前回承認バージョンとの差分・名前のみ許可リストの休眠特権を出し、承認の判断材料そのものを供給するローカル CLI)</h3><p><code>package.json</code> の <code>allowScripts</code>、pnpm の <code>allowBuilds</code>、yarn / bun の許可設定、および lockfile を入力に取るローカル CLI です。 出力はリスクスコアではありません。 <strong>この承認が何を許すのか</strong>を、承認の直前に文章と差分で出します。</p><p>行は4種類です。</p><p>第一に、承認待ちの各パッケージについて、レジストリの tarball から取り出した <code>preinstall</code> / <code>install</code> / <code>postinstall</code> の<strong>本文そのもの</strong>を出します。 第二に、その本文を挙動で分類します。<code>node-gyp rebuild</code> のようなネイティブビルド、prebuilt バイナリの取得、ネットワークアクセス、シェル経由の実行、エンコードされた文字列の実行を区別します。 第三に、同一パッケージの<strong>前回承認バージョンとのスクリプト差分</strong>を出します。差分が空なら、承認の更新は形式だけで済みます。 第四に、pnpm / yarn / bun の名前のみ許可リストについて、<strong>現在スクリプトを持たない承認済みパッケージ</strong>を休眠特権として名指しします。</p><p>加えて、npm 12 の残り2つの既定変更（<code>--allow-git</code> と <code>--allow-remote</code>）で解決不能になる依存を、同じ走査のついでに列挙します。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>第一に、承認という工程が判断材料なしで配られている点です。 推進側ではなく批判側の記述が、この空白を最も明確に述べています。</p><blockquote class="voice"><p>by the third time a build breaks at 5pm because some transitive dependency needs its postinstall hook, the approval becomes a reflex — OpenSourceMalware, 2026-06-10, <a href="https://opensourcemalware.com/blog/npm-v12-security-theatre" target="_blank" rel="noopener noreferrer">The Pros and Cons of NPM v12's Security Improvements</a></p></blockquote><p>第二に、承認の前段にある証明が、実際の攻撃を止めなかった点です。</p><blockquote class="voice"><p>Provenance attestation answers whether a package came from the pipeline it claims. It does not answer whether the human or token that triggered that pipeline was supposed to. — Louis Columbus, 2026-08-05, <a href="https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one" target="_blank" rel="noopener noreferrer">VentureBeat</a></p></blockquote><p>同じ記事は、npm 12 が守った範囲も正確に限定しています。</p><blockquote class="voice"><p>JFrog confirmed that on npm 12 or newer, where preinstall hooks are off by default, the malware does not run at install time. Every organization still on an older npm, and most enterprises upgrade slowly, remained exposed. — Louis Columbus, 2026-08-05, <a href="https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第三に、名前のみ許可リストが休眠特権を作るという指摘が、パッケージマネージャの issue として当事者から出ている点です。</p><blockquote class="voice"><p>If a package is listed in <code>onlyBuiltDependencies</code> but doesn't currently have scripts, it is effectively a "dormant" privilege. — martinfrancois, <a href="https://github.com/pnpm/pnpm/issues/10253" target="_blank" rel="noopener noreferrer">pnpm/pnpm Issue #10253</a></p></blockquote><p>第四に、承認の列挙自体が完全ではないという一次報告がある点です。 npm 本体の issue に、承認コマンドと強制コマンドの結果が食い違うという報告が立っています。</p><blockquote class="voice"><p>One command tells me it does not need to be whitelisted, another command tells me I cannot install dependencies unless it is whitelisted. — 報告者, <a href="https://github.com/npm/cli/issues/9562" target="_blank" rel="noopener noreferrer">npm/cli Issue #9562</a></p></blockquote><p>この食い違いは、<code>fsevents</code> のようなプラットフォーム限定の optional 依存で起きています。 <strong>macOS で作った許可リストは、Linux の CI で正しいとは限りません。</strong></p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロ DevEx 型</strong>です。 毎日発生する作業ではありませんが、npm 12 への移行という一度の作業で全チームが必ず通る地点にあります。</p><p>Why Now は3点です。 第一に、npm 12 が2026年8月にリリースされ、移行作業がいま進行中である点です。 第二に、CHAINDROP が2026年8月4日に発生し、「正規の資格情報で publish された悪意あるバージョン」が現実の事象として観測された点です。 第三に、許可リストの意味論がパッケージマネージャごとに分かれたまま固まりつつある点です。npm はバージョン固定、pnpm と yarn と bun は名前のみで、移行の判断は各チームが個別に行っています。</p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p>解決済みは、<strong>どのパッケージがスクリプトを持つかの列挙</strong>と、<strong>その承認の記録</strong>です。 <code>npm approve-scripts</code> が列挙し、<code>package.json</code> が記録します。pnpm の <code>approve-builds</code> も同じ役割を持ちます。 <code>@lavamoat/allow-scripts</code> は、この仕組みを持たない旧環境へ許可リスト運用を後付けします。 Socket.dev はパッケージ全体のリスクを採点し、ホスト型で提供します。</p><p>解決していないのは、<strong>承認の対象となるスクリプトが何をするか</strong>です。 列挙は名前を出し、記録は名前を残しますが、本文はどこにも出てきません。 そして採点型の製品は、スコアという抽象へ畳んだ結果を返すため、「この行が curl でバイナリを取ってくる」という具体を承認画面の隣に置きません。</p><p>境界線は明確です。 <strong>先客は「承認すべきか」を答えようとし、本案は「承認すると何が起きるか」を見せます。</strong> 前者は判断を代替し、後者は判断を可能にします。</p><h3 id="アイデア-2-koeki-reach-従事者名簿と-通報が実際に届く場所の権限設定を突き合わせ-2026年12月1日時点で通報を読める非従事者を名指しするローカル検査">アイデア 2: <code>koeki-reach</code> (従事者名簿と、通報が実際に届く場所の権限設定を突き合わせ、2026年12月1日時点で通報を読める非従事者を名指しするローカル検査)</h3><p>従事者名簿（CSV）と、通報の受け口の識別子（共有メールボックスのアドレス、フォーム回答スプレッドシートの ID、共有ドライブのフォルダ ID）を入力に取るローカル検査です。 Google Workspace の Admin SDK / Drive API、または Microsoft Graph をサービスアカウントで読み、<strong>いま実際に通報へ到達できる主体の一覧</strong>を作ります。</p><p>出力は3種類です。</p><p>第一に、従事者名簿に無いのに通報を読める主体です。転送設定、代理アクセス、グループのネスト、リンク共有、退職者の残存アカウントを含みます。 第二に、名簿にあるのに到達できない主体です。指定はされたが権限が付いていない、という逆方向の乖離です。 第三に、通報の閲覧履歴が記録される構成になっているかどうかです。記録されない構成では、「探索していない」ことを事業者側が示せません。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>第一に、法が禁じる対象が「探索」という行為そのものである点です。</p><blockquote class="voice"><p>通報者を探索する行為を禁止し、これに違反してされた合意等の法律行為を無効 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>第二に、違反の帰結が刑事罰である点です。</p><blockquote class="voice"><p>６月以下の拘禁刑又は30万円以下の罰金、両罰規定あり — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><blockquote class="voice"><p>3,000万円以下の罰金刑 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>第三に、行政が現場を見に来る権限を得た点です。</p><blockquote class="voice"><p>立入検査権 — <a href="https://www.businesslawyers.jp/articles/1451" target="_blank" rel="noopener noreferrer">BUSINESS LAWYERS</a></p></blockquote><p>第四に、義務の対象が規模で明確に切られている点です。</p><blockquote class="voice"><p>常時使用する従業員が301人以上 — <a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">東京弁護士会</a></p></blockquote><p>買い手の母数は、この一行で確定します。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>規制・プラットフォーム変更対応型</strong>です。</p><p>Why Now は2点です。 第一に、施行日が2026年12月1日であり、85日後である点です。 第二に、改正が「窓口を作ったか」から「取扱いが適切か」へ検査の焦点を移した点です。窓口の有無は既存の内部通報 SaaS が売っており、既に埋まっています。取扱いの実態は、SaaS を導入した企業でも、旧来の共有メールボックスが並行して生きていれば穴が残ります。</p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲-1">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p>解決済みは、<strong>新しい窓口の提供</strong>です。 内部通報 SaaS は匿名受付と案件管理を提供し、その中では権限が設計されています。 規程の雛形は士業が提供し、従事者名簿の作り方も解説されています。</p><p>解決していないのは、<strong>既に動いている受け口の実態</strong>です。 多くの組織は、SaaS を入れた後も総務宛の共有メールボックスとフォームを残します。 そこに誰が到達できるかは Workspace の設定に書かれており、名簿の側からは見えません。</p><p>境界線はこうです。 <strong>先客は「正しい窓口」を売り、本案は「残っている窓口」を数えます。</strong> SaaS 事業者は、自社へ移行しない限り解けない問題として顧客の既存環境を扱うため、既存環境の穴を独立に数える製品を自社の主張の中へ置けません。ここに利益相反があります。</p><h3 id="アイデア-3-release-path-自分が公開権限を持つパッケージについて-次のリリースが成立するかを公開経路と資格情報の観点から事前判定する検査">アイデア 3: <code>release-path</code> (自分が公開権限を持つパッケージについて、次のリリースが成立するかを公開経路と資格情報の観点から事前判定する検査)</h3><p>リポジトリのワークフロー定義と、npm 側の公開設定を入力に取る検査です。 出力は、<strong>次にタグを打ったとき、そのパッケージが実際に公開されるかどうか</strong>の判定です。</p><p>npm の公開経路は2026年に3つの変更を同時に受けています。 第一に、trusted publishing の対応 CI が限定されています。</p><blockquote class="voice"><p>Trusted publishing currently supports: GitHub Actions (GitHub-hosted runners), GitLab CI/CD Pipelines (GitLab.com shared runners), CircleCI (CircleCI cloud). — <a href="https://github.com/npm/documentation/blob/main/content/packages-and-modules/securing-your-code/trusted-publishers.mdx" target="_blank" rel="noopener noreferrer">npm/documentation</a></p></blockquote><blockquote class="voice"><p>Self-hosted runners are not currently supported but are planned for future releases. — <a href="https://github.com/npm/documentation/blob/main/content/packages-and-modules/securing-your-code/trusted-publishers.mdx" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>第二に、設定を作った日付によって既定の挙動が変わります。</p><blockquote class="voice"><p>Configurations created after Sep 03, 2026 are automatically set to allow npm stage publish, and you can choose whether to also permit direct publishing with npm publish. — <a href="https://docs.npmjs.com/trusted-publishers/" target="_blank" rel="noopener noreferrer">npm Docs</a></p></blockquote><p><strong>4日前を境に、新しく作った設定は既定で staging へ入ります。</strong> CI は成功し、しかしパッケージは installable になりません。</p><p>第三に、トークン側の締め付けが進んでいます。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>self-hosted runner の除外について、当事者の反応が公式ディスカッションに並んでいます。</p><blockquote class="voice"><p>enterprises use self hosted runners...should still be capable of publishing packages safely without having to manually update a token every 7 days — MarshallOfSound, <a href="https://github.com/orgs/community/discussions/174507" target="_blank" rel="noopener noreferrer">GitHub community Discussion #174507</a></p></blockquote><p>トークンの再発行についても、粒度の再現が問題として挙がっています。</p><blockquote class="voice"><p>if a token of mine expires, I probably need one with the same granularity to replace it — ericcornelissen, <a href="https://github.com/orgs/community/discussions/174507" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>推進側の設計そのものへの異議も出ています。</p><blockquote class="voice"><p>they are not actually addressing the ask for native 2FA workflows and even making one secure workflow even harder — wesleytodd, <a href="https://github.com/orgs/community/discussions/174507" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロ DevEx 型</strong>です。 Why Now は、Sep 3 の既定変更が4日前である点と、classic token の廃止が進行中である点です。</p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲-2">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p>解決済みは、<strong>個々の事実の公開</strong>です。 対応 CI、設定日ごとの既定、トークンの期限は、いずれも npm の文書に書かれています。</p><p>解決していないのは、<strong>自分の資産への当てはめ</strong>です。 30個のパッケージを持つメンテナが、どれが次のリリースで失敗するかを一覧で見る手段はありません。</p><p>境界線は引けますが、<strong>幅が狭い</strong>というのが今回の判定です。 理由は第3節で述べます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>script-jury</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>koeki-reach</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>release-path</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">npm 12 が2026年8月にリリースされ移行が進行中、ただし共通の法定期限はない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年12月1日という単一の法定期日と刑事罰、対象は301人以上の国内事業者に限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Sep 3 の既定変更は鋭い、対象が公開権限を持つメンテナに限られる</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">lockfile と tarball の走査は平易、挙動分類の網羅に時間がかかる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Admin SDK / Graph の権限読み取りは既知、サービスアカウントの設定が導入の壁</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ワークフローの静的解析は平易、公開設定の allowed actions を外部から読めない可能性</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">個人は無料版で足り、上位互換の採点型 SaaS が価格の天井を作る</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">法務予算は付くが、単発の診断で終わりやすい</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">メンテナは無料前提、企業のリリース基盤担当は内製する</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">本文と差分を出す切り口は空白、npm 本体が承認画面へ足せば消える</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">既存環境の穴を数える製品は不在、SaaS 各社が移行提案で潰しに来る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">ほぼ空白だが参入障壁がなく、npm 側の警告一つで消える</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結・ゼロインフラ、4種のパッケージマネージャの仕様追随が固定費</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ローカル CLI なら OAuth アプリ審査を回避可能、管理者権限を扱う信頼要求が残る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結・低保守、npm の仕様変更への追随は必要</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">14<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-script-jury-18点-tier-2">Idea 1: <code>script-jury</code> — 18点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: npm 12 が2026年8月にリリースされ、承認という工程が全チームへ一斉に配られました。CHAINDROP という具体的な事故が2026年8月4日に起きており、動機の説明に仮定を要しません。母数は npm を使う全チームで、3案で最大です。<strong>減点材料</strong>: 全員に共通する期日がありません。npm 11 系の挙動は助言に止まるため、アップグレードを遅らせれば作業も遅れます。「今月中に決めろ」という一斉のトリガーが立たないため、5点は付けられません。</li><li><strong>技術的実現可能性 4</strong>: lockfile を読み、レジストリから tarball を取り、<code>package.json</code> の <code>scripts</code> を読むという経路は確立しています。差分の計算も平易です。2週間で本文表示と差分までは確実に届きます。<strong>減点材料</strong>: 価値の中心は「分類」にあり、そこは網羅性の勝負です。<code>node-gyp rebuild</code> の判定は容易ですが、ビルドスクリプトが shell 経由で分岐する実装、prebuilt バイナリの取得をラッパーへ隠す実装は個別対応になります。分類の質が低いと、出力が本文の再掲に落ちます。5点は付けられません。</li><li><strong>収益性 3</strong>: 個人開発者は無料版で足ります。払うのは複数リポジトリを CI で回すチームであり、月額15ドル前後のライセンスが現実的な水準です。<strong>減点材料</strong>: 上に Socket.dev のような採点型 SaaS がおり、価格の天井を作っています。買い手から見れば「スクリプトの本文だけを見せる道具」は、パッケージ全体を採点する製品の部分機能に見えます。加えて、承認は移行時の一度で終わる作業であり、継続課金の根拠は「依存を更新するたびに差分を見る」という運用が定着した後にしか立ちません。4点は付けられません。</li><li><strong>競合優位性 3</strong>: 境界線は明確です。列挙と記録は npm 自身が持ち、採点は SaaS が持ちますが、<strong>承認画面の隣に本文と差分を置く</strong>製品はありません。休眠特権の検出は pnpm の issue が未実装として残っており、実装されるまでは空白です。<strong>減点材料</strong>: <strong>大手が3か月で真似したら</strong>、というより、npm 本体が <code>approve-scripts</code> の出力へスクリプト本文を1行足せば、価値の半分が消えます。実装は数行であり、しかも issue #9562 のような不整合報告が積まれている以上、本体側に改善の動機があります。参入障壁が製品の構造ではなく本体の優先順位に依存しており、4点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル CLI として完結し、lockfile を外部へ送りません。取得先は公開レジストリのみで、認証も不要です。<strong>減点材料</strong>: npm / pnpm / yarn / bun の4種について、許可リストの位置と意味論を追随する固定費が発生します。pnpm は v11 で <code>onlyBuiltDependencies</code> を <code>allowBuilds</code> へ統合しており、この種の変更は今後も起きます。追随を止めると、誤った休眠特権を報告し続けます。5点は付けられません。</li></ul><h4 id="idea-2-koeki-reach-16点-tier-2">Idea 2: <code>koeki-reach</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 施行日が2026年12月1日と単一で定まり、85日後です。罰則が刑事罰であり、予算確保の動機は3案で最も強い。義務の対象も「常時使用する従業員が301人以上」と一行で確定します。<strong>減点材料</strong>: その一行が母数の上限も決めます。国内の301人以上の事業者に限られ、Idea 1 より二桁小さい。5点は付けられません。</li><li><strong>技術的実現可能性 3</strong>: Google Workspace の Admin SDK と Drive API、Microsoft Graph のいずれも、権限の読み取りは文書化された既知の経路です。突き合わせ自体は集合演算です。<strong>減点材料</strong>: 導入の手前に壁があります。サービスアカウントの作成とドメイン全体の委任には管理者の作業が要り、その作業を依頼する時点で商談になります。「ダウンロードして走らせる」という個人開発の最短経路が使えません。4点は付けられません。</li><li><strong>収益性 3</strong>: 法務・内部統制の予算が付く領域であり、年額数万円は成立します。<strong>減点材料</strong>: 出力が診断結果であり、穴を塞げば用が済みます。継続課金の根拠は「権限が再び増えていないか」の定期実行に依存し、それは購買時点では価値として説明しにくい。加えて、この領域の支出は監査法人やコンサルの見積もりと同じ表に並び、数万円の道具は「まず人に見てもらう」に負けます。4点は付けられません。</li><li><strong>競合優位性 3</strong>: 境界線は引けます。内部通報 SaaS は新しい窓口を売り、既存環境の穴を数えません。利益相反も構造として実在します。<strong>減点材料</strong>: <strong>大手が3か月で真似したら</strong>、SaaS 各社が「移行前診断」を無料で付けるだけで、購買理由が消えます。しかも彼らにとって診断は営業の入口であり、無料で配る動機があります。無料の営業ツールと有料の道具が正面から当たる構図であり、4点は付けられません。</li><li><strong>個人開発適性 3</strong>: ローカル CLI としてサービスアカウントの鍵を手元で使う設計にすれば、OAuth アプリの審査もホスティングも不要になります。24時間の監視も要りません。<strong>減点材料</strong>: 扱うのが「誰が通報を読めるか」という情報であり、誤りが刑事罰に隣接します。到達経路を1つ見落とせば「安全」と誤報し、買い手はそれを根拠に対応を止めます。個人名義で売る際の信頼要求と問い合わせ負荷が、Idea 1 より一段重い。4点は付けられません。</li></ul><h4 id="idea-3-release-path-14点-tier-3">Idea 3: <code>release-path</code> — 14点 (Tier 3)</h4><ul><li><strong>タイミング 3</strong>: Sep 3 の既定変更は4日前であり、鮮度は3案で最高です。<strong>減点材料</strong>: 母数が小さすぎます。買い手は npm パッケージの公開権限を持つ人に限られ、そのうち複数パッケージを抱えて一覧を必要とする層はさらに一部です。市場規模の観点で4点は付けられません。</li><li><strong>技術的実現可能性 3</strong>: ワークフロー定義から runner の種別と publish コマンドを取るのは静的解析であり、平易です。<strong>減点材料</strong>: 判定の核である「その trusted publisher 設定が直接 publish を許しているか」を、外部から読める保証がありません。読めない場合はユーザーの自己申告で補うことになり、自動判定という価値の半分が崩れます。前提が確認できていない状態で4点は付けられません。</li><li><strong>収益性 2</strong>: OSS メンテナは無料を前提とする層です。企業のリリース基盤担当は払える立場ですが、その層は同じものを内製します。<strong>誰がいくら払うかを具体的に書けません。</strong> 基準に従い、3点は付けられません。</li><li><strong>競合優位性 2</strong>: いま空白であることは確かです。<strong>減点材料</strong>: 空白の理由が「難しいから」ではなく「小さいから」です。参入障壁が存在せず、npm が公開時に警告を1行出せば、あるいは <code>npm doctor</code> に項目を1つ足せば消えます。3案で最も模倣が容易であり、3点は付けられません。</li><li><strong>個人開発適性 4</strong>: ローカル完結で、低保守です。<strong>減点材料</strong>: npm 側の仕様が現在進行形で動いており、設定日ごとの既定という時限的なルールを追い続ける必要があります。5点は付けられません。</li></ul><p><strong>Idea 3 は Tier 3 に落ちたため、提案から外します。</strong> 第2節に残したのは、「変曲点は鋭いが市場が小さい」という型の失敗例として、次回以降の探索で同じ判断を繰り返さないためです。</p><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="3案に共通する最大のリスク">3案に共通する最大のリスク</h3><p><strong>今回の3案は、いずれも出力が「権限の一覧」であり、金額でも期限でもありません。</strong></p><p>これは第1節に書いたとおり、前回宣言した第三条件（金額として確定する）を満たせなかったことの直接の帰結です。 結果として、軸3（収益性）の平均は2.67点となり、前回の3.67点から1点下がりました。 <strong>軸2と軸5を取り戻す代わりに、軸3を支払っています。</strong></p><p>権限の一覧は、買い手にとって「危ないかもしれない」という情報です。 金額の一覧が「戻る」「消える」という確定した結果であるのに対し、権限の一覧は確率の提示に止まります。 確率に対する支払意思は、確定額に対する支払意思より構造的に低くなります。</p><p>対策は、3案とも<strong>出力を「確定した事実」の側へ寄せる</strong>ことです。 Idea 1 であれば「危険なスクリプト」ではなく「前回承認時と本文が変わったパッケージが3件ある」という事実を主出力に置きます。 Idea 2 であれば「リスクがある」ではなく「名簿にない7名がいま通報を読める」という事実を主出力に置きます。 どちらも、判定ではなく計数です。</p><h3 id="idea-1-が失敗する最大の理由">Idea 1 が失敗する最大の理由</h3><p><strong>npm 本体が <code>approve-scripts</code> の出力にスクリプト本文を追加すること</strong>です。</p><p>これは技術的に数行の変更であり、issue #9562 のような不整合報告が積まれている以上、本体側に改善の動機があります。 起きた場合、本案に残るのは「差分」と「休眠特権」と「4種のパッケージマネージャ横断」の3点だけになります。</p><p>対策は、最初からその3点を製品の中心に置くことです。 本文表示は入口であって商品ではない、という設計を初日から取ります。</p><p>もう一つの反証は、<strong>そもそも誰も承認を吟味しない</strong>という可能性です。 OpenSourceMalware が書いた「approval becomes a reflex」が正しければ、判断材料の需要そのものが存在しません。 この反証は、ロードマップの初日で検証します。</p><h3 id="idea-2-が失敗する最大の理由">Idea 2 が失敗する最大の理由</h3><p><strong>買い手が「診断」ではなく「移行」を選ぶこと</strong>です。</p><p>穴が見つかった組織の自然な反応は、穴を塞ぐことではなく、内部通報 SaaS へ一本化することです。 その場合、本案は SaaS の営業資料になり、売上は SaaS 側へ流れます。</p><p>対策は、SaaS へ移行した後も残る問いへ出力を寄せることです。 すなわち「旧窓口を閉じたか」「閉じた後も転送設定が生きていないか」という、移行の完了を確認する用途です。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>対象は最有力候補の <code>script-jury</code> です。</p><div class="tw"><table><thead><tr><th>Day</th><th>作業</th><th>完了条件</th></tr></thead><tbody><tr><td class="tk">1</td><td><strong>前提の事前検証</strong>。自分と知人の5リポジトリで <code>npm approve-scripts --allow-scripts-pending</code> を実行し、承認待ちのパッケージ数を数える。同時に、各リポジトリの担当者へ「承認したパッケージのスクリプト本文を見たか」を聞く。</td><td>5リポジトリの平均承認待ち数が5件以上あり、かつ「本文を見た」と答えた担当者が半数未満であること。<strong>満たさなければ全体を破棄する。</strong>「reflex になっている」という反証が正しければ、判断材料の需要は存在しない。</td></tr><tr><td class="tk">2</td><td>lockfile 走査の実装。npm / pnpm / yarn / bun の4形式から、依存の名前とバージョンを取り出す。</td><td>4形式すべてで依存一覧が出る。</td></tr><tr><td class="tk">3-4</td><td>tarball 取得とスクリプト抽出。レジストリから該当バージョンを取り、<code>preinstall</code> / <code>install</code> / <code>postinstall</code> の本文を出す。取得結果はローカルへキャッシュする。</td><td>承認待ちの全件について本文が表示される。</td></tr><tr><td class="tk">5-6</td><td><strong>差分の実装</strong>。許可リストに記録された前回承認バージョンと現在バージョンのスクリプト本文を比較し、変化した件数を出す。</td><td>「本文が変わったパッケージ N 件」が主出力の先頭に来る。</td></tr><tr><td class="tk">7-8</td><td><strong>休眠特権の検出</strong>。pnpm / yarn / bun の名前のみ許可リストについて、現在スクリプトを持たない承認済みパッケージを列挙する。</td><td>pnpm の実リポジトリで休眠特権が検出できる。</td></tr><tr><td class="tk">9</td><td>挙動分類の第一版。<code>node-gyp rebuild</code> 相当のネイティブビルドと、それ以外を2分する。細かい分類はまだ作らない。</td><td>承認待ちの大半が「ネイティブビルド」へ落ち、レビュー対象が絞られる。</td></tr><tr><td class="tk">10</td><td>プラットフォーム差の対応。optional 依存と <code>os</code> / <code>cpu</code> 制約を読み、他プラットフォームでのみ必要になるパッケージを別枠で出す。</td><td>issue #9562 の <code>fsevents</code> のケースが再現・検出できる。</td></tr><tr><td class="tk">11</td><td><strong>Day 1 の5リポジトリで再検証</strong>。差分と休眠特権の出力を見せ、承認判断が変わるかを聞く。</td><td>5リポジトリ中3つで「この出力を見て承認を保留した項目がある」こと。</td></tr><tr><td class="tk">12-13</td><td>検証結果に基づく修正。分類を増やすか、差分の見せ方を変えるかを、聞いた内容で決める。</td><td>修正が1点に絞られている。</td></tr><tr><td class="tk">14</td><td>公開。README に「npm 本体が本文表示を実装したら、本ツールの価値は差分・休眠特権・横断の3点に縮む」と明記する。</td><td>反証条件が公開物に書かれている。</td></tr></tbody></table></div><p>Day 1 は実装ではありません。 承認が既に反射になっているなら、判断材料を作っても誰も読みません。 需要の生死を14日のうち1日で判定し、駄目なら残り13日を使わない、という設計です。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><ul><li><strong>最優先で検証すべき候補</strong>: <code>script-jury</code> (総合18点、Tier 2)。3案で唯一、母数（npm を使う全チーム）と境界線（列挙と採点の間にある「本文と差分」の空白）の両方が説明できています。ただし着手は Day 1 の結果を見てから判断すべきであり、承認が既に反射になっているなら全体を破棄します。</li></ul><ul><li><strong>次点</strong>: <code>koeki-reach</code> (総合16点、Tier 2)。期日と罰則の鋭さは3案で最高ですが、導入の手前に管理者作業という壁があり、個人開発の最短経路が使えません。着手するなら、知人の情報システム部門を1社確保してからにすべきです。</li></ul><ul><li><strong>今回却下した候補と理由</strong>:<ul><li><strong>MCP ツールスキーマの無言の変化の検知</strong>: 2026年9月3日に、248の公開 MCP サーバを1日に2回巡回した実測が公開されました。説明文が1バイトも変わらないままスキーマまたはアノテーションが変わった例が17件記録されています。「no MCP client re-prompts. Approval happens once. Nothing re-derives it」という記述は、本レポートの探索軸そのものです（<a href="https://github.com/GautamTalksDev/mcp-pin/blob/main/docs/findings/2026-09-03-schema-drift.md" target="_blank" rel="noopener noreferrer">mcp-pin</a>）。しかし Vercel AI SDK が2026年7月9日公開の 7.0.19 で <code>fingerprintTools</code> と <code>detectToolDrift</code> を標準搭載しており、Schema Drift Gate（有償ホスト型）、MCP Vitals、driftguard も既に存在します。フレームワーク本体が同じ機能を持った時点で境界線が引けず、軸4を2点として総合18点でも Tier 2 下位、かつ 2026-08-23 レポートの MCP 検査案との重複判定に触れるため却下しました。</li><li><strong>npm 12 の <code>--allow-git</code> / <code>--allow-remote</code> 既定変更で壊れる依存の検知</strong>: 期日も影響も明確ですが、走査対象が Idea 1 と完全に同一であり、重複判定フィルタの「機能追加版にすぎない」に該当します。Idea 1 の副次出力として吸収しました。</li><li><strong>HubSpot Classic CRM Cards 停止（2026年10月31日）への移行検査</strong>: 期日は鋭く、HubSpot 自身が View Swapping Tool と Converter を提供しています。プラットフォーム側が移行支援を出し切っている領域であり、境界線が引けないため却下しました。</li><li><strong>EU AI Act の適用日変更に伴う義務の再判定</strong>: Digital Omnibus により Annex III の高リスク義務が2027年12月2日へ、Annex I が2028年8月2日へ延期される一方、透明性義務の一部は2026年8月2日のまま据え置かれました。「どの義務が動き、どれが動かなかったか」の混乱は実在しますが、2026-08-23 レポートで EU AI Act Article 50 を扱っており、重複判定に触れるため却下しました。</li><li><strong>Windows 10 消費者向け ESU の期限変更追跡</strong>: 2026年10月13日で終わるはずだった消費者向け ESU が、正式な告知ではなく文書の更新により2027年10月12日へ延長されました。ベンダーが期限を静かに動かすという事象は本レポートの構造と一致しますが、2026-09-04 レポートで「公式回答同士が食い違うモデル退役日」を扱っており、重複判定に触れるため却下しました。</li></ul></li></ul><ul><li><strong>13回連続で Tier 1 に到達していません。</strong> 今回の交換関係を整理します。 <strong>軸2（実現可能性）の平均は3.33点、軸5（個人開発適性）の平均は3.67点であり、いずれも前回（3.33点・2.67点）から維持または改善しました。</strong> 狙いどおり、入力を識別子（lockfile・名簿）まで縮めたことで、買い手のデータへ深く入り込む必要がなくなりました。 一方で、<strong>軸3（収益性）の平均は2.67点へ落ちました。</strong> 前回の3.67点から1点の低下です。原因は第4節に書いたとおりで、出力が金額ではなく権限だからです。 ここまでの4回で、同じ交換が繰り返し現れています。<strong>買い手の内部へ深く入るほど出力は金額に近づき、入力を軽くするほど出力は判断材料に留まります。</strong> 軸2・軸5と軸3が、入力の深さを媒介にトレードオフの関係にあります。 次回の探索軸は、この媒介を外しにいきます。<strong>入力が識別子だけで済み、かつ出力が金額として確定する</strong>位置、すなわち<strong>金額の元になる料率が公開されていて、買い手が差し出す識別子1つで金額が一意に決まる</strong>構造を探します。公示価格、公定料率、法定の補償額、公開された料金表が候補です。買い手のデータ量ではなく、公開された料率の存在が金額を作れるかどうかが、3つの軸を同時に立てられるかの分かれ目になります。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/" target="_blank" rel="noopener noreferrer">Upcoming breaking changes for npm v12（GitHub Changelog 2026-06-09・allowScripts / --allow-git / --allow-remote の既定変更）</a><span class="u">https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/</span></li><li><a href="https://docs.npmjs.com/trusted-publishers/" target="_blank" rel="noopener noreferrer">Trusted publishing for npm packages（npm Docs・設定作成日ごとの既定と対応 CI）</a><span class="u">https://docs.npmjs.com/trusted-publishers/</span></li><li><a href="https://github.com/npm/documentation/blob/main/content/packages-and-modules/securing-your-code/trusted-publishers.mdx" target="_blank" rel="noopener noreferrer">trusted-publishers.mdx（npm/documentation・self-hosted runner 非対応の原文）</a><span class="u">https://github.com/npm/documentation/blob/main/content/packages-and-modules/securing-your-code/trusted-publishers.mdx</span></li><li><a href="https://github.com/npm/cli/issues/9562" target="_blank" rel="noopener noreferrer">[BUG] npm ci with strict-allow-scripts rejects package that approve-scripts cannot see（npm/cli Issue #9562）</a><span class="u">https://github.com/npm/cli/issues/9562</span></li><li><a href="https://github.com/pnpm/pnpm/issues/10253" target="_blank" rel="noopener noreferrer">Strict validation for onlyBuiltDependencies (warn or fail if scripts are unused)（pnpm/pnpm Issue #10253・休眠特権の指摘）</a><span class="u">https://github.com/pnpm/pnpm/issues/10253</span></li><li><a href="https://github.com/microsoft/vscode-eslint/issues/2190" target="_blank" rel="noopener noreferrer">npm v12 will block scripts by default (affecting this extension&#x27;s postinstall script)（microsoft/vscode-eslint Issue #2190）</a><span class="u">https://github.com/microsoft/vscode-eslint/issues/2190</span></li><li><a href="https://nesbitt.io/2026/06/05/install-script-allowlists.html" target="_blank" rel="noopener noreferrer">Install-script allowlists（Andrew Nesbitt 2026-06-05・パッケージマネージャ間の意味論の差）</a><span class="u">https://nesbitt.io/2026/06/05/install-script-allowlists.html</span></li><li><a href="https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one" target="_blank" rel="noopener noreferrer">The Shai-Hulud npm worm didn&#x27;t fake its security check — it earned a legitimate one（VentureBeat 2026-08-05）</a><span class="u">https://venturebeat.com/security/the-shai-hulud-npm-worm-didnt-fake-its-security-check-it-earned-a-legitimate-one</span></li><li><a href="https://opensourcemalware.com/blog/npm-v12-security-theatre" target="_blank" rel="noopener noreferrer">The Pros and Cons of NPM v12&#x27;s Security Improvements（OpenSourceMalware 2026-06-10・承認が反射になるという指摘）</a><span class="u">https://opensourcemalware.com/blog/npm-v12-security-theatre</span></li><li><a href="https://github.com/orgs/community/discussions/174507" target="_blank" rel="noopener noreferrer">Our plan for a more secure npm supply chain（GitHub community Discussion #174507・self-hosted runner とトークン期限への反応）</a><span class="u">https://github.com/orgs/community/discussions/174507</span></li><li><a href="https://www.businesslawyers.jp/articles/1451" target="_blank" rel="noopener noreferrer">2026年12月施行！公益通報者保護法改正の概要と企業への影響（BUSINESS LAWYERS）</a><span class="u">https://www.businesslawyers.jp/articles/1451</span></li><li><a href="https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html" target="_blank" rel="noopener noreferrer">公益通報者保護法が改正されました（東京弁護士会・通報者探索の禁止と罰則）</a><span class="u">https://www.toben.or.jp/know/iinkai/koueki/column/post_26.html</span></li><li><a href="https://github.com/GautamTalksDev/mcp-pin/blob/main/docs/findings/2026-09-03-schema-drift.md" target="_blank" rel="noopener noreferrer">2026-09-03 schema drift（mcp-pin・248 サーバの実測とスキーマ変化の観測）</a><span class="u">https://github.com/GautamTalksDev/mcp-pin/blob/main/docs/findings/2026-09-03-schema-drift.md</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-07_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
