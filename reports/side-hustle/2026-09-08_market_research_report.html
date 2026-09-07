@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「公開された料率と識別子だけで金額が一意に決まる」構造を探索軸に置き、料率の側が動いたときに差額を出す3案を5軸評価した結果">
+<title>2026-09-08: 料率が後から差し替わる — CBAM 既定値の遡及訂正・首都高の二段階改定・郵便料金の全面改定における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-08</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / cbam / tariff / logistics</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-08">市場リサーチ &amp; 5軸評価レポート (2026-09-08)</h1><section class="dash"><div class="hero" style="--k:var(--series-2)"><div class="id"><div class="lbl">最有力候補</div><div class="name">shutoko-shift</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 13 件（うち一次ソース 13 件）</div></div><div class="fig">17<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">cbam-restate</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">shutoko-shift</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">yubin-delta</div><div class="val">15<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="1 / 5 点" aria-label="3. 収益性 / 課金モデル 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-07）の終わりに、次の探索軸を宣言しました。 <strong>金額の元になる料率が公開されていて、買い手が差し出す識別子1つで金額が一意に決まる</strong>構造です。 公示価格、公定料率、法定の補償額、公開された料金表を候補として挙げました。</p><p>結論を先に書きます。 <strong>この構造は実在し、しかも2026年後半に3つ同時に動いています。</strong> 一方で、<strong>軸3（収益性）は前回より下がりました。</strong> 理由は第6節に書きますが、要点だけ先に置きます。 金額が識別子だけで一意に決まるということは、その計算が誰にでもできるということでもあり、計算そのものには誰も払いません。</p><p>今回の3つの変曲点に共通するのは、識別子の側ではなく<strong>料率の側が動いた</strong>という点です。 料率表が差し替わる、料率表が二段階で発効する、料率表が全面的に書き換わる。 買い手が持っている識別子（申告行、ETC 明細、出荷実績）は変わらないのに、突き合わせる相手が変わりました。</p><h3 id="変曲点-1-cbam-の既定値が-2026年1月まで遡って差し替わった">変曲点 1: CBAM の既定値が、2026年1月まで遡って差し替わった</h3><p>欧州委員会は2026年7月31日、施行規則 (EU) 2026/1740 を公表しました。</p><blockquote class="voice"><p>Implementing Regulation (EU) 2026/1740 corrects technical errors in chart figures and commodity codes in Annexes I and IV — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><p>訂正の中身は、単なる誤字ではありません。</p><blockquote class="voice"><p>The Commission added, removed and amended values to correct issues in the first version, including transcription errors, omitted values, incorrect CN codes and rounding inconsistencies. — carboneer, 2026-08-04, <a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">CBAM Default Values 2026</a></p></blockquote><p>そしてこの訂正は、2026年1月1日まで遡って適用されます。</p><blockquote class="voice"><p>Because IR 2026/1740 applies retrospectively from January 1, 2026, any declarant who used the erroneous default values for imports made this year must recalculate with the amended Annexes I and IV. — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><blockquote class="voice"><p>A calculation performed in February with the original annex is not grandfathered; the corrected value is the legally applicable one for the entire year. — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><p>CBAM の確定期間は2026年1月1日に始まりました。 既定値は CN コードと原産国の組で引かれ、証書価格は EU-ETS の四半期平均で決まり、2026年分の申告期限は2027年9月30日です（<a href="https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism/cbam-definitive-regime_en" target="_blank" rel="noopener noreferrer">European Commission</a>）。 <strong>識別子（CN コード＋原産国＋数量）を入れれば金額が確定する</strong>という、探索軸そのものの構造です。 その料率表が、年の途中で遡及的に差し替わりました。</p><h3 id="変曲点-2-差し替えの事実が-料率表の利用者に届かない形で配られた">変曲点 2: 差し替えの事実が、料率表の利用者に届かない形で配られた</h3><p>この訂正には、変更点の一覧が付いていません。</p><blockquote class="voice"><p>The Commission published no press release and no corrected Excel tables alongside the regulation — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><blockquote class="voice"><p>Companies that work from the downloadable tables rather than the Official Journal text would have no reason to know their reference data had changed. — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><p>配布形式そのものが、突き合わせを妨げています。</p><blockquote class="voice"><p>The practical issue: the values were published as a large PDF, not as a structured dataset and not as a tracked changes version. — carboneer, 2026-08-04, <a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">CBAM Default Values 2026</a></p></blockquote><blockquote class="voice"><p>For CBAM teams, this is frustrating. Default values are not just legal annexes. They are input data for cost models, ERP systems, supplier data workflows, contract clauses, CBAM reporting tools and internal controlling processes. — carboneer, 2026-08-04, <a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p><strong>料率表が「読み物」として配られ、「入力データ」として使われています。</strong> この乖離が、今回の3案すべてに共通する空白です。</p><h3 id="変曲点-3-国内でも-料率表が二段階と全面で書き換わった">変曲点 3: 国内でも、料率表が二段階と全面で書き換わった</h3><p>首都高速道路は2026年7月31日、料金改定の詳細を公表しました。 実施は「2026年10月1日（木）午前0時」です。</p><blockquote class="voice"><p>現行29.52円／km→改定後32.472円／km（1割引き上げ） — <a href="https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/" target="_blank" rel="noopener noreferrer">首都高速道路株式会社, 2026-07-31</a></p></blockquote><blockquote class="voice"><p>下限料金（普通車の場合300円）は現行のまま維持します — <a href="https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>ここに、車種による時差が入りました。</p><blockquote class="voice"><p>10月1日から2027年6月30日までの9カ月間、現行料金に据え置きます — <a href="https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>据え置きの目的は、公式に明記されています。</p><blockquote class="voice"><p>道路運送事業は国民生活を支える重要なインフラであることから、当社としても、顧客への価格転嫁の重要性を踏まえ、今回の料金改定の実施にあたり、高速道路の持続的な運営や他の利用者との公平性を確保しながら実施可能な措置について具体的な検討を進めてまいりました。 — <a href="https://www.shutoko.co.jp/company/press/2026/data/07/09-public-comment/" target="_blank" rel="noopener noreferrer">首都高速道路株式会社, 2026-07-09</a></p></blockquote><p><strong>据え置きの9か月は、値上げの猶予ではなく価格転嫁の交渉期間として設計されています。</strong> 猶予される側は、その間に荷主へ金額を示さなければなりません。</p><p>同じ2026年10月1日に、日本郵便も基本運賃を改定します。</p><blockquote class="voice"><p>2026年10月1日より、ゆうパックの基本運賃が改定される。平均改定率は約10% — <a href="https://ecnomikata.com/ecnews/eclogistics/51025/" target="_blank" rel="noopener noreferrer">ECのミカタ</a></p></blockquote><p>サイズと届け先で改定率が異なり、2%から最大約40%まで幅があります（<a href="https://www.watch.impress.co.jp/docs/news/2122378.html" target="_blank" rel="noopener noreferrer">Impress Watch</a>）。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-08)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-08)"><title>アイデア候補のポジショニングマップ (2026-09-08)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="470.2" cy="194.7" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="482.2" y="198.7" text-anchor="start" class="qpt-label">1</text><circle cx="470.2" cy="194.7" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: CBAM Restate 総合 16 / 25（Tier 2）" data-tv="Idea 1: CBAM Restate" data-td="総合 16 / 25（Tier 2）"/></g><g><circle cx="373.6" cy="149.3" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="385.6" y="153.3" text-anchor="start" class="qpt-label">2</text><circle cx="373.6" cy="149.3" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Shutoko Shift 総合 17 / 25（Tier 2）" data-tv="Idea 2: Shutoko Shift" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="220.2" cy="228.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="232.2" y="232.8" text-anchor="start" class="qpt-label">3</text><circle cx="220.2" cy="228.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Yubin Delta 総合 15 / 25（Tier 3）" data-tv="Idea 3: Yubin Delta" data-td="総合 15 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: CBAM Restate</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Shutoko Shift</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Yubin Delta</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-cbam-restate-cbam-既定値の旧版と新版を-cn-コード-原産国-生産経路で突き合わせ-自社の2026年輸入明細に当てて内包排出量と費用の差額を出すローカル-cli">アイデア 1: <code>cbam-restate</code> (CBAM 既定値の旧版と新版を CN コード×原産国×生産経路で突き合わせ、自社の2026年輸入明細に当てて内包排出量と費用の差額を出すローカル CLI)</h3><p>入力は2つです。 一つは輸入明細（CN コード、原産国、数量、生産経路）の CSV です。 もう一つは、公式に配られた既定値表の PDF 2つ（施行規則 2025/2621 版と 2026/1740 版）です。</p><p>出力は3種類の行です。</p><p>第一に、<strong>値が変わった行</strong>です。 自社が実際に輸入した CN コード×原産国のうち、既定値が動いたものだけを、旧値・新値・差分とともに出します。</p><p>第二に、<strong>費用の差額</strong>です。 数量と証書価格の四半期平均を掛け、2026年分の CBAM 費用が旧表と新表でいくら変わるかを € で出します。</p><p>第三に、<strong>参照が消えた行</strong>です。 CN コードの訂正や生産経路の削除により、旧表で引いていた値が新表に存在しなくなった行を分けて出します。 これは金額の差ではなく、申告そのものが成立しない行です。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>配布形式が突き合わせを妨げている、という指摘は、CBAM の実務側から出ています。</p><blockquote class="voice"><p>The practical issue: the values were published as a large PDF, not as a structured dataset and not as a tracked changes version. — carboneer, 2026-08-04, <a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">CBAM Default Values 2026</a></p></blockquote><p>訂正が経理上の意味を持つことも、同じ記事が認めています。</p><blockquote class="voice"><p>This is not merely an editorial correction. For importers, the corrected default values can materially change CBAM cost assumptions. — carboneer, 2026-08-04, <a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>そして、変更に気づけない層が名指しされています。</p><blockquote class="voice"><p>Companies that work from the downloadable tables rather than the Official Journal text would have no reason to know their reference data had changed. — <a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Guide, 2026-07-31</a></p></blockquote><p><strong>これは最も価値の高い型のエビデンスです。</strong> 解説側が「気づく手段がない」と書いており、市場の存在と未解決性を同時に証明しています。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは <strong>5. 規制・プラットフォーム変更対応型</strong> と <strong>6. マイクロ DevEx ツール型</strong> の複合です。 規制側の期日が動機を作り、実装は PDF の表抽出と突き合わせという単一工程に収まります。</p><p>Why Now は3点です。 第一に、訂正が公表されたのが2026年7月31日で、施行が8月3日、遡及適用が2026年1月1日です。 第二に、証書の販売開始が2027年2月1日、申告期限が2027年9月30日であり、<strong>再計算の締切は先だが、再計算の対象は既に確定している</strong>という状態が今です。 第三に、欧州委員会が Excel も差分も出さなかったため、突き合わせの工程が誰の職務にも属していません。</p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p><strong>解決済み</strong>: 申告データの管理、サプライヤからの実測値収集、ERP との接続、年次申告書の生成。 SAP は2026年6月に declarant 向けの一気通貫ソリューションを発表しています（<a href="https://news.sap.com/2026/06/sap-introduces-cbam-declarants-solution/" target="_blank" rel="noopener noreferrer">SAP News</a>）。 CarbonChain は工場単位の排出原単位を持ち、価格は6桁ドル規模のエンタープライズ帯です（<a href="https://www.coolset.com/academy/top-cbam-software-tools-7f11d" target="_blank" rel="noopener noreferrer">Coolset</a>）。</p><p><strong>解決していない</strong>: <strong>旧版と新版の既定値表そのものの差分</strong>です。 既存ツールは「最新の既定値を使って計算する」ことは行いますが、「先月まで使っていた既定値と今日の既定値のどこが違い、その差が自社の輸入明細でいくらになるか」は出しません。 差分の対象が製品データではなく法令附属書だからです。</p><p>境界線はここに引けます。 <strong>先客は「正しい値で計算する」を売っており、「値が変わったことを検出する」は誰も売っていません。</strong></p><hr><h3 id="アイデア-2-shutoko-shift-etc-利用明細と公示済みの新旧料金表を突き合わせ-2026年10月・2027年7月・2030年7月の三段階で自社の首都高コストがいくら増えるかを荷主提出用の1枚にするツール">アイデア 2: <code>shutoko-shift</code> (ETC 利用明細と公示済みの新旧料金表を突き合わせ、2026年10月・2027年7月・2030年7月の三段階で自社の首都高コストがいくら増えるかを荷主提出用の1枚にするツール)</h3><p>入力は ETC 利用照会サービスが出力する利用明細の CSV です。 入口 IC、出口 IC、車種、日時が含まれます（<a href="https://www.etc-meisai.jp/" target="_blank" rel="noopener noreferrer">ETC利用照会サービス</a>）。</p><p>出力は時系列の3行です。</p><p>第一に、<strong>2026年10月1日以降の増加額</strong>です。 普通車で走った区間について、現行料金と改定料金の差を実走行の回数分だけ積み上げます。</p><p>第二に、<strong>2027年7月1日に来る第二波</strong>です。 中型車以上は9か月間据え置かれるため、今の明細では増加額がゼロに見えます。 このツールは、据え置き中の走行に改定料金を当てて「据え置きが終わったときの月額」を先に出します。</p><p>第三に、<strong>2030年7月1日以降の割引縮小</strong>です。 大口・多頻度割引の拡充措置は2031年3月31日まで継続しますが、中型車以上は2030年7月1日から拡充率が最大25%へ縮小します（<a href="https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/" target="_blank" rel="noopener noreferrer">首都高速道路株式会社</a>）。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>原価が上がっている実感と、それを運賃へ反映できている割合には大きな差があります。 アセンド株式会社ほか5社が2026年6月9日から6月30日にかけて実施し、198社が回答した調査があります。</p><blockquote class="voice"><p>直近1年で運送原価が5%以上上がったと感じる事業者は89.9%に達し、10%以上と答えた事業者も50.5%を占めた。 — <a href="https://www.projectdesign.jp/articles/news/969018b0-2ffe-42dc-aeff-70f70baea6bb" target="_blank" rel="noopener noreferrer">事業構想オンライン, 2026年8月</a></p></blockquote><blockquote class="voice"><p>その上昇分を運賃へ半分以上反映できた事業者は54社、全体の27.3%にとどまる。 — <a href="https://www.projectdesign.jp/articles/news/969018b0-2ffe-42dc-aeff-70f70baea6bb" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>つまずきの位置も、同じ調査が特定しています。</p><blockquote class="voice"><p>原価を全社的に記録・集計まで進めている事業者は60.1%に達する一方、集めた数字を分析や改善につなげられている事業者は27.3%と、およそ4社に1社にとどまる。数字をためること自体は多くの会社ができており、つまずきはその先の工程にある。 — <a href="https://www.projectdesign.jp/articles/news/969018b0-2ffe-42dc-aeff-70f70baea6bb" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p><strong>記録は6割ができており、活用は3割弱しかできていません。</strong> このツールが埋めるのは、記録と活用の間にある一工程です。</p><p>首都高側も、据え置きを価格転嫁のための措置として位置づけています。</p><blockquote class="voice"><p>道路運送事業は国民生活を支える重要なインフラであることから、当社としても、顧客への価格転嫁の重要性を踏まえ、今回の料金改定の実施にあたり、高速道路の持続的な運営や他の利用者との公平性を確保しながら実施可能な措置について具体的な検討を進めてまいりました。 — <a href="https://www.shutoko.co.jp/company/press/2026/data/07/09-public-comment/" target="_blank" rel="noopener noreferrer">首都高速道路株式会社, 2026-07-09</a></p></blockquote><p>意見募集は「2026年7月9日（木）～7月24日（金）17:00」に行われました（<a href="https://www.shutoko.co.jp/company/press/2026/data/07/09-public-comment/" target="_blank" rel="noopener noreferrer">同上</a>）。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは <strong>5. 規制・プラットフォーム変更対応型</strong> と <strong>4. ワークフロー糊付け・連携型</strong> の複合です。 ETC 利用照会サービスという既存の出力と、公示された料金表という既存の入力の間を繋ぎます。</p><p>Why Now は、期日が3つに割れていることそのものです。 普通車は2026年10月1日に上がり、中型車以上は2027年7月1日に上がり、割引は2030年7月1日に縮みます。 <strong>据え置きの9か月は、金額を示して交渉するために与えられた時間であり、その9か月がいま始まります。</strong></p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲-1">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p><strong>解決済み</strong>: 区間別の新料金表の公示（首都高）、利用明細の CSV 出力（ETC 利用照会サービス）、原価の記録と配車・請求の管理（アセンドのロジックス等の運送管理システム）。</p><p><strong>解決していない</strong>: <strong>自社の実走行明細に新旧料金表を当てた差額</strong>と、<strong>据え置き期間中に第二波の金額を先出しすること</strong>です。 料金表は公示されますが自社の走行には当たっていません。 明細は出力されますが料金改定の前後で比較されません。 運送管理システムは原価を見える化しますが、10台から500台規模の事業者向けの包括製品であり、単一の料金改定の新旧差分に特化してはいません。</p><p>境界線はここに引けます。 <strong>公示された料率と手元の明細は両方とも揃っており、掛け合わせる工程だけが空いています。</strong></p><hr><h3 id="アイデア-3-yubin-delta-出荷実績-csv-に日本郵便の新旧運賃表を当て-2026年10月以降の送料増加額と最小コストの発送方法を出すツール">アイデア 3: <code>yubin-delta</code> (出荷実績 CSV に日本郵便の新旧運賃表を当て、2026年10月以降の送料増加額と最小コストの発送方法を出すツール)</h3><p>入力は EC カートやフリマアプリから出力した出荷実績の CSV です。 サイズ、届け先都道府県、発送方法が含まれていれば足ります。</p><p>出力は増加額と、方法を切り替えた場合の最小額です。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>改定の事実と理由は、日本郵便が公表しています。</p><blockquote class="voice"><p>諸物価や人件費の上昇に伴うコストの増加は、日本郵便の経営にも大きな影響を与えております — <a href="https://ecnomikata.com/ecnews/eclogistics/51025/" target="_blank" rel="noopener noreferrer">ECのミカタ</a></p></blockquote><blockquote class="voice"><p>将来にわたって安定的かつ高品質の物流サービスを展開するため — <a href="https://ecnomikata.com/ecnews/eclogistics/51025/" target="_blank" rel="noopener noreferrer">同上</a></p></blockquote><p>改定率はサイズと距離で大きく割れます。</p><blockquote class="voice"><p>荷物のサイズと配達距離に応じて2％から最大約40％値上げされます — <a href="https://www.watch.impress.co.jp/docs/news/2122378.html" target="_blank" rel="noopener noreferrer">Impress Watch</a></p></blockquote><p><strong>ただし、当事者である EC 事業者の一次発言は見つかりませんでした。</strong> 不満の声ではなく解説記事しか集まらなかったこと自体が、この案の弱さの兆候です。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは <strong>3. 価格破壊・ローカルファースト型</strong> ですが、破壊すべき価格が存在しません。 送料計算はすでに無料で提供されています。</p><h4 id="既存プレイヤーが解決済みの範囲と-解決していない範囲-2">既存プレイヤーが解決済みの範囲と、解決していない範囲</h4><p><strong>解決済み</strong>: サイズと届け先からの料金算出、3社横断の比較、サイズ判定の早見表。 pickgo、hayamihyou.net、forme など、無料の比較ツールが複数存在します。</p><p><strong>解決していない</strong>: 出荷実績 CSV の一括処理のみです。</p><p><strong>境界線が引けません。</strong> 差分は「1件ずつか、まとめてか」だけであり、無料ツールが CSV 取り込みを足せば消えます。 第3節で採点しますが、この案は Tier 3 として落とします。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>cbam-restate</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>shutoko-shift</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>yubin-delta</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">遡及訂正と2027年の申告期限は鋭いが、50トン閾値で輸入者の約9割が義務から外れた</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年10月・2027年7月・2030年7月の三段階、原価上昇実感89.9%に対し転嫁27.3%、対象は首都高圏に限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">2026年10月1日は明確、母数は最大だが課金動機がない</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">突き合わせ自体は平易、大判 PDF 2つからの表抽出と生産経路の対応付けが難所</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">明細の読み取りは平易、入口×出口の全区間網羅と IC 名の表記ゆれ吸収に時間がかかる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">サイズ×地帯の表は小さく、数日で完成する</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">出力は € で確定するが、再計算は年に一度で終わり継続課金の根拠が弱い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">荷主交渉という明確な用途があるが、業界の IT 予算が単価の天井を作る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">送料計算は無料が当たり前の領域で、原価率以前に支払い動機がない</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">法令附属書の版間差分は誰も出していない、ただし委員会が Excel を出せば消える</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">公示料率と手元明細を掛ける工程は空白、運送管理 SaaS が1機能として足せば消える</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">無料比較ツールが密集し、差分は一括処理のみ</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ローカル完結・ネットワーク不要、金額誤りが申告誤りへ直結し責任が重い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ゼロインフラ、料金表の更新は数年に一度、電話文化の業界でサポート負荷が読めない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ゼロインフラで保守は軽い、年次の料金表更新のみ</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">15<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-cbam-restate-16点-tier-2">Idea 1: <code>cbam-restate</code> — 16点 (Tier 2)</h4><ul><li><strong>タイミング 3</strong>: 遡及適用の事実は確定しており、2027年9月30日という申告期限も動きません。<strong>減点材料</strong>: CBAM Omnibus により、年間50トン未満の輸入者は義務から全面的に除外されました。この閾値で輸入者の約90%が対象外となり、残る約10%が排出量の99%を占めます（<a href="https://www.ey.com/en_gl/technical/tax-alerts/eu-adopts-cbam-omnibus-regulation" target="_blank" rel="noopener noreferrer">EY</a>）。<strong>母数の9割が制度側の設計で消えており</strong>、残った買い手は SAP を導入できる規模です。個人開発が届く層ではありません。</li><li><strong>実現可能性 3</strong>: 突き合わせのロジックは単純な結合であり、ネットワークも不要です。<strong>減点材料</strong>: 入力が大判 PDF です。構造化データも tracked changes 版も配られていないため、表抽出の精度がツール全体の正しさを決めます。しかも生産経路（production route）の粒度で行を対応付ける必要があり、旧版と新版で行が増減している以上、単純な行番号での突き合わせは成立しません。2週間で全カテゴリを網羅するのは無理があり、鉄鋼とアルミに絞る前提になります。</li><li><strong>収益性 3</strong>: 出力は € で確定し、既定値はマークアップ込みで高いため、誤差の経済的意味は大きい。<strong>減点材料</strong>: 再計算は年に一度の作業です。2026年分を確認したら、次に必要になるのは次の訂正が出たときであり、継続課金の根拠が立ちません。買い切りで €50〜100 が上限であり、その価格に対して買い手が SAP 契約を持っていることを考えると、決裁を通す理由が弱い。</li><li><strong>競合優位性 4</strong>: 「値が変わったこと」を検出する製品は見つかりませんでした。既存ツールはすべて「最新の値で計算する」側に立っています。境界線は明確です。<strong>減点材料</strong>: この空白は委員会の配布形式に依存しています。委員会が訂正版の Excel と変更点一覧を出した時点で、ツールの存在理由が消えます。制度側の1回の判断で消える種類の優位性であり、5点は付けられません。</li><li><strong>個人開発適性 3</strong>: ローカル完結でインフラ費用はゼロです。<strong>減点材料</strong>: 出力が当局への申告額に直結します。誤った差分は過少申告か過大申告のどちらかを生み、その責任は個人開発者が負える範囲を超えます。加えて、買い手が EU の輸入者であり、日本の個人開発者にとって販路もサポート経路も遠い。</li></ul><h4 id="idea-2-shutoko-shift-17点-tier-2">Idea 2: <code>shutoko-shift</code> — 17点 (Tier 2)</h4><ul><li><strong>タイミング 4</strong>: 期日が3つあり、いずれも公示済みで動きません。生の声が定量です。原価上昇の実感が89.9%、転嫁できた事業者が27.3%という数字は、198社の回答に基づいています。しかも据え置きの9か月は、首都高自身が価格転嫁のための時間として設計しており、<strong>買い手が金額を用意すべき理由が制度側から与えられています</strong>。3案で最も強い軸です。<strong>減点材料</strong>: 対象が首都高を日常的に走る事業者に限られます。全国の運送事業者のうち、この道具が意味を持つのは首都圏の一部です。母数が地理で切られている以上、5点は付けられません。</li><li><strong>実現可能性 3</strong>: 入力は既存の CSV 出力であり、読み取りは平易です。<strong>減点材料</strong>: 首都高の料金は入口 IC と出口 IC の組で決まり、組み合わせが多数あります。公示された料金表の全区間を取り込み、明細に記載された IC 名の表記ゆれを吸収する工程が、実装の大半を占めます。14日で全区間は網羅できず、走行頻度の高い区間から埋める設計になります。</li><li><strong>収益性 3</strong>: 用途が明確です。荷主へ提出する1枚を作るという、金額の使い道が最初から決まっています。<strong>減点材料</strong>: 買い手の IT 予算が単価の天井を作ります。運送業向けツールの相場から見て、月額3,000円級が上限です。さらに、据え置き中の中型車以上は「まだ増えていない」ため、いま支払う動機が弱い。第二波を先出しする機能が、そのまま「今は要らない」という反論を招きます。</li><li><strong>競合優位性 3</strong>: 公示料率と手元明細を掛ける工程は空いています。首都高は料金表を出しますが自社走行には当てず、ETC 利用照会サービスは明細を出しますが改定前後で比較しません。<strong>減点材料</strong>: 運送管理システムが1機能として足せば消えます。ロジックス等は原価の見える化を既に売っており、料金改定への対応は自然な追加機能です。参入障壁が実装難易度ではなく着想の先後にしかありません。</li><li><strong>個人開発適性 4</strong>: ローカル実行でインフラ費用はゼロ、料金表の更新は数年に一度です。保守の固定費が3案で最も軽い。<strong>減点材料</strong>: 買い手の業界がメールより電話で問い合わせる文化であり、サポート負荷が事前に見積もれません。個人が副業で受けられる問い合わせ量を超える可能性があります。</li></ul><h4 id="idea-3-yubin-delta-15点-tier-3">Idea 3: <code>yubin-delta</code> — 15点 (Tier 3)</h4><ul><li><strong>タイミング 3</strong>: 2026年10月1日という期日は明確で、母数は EC 事業者とフリマ出品者という3案で最大の層です。<strong>減点材料</strong>: 期日があっても課金動機がありません。送料の増加は避けられないものであり、金額を知っても打つ手が「発送方法を変える」しかない。しかもその判断は無料ツールで足ります。</li><li><strong>実現可能性 5</strong>: サイズと地帯の料金表は小さく、公表済みです。実装は数日で終わります。3案で唯一、この軸が例外的に軽い。</li><li><strong>収益性 1</strong>: 送料計算は無料が当たり前の領域です。<strong>減点材料</strong>: 支払い意思の問題ではなく、市場に価格が存在しません。個人セラーは課金しませんし、事業者はカートシステムの標準機能で済ませます。</li><li><strong>競合優位性 2</strong>: pickgo、hayamihyou.net、forme といった無料比較ツールが密集しています。<strong>減点材料</strong>: 差別化が「CSV の一括処理」だけであり、既存ツールが1機能足せば消えます。境界線が引けないため、第2節の判定どおり落とします。</li><li><strong>個人開発適性 4</strong>: ゼロインフラで保守は軽く、年次の料金表更新のみです。<strong>減点材料</strong>: 保守は軽いものの、収益がないため保守を続ける理由もありません。</li></ul><p><strong>Idea 3 は Tier 3 に落ちたため、提案から外します。</strong> 第2節に残したのは、「識別子だけで金額が確定する構造は、まさにその一意性ゆえに無料化されている」という型の失敗例として、第6節の分析に使うためです。</p><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="idea-1-が失敗する最大の理由">Idea 1 が失敗する最大の理由</h3><p><strong>欧州委員会が訂正版の構造化データを出すこと</strong>です。</p><p>carboneer は既に、既定値を Excel として配布しています。 委員会が同じことを公式に行い、かつ変更点の一覧を添えれば、このツールの出力は公式配布物と重複します。 訂正から1か月以上が経った時点で出ていないことは事実ですが、次の訂正で方針が変わらない保証はありません。</p><p>対策は、差分の出力を最終成果物にしないことです。 <strong>自社の輸入明細に当てた費用差額を主出力に置きます。</strong> 委員会が配るのは全 CN コードの表であり、自社が実際に輸入した行に絞った金額ではありません。 公式配布物が出ても、突き合わせの工程は残ります。</p><p>次に大きいリスクは、<strong>50トン閾値によって買い手がいないこと</strong>です。 これは対策のしようがない構造上の制約であり、ロードマップの Day 1 で判定します。</p><h3 id="idea-2-が失敗する最大の理由">Idea 2 が失敗する最大の理由</h3><p><strong>据え置き期間中の事業者が、まだ金額を必要としていないこと</strong>です。</p><p>中型車以上は2027年6月30日まで現行料金です。 「9か月後にいくら増えるか」は、9か月後に計算しても間に合うと考える事業者が多数派である可能性があります。 その場合、需要が立ち上がるのは2027年春であり、いま作っても市場がありません。</p><p>対策は、普通車の増加額を先に出すことです。 普通車は2026年10月1日から実際に増えるため、10月分の明細が出た時点で数字が動きます。 <strong>中型車以上を待つのではなく、普通車の実績で信頼を得てから第二波の予測を売ります。</strong></p><p>二番目のリスクは、<strong>荷主が数字を見ても交渉に応じないこと</strong>です。 調査が示すのは「原価を集計している事業者は6割いるが、活用できているのは3割弱」という状態であり、集計と活用の間には金額以外の壁がある可能性があります。 その壁が金額の不在ではなく交渉力の不在であるなら、道具は無力です。 これも Day 1 で判定します。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>対象は <code>shutoko-shift</code> です。 総合点は Idea 1 と1点差ですが、買い手への到達経路が国内にあり、Day 1 の検証を実際に実行できるためです。</p><div class="tw"><table><thead><tr><th>Day</th><th>内容</th><th>完了条件</th></tr></thead><tbody><tr><td class="tk">1</td><td><strong>前提の事前検証</strong>。首都高を日常的に走る運送事業者を3社見つけ、次の2点だけを聞く。①10月からの増加額を既に計算しているか。②荷主交渉で止まっているのは金額の不在か、それ以外か。実装は一切しない。</td><td>3社から回答が得られ、①が「計算していない」かつ②が「金額の不在」である社が2社以上あること。1社以下なら<strong>この案を破棄し、Idea 1 の Day 1 検証へ切り替える</strong>。</td></tr><tr><td class="tk">2</td><td>検証結果の反映。②の答えが「交渉力の不在」に寄っていた場合、出力を金額表から「荷主提出用の説明文書」へ設計変更する。</td><td>主出力の形が1つに決まっている。</td></tr><tr><td class="tk">3-4</td><td>ETC 利用明細 CSV の取り込み。入口 IC、出口 IC、車種、日時を読み、走行回数を区間ごとに集計する。</td><td>実際の明細1か月分が区間別に集計される。</td></tr><tr><td class="tk">5-6</td><td>料金表の取り込み。公示された新旧の区間別料金を、走行頻度の高い上位区間から順に埋める。全区間は狙わない。</td><td>集計された走行の8割以上が料金表と突き合わせできる。</td></tr><tr><td class="tk">7</td><td><strong>主出力の実装</strong>。2026年10月以降の月額増加額を、区間別の内訳とともに出す。</td><td>Day 1 の1社の実データで金額が出る。</td></tr><tr><td class="tk">8-9</td><td><strong>第二波の先出し</strong>。中型車以上の据え置き中の走行に改定料金を当て、2027年7月1日以降の月額を出す。据え置きによる猶予額も併記する。</td><td>据え置き中の車両について「いまゼロ、7月から月◯円」が1枚に並ぶ。</td></tr><tr><td class="tk">10</td><td>2030年7月1日の割引縮小の反映。大口・多頻度割引の拡充率が最大45%から最大25%へ縮む影響を、同じ表の3列目に置く。</td><td>三段階が1枚の表に収まっている。</td></tr><tr><td class="tk">11</td><td><strong>Day 1 の3社で再検証</strong>。出力を見せ、荷主へ出せる形になっているかを聞く。</td><td>3社中2社が「このまま荷主へ出せる」と答えること。</td></tr><tr><td class="tk">12-13</td><td>指摘の反映。出せないと言われた理由を1点に絞って直す。</td><td>修正が1点に限定されている。</td></tr><tr><td class="tk">14</td><td>公開。README に「運送管理システムが同じ計算を標準搭載したら、本ツールの価値は消える」と明記する。</td><td>反証条件が公開物に書かれている。</td></tr></tbody></table></div><p>Day 1 は実装ではありません。 交渉の障害が金額の不在でないなら、金額を出す道具は無意味です。 仮説の生死を14日のうち1日で判定し、駄目なら残り13日を使わない設計です。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><ul><li><strong>最優先で検証すべき候補</strong>: <code>shutoko-shift</code> (総合17点、Tier 2)。3案で唯一、金額の使い道（荷主への提出）が最初から決まっており、その用途を制度側（首都高の据え置き措置）が明示的に用意しています。着手は Day 1 の結果を見てから判断すべきであり、交渉の障害が金額の不在でなければ全体を破棄します。</li></ul><ul><li><strong>次点</strong>: <code>cbam-restate</code> (総合16点、Tier 2)。境界線は3案で最も明確ですが、50トン閾値で母数の約9割が制度側の設計で消えており、残った買い手は個人開発の販路の外にあります。着手するなら、EU の輸入者を1社確保してからにすべきです。</li></ul><ul><li><strong>今回却下した候補と理由</strong>:<ul><li><strong>英国 pEPR の RAM 判定による料率露出</strong>: 2026年度から包装 EPR の料率が RAM 判定（赤／黄／緑）で変動し、データ欠損は自動的に赤判定となって最大料率が適用されます。識別子（素材・重量・判定）で金額が確定する構造そのものであり、緑と赤の差は1万トン規模で £1.3m に達します（<a href="https://clarity.eco/news/y2-illustrative-epr-base-fees-for-2026-announced-by-packuk/" target="_blank" rel="noopener noreferrer">Clarity</a>）。しかし Ecosurety、Clarity、Valpak、Remedy といったコンプライアンススキームが密集しており、料率の適用は彼らの本業です。境界線が引けず、軸4を2点として却下しました。</li><li><strong>電気の託送料金改定（2026年11月1日）に伴う電力コストの差額試算</strong>: 一般送配電事業者8社が2026年7月10日に収入見通しの変更承認申請を提出し、東京電力パワーグリッドは2026年11月1日の適用を予定しています。しかし審査中で認可されておらず、<strong>金額も適用日も確定していません</strong>。公示された料率という前提を満たさないため、今回の探索軸の対象外として却下しました。</li><li><strong>日本郵便の運賃改定（2026年10月1日）</strong>: 第2節・第3節に残したとおり、Tier 3 として落としました。詳細は第3節の配点理由を参照してください。</li><li><strong>EU261 の航空遅延補償</strong>: 法定の補償額（€250 / €400 / €600）が便名という識別子1つで確定する、探索軸の理想形です。しかし2026年6月15日の暫定合意で補償額も3時間の閾値も据え置かれ、新規則の発効は2027年後半です。変曲点が存在せず、かつ AirHelp 等の請求代行が成功報酬モデルで市場を占めているため却下しました。</li><li><strong>米国 HTS 分類誤りによる過払い関税の還付</strong>: 識別子（HTS コード＋原産国）で税率が確定し、還付の金額も大きい。しかし還付には CBP Form 19 の提出と通関実務の知識が必要であり、道具ではなく代行業の領域です。個人開発の範囲を超えるため却下しました。</li></ul></li></ul><ul><li><strong>14回連続で Tier 1 に到達していません。</strong> 今回の探索軸の結果を整理します。 <strong>軸2（実現可能性）の平均は3.67点、軸5（個人開発適性）の平均は3.67点であり、いずれも前回（3.67点・3.67点）と同水準を維持しました。</strong> 入力を識別子まで縮める条件は、今回も満たせています。 そして<strong>軸3（収益性）の平均は2.33点へ落ちました。</strong> 前回の2.67点からさらに0.34点の低下です。狙いは軸3の回復でしたが、結果は逆でした。 原因は、Idea 3 の失敗が明確に示しています。<strong>識別子だけで金額が一意に決まるということは、その計算が誰にでもできるということです。</strong> 送料は、サイズと届け先だけで金額が確定する最も純粋な例であり、だからこそ無料の計算機が何個も存在します。計算の一意性は、参入の容易さと同義でした。 ここまでの5回で見えたものを言い直します。<strong>金額が価値を持つのは、金額の算出が難しいときではありません。その金額を誰かに突きつける必要があるときです。</strong> 3案のうち軸3が相対的に高かった2案は、いずれも金額の宛先が決まっていました。Idea 1 は当局への申告額であり、Idea 2 は荷主への提出額です。宛先のない Idea 3 だけが1点でした。 次回の探索軸は、この観察を条件として直接使います。<strong>成果物が金額そのものではなく、その金額を第三者へ突きつける文書（申告書、交渉資料、異議申立て、証明書）である</strong>構造を探します。相手が存在し、その相手に対して期限までに何かを出さなければならない位置です。計算の難易度ではなく、<strong>提出先と提出期限の有無</strong>が、軸3を立てられるかの分かれ目になります。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/" target="_blank" rel="noopener noreferrer">CBAM Default Values Corrected: IR 2026/1740 Retroactive to Jan 1（CBAM Guide 2026-07-31 / 更新 2026-08-05）</a><span class="u">https://cbamguide.com/news/2026-07-31-cbam-default-values-correction-ir-2026-1740/</span></li><li><a href="https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/" target="_blank" rel="noopener noreferrer">CBAM Default Values 2026: Download Excel File（carboneer 2026-08-04・PDF 配布と機械可読性の問題）</a><span class="u">https://carboneer.earth/en/2026/08/cbam-default-values-2026-excel/</span></li><li><a href="https://www.vatupdate.com/2026/08/14/corrected-cbam-default-values-published-for-the-definitive-period-importers-should-reassess-their-cbam-exposure/" target="_blank" rel="noopener noreferrer">Corrected CBAM Default Values Published for the Definitive Period: Importers Should Reassess Their CBAM Exposure（VATupdate 2026-08-14）</a><span class="u">https://www.vatupdate.com/2026/08/14/corrected-cbam-default-values-published-for-the-definitive-period-importers-should-reassess-their-cbam-exposure/</span></li><li><a href="https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism/cbam-definitive-regime_en" target="_blank" rel="noopener noreferrer">CBAM definitive regime（European Commission・確定期間の証書価格と申告期日）</a><span class="u">https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism/cbam-definitive-regime_en</span></li><li><a href="https://www.ey.com/en_gl/technical/tax-alerts/eu-adopts-cbam-omnibus-regulation" target="_blank" rel="noopener noreferrer">EU adopts CBAM Omnibus Regulation（EY・年間50トンの適用除外閾値）</a><span class="u">https://www.ey.com/en_gl/technical/tax-alerts/eu-adopts-cbam-omnibus-regulation</span></li><li><a href="https://news.sap.com/2026/06/sap-introduces-cbam-declarants-solution/" target="_blank" rel="noopener noreferrer">SAP Introduces End-to-End CBAM Declarants Solution（SAP News 2026-06）</a><span class="u">https://news.sap.com/2026/06/sap-introduces-cbam-declarants-solution/</span></li><li><a href="https://www.coolset.com/academy/top-cbam-software-tools-7f11d" target="_blank" rel="noopener noreferrer">Top CBAM software tools for 2026（Coolset・CarbonChain のエンタープライズ価格帯）</a><span class="u">https://www.coolset.com/academy/top-cbam-software-tools-7f11d</span></li><li><a href="https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/" target="_blank" rel="noopener noreferrer">2026年10月1日から首都高速道路の料金が変わります（首都高速道路株式会社 2026-07-31）</a><span class="u">https://www.shutoko.co.jp/company/press/2026/data/07/31-toll/</span></li><li><a href="https://www.shutoko.co.jp/company/press/2026/data/07/09-public-comment/" target="_blank" rel="noopener noreferrer">「道路運送事業（中型車以上）における価格転嫁に向けた環境整備に伴う当面の特別措置案」に関する意見募集について（首都高速道路株式会社 2026-07-09）</a><span class="u">https://www.shutoko.co.jp/company/press/2026/data/07/09-public-comment/</span></li><li><a href="https://www.projectdesign.jp/articles/news/969018b0-2ffe-42dc-aeff-70f70baea6bb" target="_blank" rel="noopener noreferrer">運送原価の上昇実感9割、転嫁は3割弱（事業構想オンライン 2026年8月・198社調査）</a><span class="u">https://www.projectdesign.jp/articles/news/969018b0-2ffe-42dc-aeff-70f70baea6bb</span></li><li><a href="https://www.etc-meisai.jp/" target="_blank" rel="noopener noreferrer">ETC利用照会サービス（利用明細の CSV / PDF 出力）</a><span class="u">https://www.etc-meisai.jp/</span></li><li><a href="https://ecnomikata.com/ecnews/eclogistics/51025/" target="_blank" rel="noopener noreferrer">日本郵便、2026年10月1日より「ゆうパック」「ゆうパケット」などの基本運賃を改定（ECのミカタ）</a><span class="u">https://ecnomikata.com/ecnews/eclogistics/51025/</span></li><li><a href="https://www.watch.impress.co.jp/docs/news/2122378.html" target="_blank" rel="noopener noreferrer">ゆうパック、平均10％値上げ 10月から（Impress Watch）</a><span class="u">https://www.watch.impress.co.jp/docs/news/2122378.html</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-08_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
