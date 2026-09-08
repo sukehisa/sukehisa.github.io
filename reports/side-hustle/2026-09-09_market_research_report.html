@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「成果物が第三者へ提出する文書である」構造を探索軸に置き、その文書に載る数値の定義が提出者にも受取人にも知らされずに変わった3案を5軸評価した結果">
+<title>2026-09-09: 提出した数値の単位が書き換わった — YouTube 視聴回数の二分割・収益化閾値の倍増・計測定義の同時改定における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-09</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / youtube / creator-economy / measurement</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-09">市場リサーチ &amp; 5軸評価レポート (2026-09-09)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">view-asof</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 10 件（うち一次ソース 10 件）</div></div><div class="fig">16<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">view-asof</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">metric-asof</div><div class="val">15<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">ypp-runway</div><div class="val">12<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="1 / 5 点" aria-label="3. 収益性 / 課金モデル 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-08）の終わりに、次の探索軸を宣言しました。 <strong>成果物が金額そのものではなく、その金額を第三者へ突きつける文書（申告書、交渉資料、異議申立て、証明書）である</strong>構造です。 提出先と提出期限があることを、軸3（収益性）を立てるための条件として挙げました。</p><p>結論を先に書きます。 <strong>探索軸は正しい方向を向いていましたが、条件としては不完全でした。</strong> 提出先と提出期限を満たす構造は今回3つ見つかりました。 しかし3案とも軸3は伸びず、最高でも16点にとどまりました。 理由は第6節で展開しますが、欠けていた条件を先に置きます。 <strong>提出先が存在するだけでは足りず、その提出先が文書を検証して突き返せなければならない。</strong> 受取人に検証手段がない文書は、正確に書いても報われません。</p><p>今回の3つの変曲点に共通するのは、<strong>提出する文書に載る数値の「定義」が、提出者にも受取人にも知らされないまま書き換わった</strong>という点です。 数値が変わったのではありません。数値の意味が変わりました。 そして書き換わった事実は、文書の上には現れません。</p><h3 id="変曲点-1-2026年8月24日-youtube-は視聴回数を2つに分割した">変曲点 1: 2026年8月24日、YouTube は視聴回数を2つに分割した</h3><p>Tubefilter は改定の内容をこう書いています。</p><blockquote class="voice"><p>"Beginning on 8/24/2026, a view will be counted the moment a video begins to play—from the very frame." （<a href="https://www.tubefilter.com/2026/08/18/youtubes-now-counting-public-views-from-the-first-frame-hoping-inflated-numbers-will-help-creators-negotiate-brand-deals/amp/" target="_blank" rel="noopener noreferrer">Tubefilter</a>）</p></blockquote><p>再生が始まった瞬間に1回と数える方式へ変わりました。 最低視聴秒数の要件が消えたため、公開視聴回数は一斉に増えます。 Shorts では改定直後に総視聴回数が20〜30%上昇し、その水準が定着したと報告されています（<a href="https://gyre.pro/blog/youtube-shorts-view-count-update-impact-strategy-what-to-do-next" target="_blank" rel="noopener noreferrer">Gyre</a>）。</p><p>重要なのは、<strong>従来の数え方が消えたのではなく、非公開の側へ移った</strong>という点です。</p><blockquote class="voice"><p>"This change affects public view counts, not the view counts creators see in YouTube Studio. Going into your Analytics tab will show a different number called 'Engaged views.'" （<a href="https://www.tubefilter.com/2026/08/18/youtubes-now-counting-public-views-from-the-first-frame-hoping-inflated-numbers-will-help-creators-negotiate-brand-deals/amp/" target="_blank" rel="noopener noreferrer">Tubefilter</a>）</p></blockquote><p>YouTube Analytics API の仕様書は、この指標を次のように定義しています。</p><blockquote class="voice"><p>"engagedViews: The number of times the channel's videos have been viewed past the first frame, or the user clicks/taps to play." （<a href="https://developers.google.com/youtube/analytics/metrics" target="_blank" rel="noopener noreferrer">Google for Developers</a>）</p></blockquote><p>つまり2026年8月24日を境に、同じ「視聴回数」という言葉が2つの数を指すようになりました。 <strong>公開された数（誰でも見える、水増しされた側）と、Analytics の数（チャンネル所有者しか見えない、従来どおりの側）です。</strong> そして収益と収益化資格は、後者に紐づいたままです。</p><p>YouTube 自身は、この分割の狙いをブランド案件の交渉に置いています。</p><blockquote class="voice"><p>YouTube hopes "that having metric parity across all formats gives creators a clearer picture of their overall exposure and makes it easier to confidently express their true scale and value to brand partners and sponsors!" （<a href="https://www.tubefilter.com/2026/08/18/youtubes-now-counting-public-views-from-the-first-frame-hoping-inflated-numbers-will-help-creators-negotiate-brand-deals/amp/" target="_blank" rel="noopener noreferrer">Tubefilter</a>）</p></blockquote><p>プラットフォームが、<strong>大きく見える数字を交渉材料として使ってほしい</strong>と明言しています。 Forbes はこの状況を「マーケターに1つではなく2つの数字を手渡した」と表現しました（<a href="https://www.forbes.com/sites/gabrielalinzainescu/2026/08/17/youtube-changes-how-it-counts-views-handing-marketers-two-numbers-instead-of-one/" target="_blank" rel="noopener noreferrer">Forbes</a>）。</p><h3 id="変曲点-2-過去のデータは-誰も揃え直さないと決まった">変曲点 2: 過去のデータは、誰も揃え直さないと決まった</h3><p>ここが今回の中心です。 分析ベンダー Emplifi は、改定への対応方針を製品ドキュメントで公表しています。</p><blockquote class="voice"><p>"YouTube has not announced a historical restatement of pre-change view counts in the data Emplifi ingests." "Emplifi does not blend or normalize pre- and post-change counts." "Comparisons that cross August 24, 2026 mix two different definitions. Note the date on charts or compare periods on the same side of the change." （<a href="https://docs.emplifi.io/platform/latest/home/youtube-metric-update-august-2026" target="_blank" rel="noopener noreferrer">Emplifi Documentation Center</a>）</p></blockquote><p>商用の分析ベンダーが、顧客に対して次の3点を明示しました。 第一に、YouTube は過去分を再計算しない。 第二に、自社も新旧を混ぜたり正規化したりしない。 第三に、8月24日をまたぐ比較は定義の異なる2つを混ぜたものであり、<strong>利用者の側で日付に注意するか、境界の片側だけで比較せよ</strong>。</p><p>これは「既存プレイヤーが解決していない範囲」を当事者自身が認めた記述です。 しかも回避策として提示されているのが、自動化ではなく<strong>人間の注意</strong>です。</p><p>境界が過去の記録に残る以上、この歪みは時間で解消しません。 2027年に前年同期比を作る担当者は、旧定義の2025年と、8月24日で継ぎ目のある2026年と、新定義の2027年を並べることになります。</p><h3 id="変曲点-3-同じ四半期に-収益化の閾値も倍になった">変曲点 3: 同じ四半期に、収益化の閾値も倍になった</h3><p>2026年8月10日、YouTube は収益化プログラムの参加要件を引き上げました（<a href="https://techcrunch.com/2026/08/10/youtube-now-requires-creators-to-have-twice-as-many-watch-hours-to-start-earning-money/" target="_blank" rel="noopener noreferrer">TechCrunch</a>）。 公式ブログの記載は次のとおりです。</p><blockquote class="voice"><p>"New creators applying for YPP will need 8,000 qualified watch hours in the last 365 days, or 20 million qualified Shorts views in the last 90 days." "Creators can review and sign the new terms within YouTube Studio which will take effect on February 1, 2027." （<a href="https://blog.youtube/news-and-events/youtube-partner-program-updates-2027-new-opportunities-earn/" target="_blank" rel="noopener noreferrer">YouTube 公式ブログ</a>）</p></blockquote><p>この閾値に使われる qualified watch hours は、Studio の総再生時間とは別物です。 ppc.land が整理した除外条件は、Shorts フィードでの視聴時間、非公開動画、限定公開動画、削除済み動画、広告キャンペーン経由の視聴、限定公開・削除済み・未変換のライブ配信です。</p><blockquote class="voice"><p>"A channel generating 2,000 watch hours from long-form videos and 5 million Shorts views would fail to meet either threshold independently, despite substantial viewership across both formats." （<a href="https://ppc.land/youtube-clarifies-partner-program-eligibility-metrics-for-watch-hours/" target="_blank" rel="noopener noreferrer">ppc.land</a>）</p></blockquote><p>長尺と Shorts の2経路は合算されません。 両方で相当量を稼いでいても、どちらの閾値も単独では満たさない状態が起こります。</p><p>そして<strong>進捗を見る手段が用意されていません。</strong> Studio の Earn 欄で「Get notified」を選ぶと、閾値を満たした時点で通知が届きます。 つまり資格の判定は、満たした後にしか知らされない二値の通知です。 残りいくらか、いつ届くか、先月より近づいたのかは、公式には出てきません。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-09)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-09)"><title>アイデア候補のポジショニングマップ (2026-09-09)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="288.4" cy="166.3" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="300.4" y="170.3" text-anchor="start" class="qpt-label">1</text><circle cx="288.4" cy="166.3" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: View Asof 総合 16 / 25（Tier 2）" data-tv="Idea 1: View Asof" data-td="総合 16 / 25（Tier 2）"/></g><g><circle cx="356.6" cy="206.1" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="368.6" y="210.1" text-anchor="start" class="qpt-label">2</text><circle cx="356.6" cy="206.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Metric Asof 総合 15 / 25（Tier 3）" data-tv="Idea 2: Metric Asof" data-td="総合 15 / 25（Tier 3）"/></g><g><circle cx="231.6" cy="251.5" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="243.6" y="255.5" text-anchor="start" class="qpt-label">3</text><circle cx="231.6" cy="251.5" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: YPP Runway 総合 12 / 25（Tier 3）" data-tv="Idea 3: YPP Runway" data-td="総合 12 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: View Asof</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Metric Asof</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: YPP Runway</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-view-asof-自チャンネルの実績を8月24日の境界をまたいで単一の定義へ揃え直し-スポンサーへ提出するレートカードと実績報告を1つの単位で書けるようにするローカル-cli">アイデア 1: <code>view-asof</code> (自チャンネルの実績を8月24日の境界をまたいで単一の定義へ揃え直し、スポンサーへ提出するレートカードと実績報告を1つの単位で書けるようにするローカル CLI)</h3><p>YouTube Analytics API のチャンネル所有者認可を使い、動画ごと・日ごとに <code>views</code> と <code>engagedViews</code> の両方を取得します。 出力は、任意の期間についての両指標、チャンネル固有の乖離率、そして8月24日をまたぐ期間には定義混在の警告を付けた1枚です。</p><p>対象は、スポンサー案件を持つクリエイターと、少数チャンネルを預かる小規模エージェンシーです。</p><p><strong>検知した生の声</strong></p><p>メディアキットの書き方を扱った記事は、水増しされた数字を単独で出す危うさをこう書いています。</p><blockquote class="voice"><p>"Because an immediate start can enter the public count, quoting that total alone can make the pitch appear stronger without proving that viewers remained." （<a href="https://quasa.io/insights/fix-your-youtube-media-kit-before-public-views-inflate-the-pitch" target="_blank" rel="noopener noreferrer">quasa.io</a>）</p></blockquote><p>そして契約実務への指示は明確です。</p><blockquote class="voice"><p>"Define which view governs performance and require engaged views in reporting instead of relying only on the public number. Apply that distinction before a deal is signed." （<a href="https://quasa.io/insights/fix-your-youtube-media-kit-before-public-views-inflate-the-pitch" target="_blank" rel="noopener noreferrer">quasa.io</a>）</p></blockquote><p>「どちらの視聴回数が成果を規定するのかを定義せよ」という助言が、契約締結前の作業として提示されています。 逆に言えば、<strong>いま流通している契約書の多くはそれを定義していません。</strong></p><p><strong>パターン判定 &amp; Why Now</strong></p><p><code>market-analysis-patterns.md</code> の「規制・プラットフォーム変更対応型」と「ワークフロー糊付け型」の複合です。 Why Now は日付で説明できます。 2026年8月24日以前に作られたレートカードは旧定義の視聴回数で書かれており、いま提示される案件は新定義の視聴回数で語られます。 同じチャンネルの同じ実力が、境界の前後で異なる大きさに見えます。</p><p><strong>既存プレイヤーが解決済みの範囲と、解決していない範囲の境界線</strong></p><p>解決済みは「新しい数を出すこと」です。Studio も API も <code>engagedViews</code> を返します。 未解決は「過去の記録を揃え直すこと」であり、Emplifi は自社ではやらないと明言しました。</p><p>ただし、この境界線は3案で最も脆いものです。 揃え直しの正解が「<code>engagedViews</code> を使え」という一言で言い表せてしまうためです。</p><h3 id="アイデア-2-metric-asof-指標の定義改定を日付つきの台帳として持ち-エクスポートした数値に定義バージョンを刻印して-改定日をまたぐ比較を機械的に検出する検査">アイデア 2: <code>metric-asof</code> (指標の定義改定を日付つきの台帳として持ち、エクスポートした数値に定義バージョンを刻印して、改定日をまたぐ比較を機械的に検出する検査)</h3><p>対象は、クライアントへ月次レポートを提出する小規模ソーシャルエージェンシーです。 入力は各プラットフォームからのエクスポート CSV、出力は各数値への定義バージョンの付与と、改定日をまたぐ集計・比較への警告です。</p><p><strong>検知した生の声</strong></p><p>Emplifi の記述が、そのまま需要の記述になっています。</p><blockquote class="voice"><p>"Comparisons that cross August 24, 2026 mix two different definitions. Note the date on charts or compare periods on the same side of the change." （<a href="https://docs.emplifi.io/platform/latest/home/youtube-metric-update-august-2026" target="_blank" rel="noopener noreferrer">Emplifi Documentation Center</a>）</p></blockquote><p>そして改定は YouTube だけではありません。 Meta は Engagement 指標を Interactions へ置き換え、クリックを集計対象から外しました（<a href="https://www.socialpilot.co/blog/social-media-updates" target="_blank" rel="noopener noreferrer">SocialPilot</a>）。 同じ四半期に、複数のプラットフォームが別々の日付で指標の意味を変えています。</p><p><strong>パターン判定 &amp; Why Now</strong></p><p>「規制・プラットフォーム変更対応型」です。 Why Now は、改定が同時多発したことと、ベンダーが正規化を明示的に放棄したことの2点にあります。</p><p><strong>既存プレイヤーが解決済みの範囲と、解決していない範囲の境界線</strong></p><p>解決済みは「改定後の正しい数を配ること」です。 未解決は「いつ定義が変わったかを、数値そのものに紐づけて持ち回ること」です。 横断的な定義改定の履歴を製品として維持している事業者は、今回の探索では見つかりませんでした。</p><h3 id="アイデア-3-ypp-runway-収益化資格の対象となる再生時間を除外条件込みで再構成し-365日の移動窓からいつ何時間が抜け落ちるかを示して-2027年2月1日までの到達可否を判定する検査">アイデア 3: <code>ypp-runway</code> (収益化資格の対象となる再生時間を除外条件込みで再構成し、365日の移動窓からいつ何時間が抜け落ちるかを示して、2027年2月1日までの到達可否を判定する検査)</h3><p>対象は、収益化の閾値に近づいているクリエイターです。 出力は、現時点の推定 qualified watch hours、移動窓から今後3か月に脱落する時間数、そして倍増後の8,000時間に対する到達予測です。</p><p><strong>検知した生の声</strong></p><p>除外条件の複雑さは、YouTube 自身が補足説明を出さねばならない程度には知られていません。</p><blockquote class="voice"><p>"A channel generating 2,000 watch hours from long-form videos and 5 million Shorts views would fail to meet either threshold independently, despite substantial viewership across both formats." （<a href="https://ppc.land/youtube-clarifies-partner-program-eligibility-metrics-for-watch-hours/" target="_blank" rel="noopener noreferrer">ppc.land</a>）</p></blockquote><p><strong>パターン判定 &amp; Why Now</strong></p><p>「規制・プラットフォーム変更対応型」ですが、Why Now は3案で最も弱いものです。 2027年2月1日という期日はありますが、その日に何かが失われるわけではなく、新規申請者の要件が上がるだけです。</p><p><strong>既存プレイヤーが解決済みの範囲と、解決していない範囲の境界線</strong></p><p>境界線が引けませんでした。 vidIQ と TubeBuddy は収益化進捗の可視化を無料枠の集客機能として提供しており、そこへ移動窓の脱落予測を足すのは自然な拡張です。 加えて、進捗バーを出す最も自然な立場は YouTube 自身であり、出さない理由は技術的なものではありません。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>view-asof</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>metric-asof</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>ypp-runway</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年8月24日という確定日、公開値の20〜30%上昇、ベンダーが正規化を公に放棄。ただし痛みが表面化するのは次の交渉時で需要が分散する</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">同一四半期に YouTube・Meta・TikTok が別日付で定義を改定、境界は記録に恒久的に残る。ただし強制期日がなく慢性的な痛み</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">2027年2月1日は明確で母数も大きいが、対象が収益化前のクリエイターに限られる</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">engagedViews は API の core metric、2指標の取得と境界判定のみ。OAuth 審査と各自の GCP プロジェクト作成が導入の崖</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">エンジンは平易だが価値の実体は台帳であり、14日では数プラットフォームしか埋まらない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">qualified watch hours は API に無く、除外条件を解説文から再現した近似値にしかならない</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">案件を持つクリエイターは支払えるが、レートカードの書き直しは一度で終わる。買い切り $30〜40 が天井</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">エージェンシーはレポーティングに支払うが、これは道具ではなく道具の1機能。月$10〜20の add-on 相当</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">収益化前のクリエイターは定義上収入がなく、同種機能は競合が無料で配っている</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">「engagedViews を使え」で言い表せてしまい、Studio の詳細モードで無料で見られる。境界の実体は能力差ではなく注意の差</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">横断的な定義改定台帳を製品化した事業者は不在。ただし台帳は公開情報の再構成であり誰でも複製できる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">vidIQ・TubeBuddy と正面衝突し、YouTube 自身がいつ出しても不思議でない</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行でインフラ費用ゼロ、境界日は固定。Google の API 規約とスコープ方針に生殺与奪を握られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">台帳が全プラットフォームの変更履歴の継続監視を要求し、開発者の注意を恒久的に拘束する。見落とせば汚れた比較を「正常」と誤認証する</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">同じ OAuth 負荷に加え、予測が外れた際の問い合わせ対応が重い</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">15<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td><td><span class="tot">12<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-view-asof-16-25-tier-2-hold">Idea 1: <code>view-asof</code> — 16 / 25 (Tier 2: HOLD)</h4><ul><li><strong>タイミング 4</strong>: 変曲点が日付で確定しています。2026年8月24日という単一の境界があり、影響の大きさも定量化されています。Shorts の公開視聴回数は20〜30%上昇して定着しました。そして商用ベンダーが「自社では揃え直さない」と公表しており、空白の存在が推測ではなく記述で裏付けられています。<strong>減点材料</strong>: 痛みが表面化するタイミングが分散します。境界を意識せざるを得なくなるのは次にレートカードを出すときか、次に実績報告を書くときであり、クリエイターごとにばらばらです。全員が同じ週に必要とする構造ではないため、5点は付けられません。</li><li><strong>実現可能性 4</strong>: <code>engagedViews</code> は YouTube Analytics API の core metric として仕様書に定義されており、取得は2指標の並列クエリで済みます。境界判定は日付比較です。実装量そのものは3案で最も軽い。<strong>減点材料</strong>: 導入経路に崖があります。Google の OAuth は対象スコープが機微であるため、ローカル CLI として配る場合は利用者ごとに GCP プロジェクトと OAuth クライアントの作成を求めることになります。この工程を非エンジニアのクリエイターに踏ませるのは現実的ではなく、ホスト型にすれば今度はインフラと責任が発生します。ここが実装ではなく配布の難所です。</li><li><strong>収益性 2</strong>: 案件を持つクリエイターには収入があり、支払い能力そのものは存在します。<strong>減点材料</strong>: 対処が一度で終わります。レートカードを新しい単位で書き直せば、その後は <code>engagedViews</code> を見続けるだけであり、道具を再度起動する理由がありません。継続課金の根拠が立たず、買い切りでも $30〜40 が上限です。加えて、この作業を最も必要とする層はスポンサー案件を回している上位層であり、彼らには既にマネージャーや代理店が付いています。支払い能力のある層ほど、自分で道具を買う必要が薄い。</li><li><strong>競合優位性 2</strong>: <strong>減点材料</strong>: 境界線が引けているとは言い難い。未解決の範囲は実在しますが、その解決策が「Studio の詳細モードで <code>engagedViews</code> を見る」という無料の一手で言い表せてしまいます。道具が足しているのは、履歴の一括処理と境界の自動警告だけです。vidIQ や Emplifi が境界フラグを1スプリントで足せば消えます。参入障壁が実装難易度ではなく着想の先後にしかない点は、前回の <code>shutoko-shift</code> と同じ構図です。</li><li><strong>個人開発適性 4</strong>: ローカル実行でインフラ費用はゼロ、境界日は2026年8月24日で固定され、料率表のような定期更新もありません。保守の固定費は3案で最も軽い。<strong>減点材料</strong>: Google の API 規約とスコープ方針に依存します。YouTube Analytics のスコープ運用が変われば即死します。プラットフォーム非依存とは正反対の位置にあり、5点は付けられません。</li></ul><h4 id="idea-2-metric-asof-15-25-tier-3-drop">Idea 2: <code>metric-asof</code> — 15 / 25 (Tier 3: DROP)</h4><ul><li><strong>タイミング 4</strong>: 同一四半期に複数プラットフォームが別々の日付で指標の意味を変えました。しかも8月24日の継ぎ目は過去の記録に恒久的に残るため、この歪みは時間で解消しません。2027年以降の前年同期比は、定義の異なる区間を並べ続けることになります。<strong>減点材料</strong>: 強制する期日がありません。エージェンシーは10年以上、指標改定を脚注で処理してきました。慢性的な不便であって急性の痛みではなく、予算が動く瞬間が特定できません。</li><li><strong>実現可能性 3</strong>: エンジン部分は日付つき台帳と区間の重なり判定であり、数日で書けます。<strong>減点材料</strong>: 価値の実体はコードではなく台帳です。14日で埋められるのは主要数プラットフォームの直近改定に限られ、部分的な網羅はかえって有害です。網羅していない改定を「問題なし」と表示してしまうためで、道具の性質上、カバー率の低さは機能の欠落ではなく誤答になります。</li><li><strong>収益性 3</strong>: エージェンシーはレポーティング関連に支払う習慣があり、月額課金の土壌はあります。<strong>減点材料</strong>: これは道具ではなく道具の1機能です。買い手が本当に望んでいるのは、いま使っている分析ベンダーが定義境界を面倒見てくれることであり、それはまさに Emplifi が明示的に断ったことです。断られた顧客が独立した第2の道具を導入するかは別問題で、多くは脚注で済ませます。単体製品としての天井は月$10〜20の add-on 相当です。</li><li><strong>競合優位性 3</strong>: 横断的な定義改定履歴を製品として維持している事業者は、今回の探索では見つかりませんでした。空白は実在します。<strong>減点材料</strong>: 障壁がありません。台帳の中身はすべて公開情報であり、誰でも同じものを再構成できます。参入を決めた競合が既存のエージェンシー顧客基盤を持っていれば、配布力の差で個人開発は即座に置き去りにされます。moat が「先に作ったこと」しかない。</li><li><strong>個人開発適性 2</strong>: <strong>減点材料</strong>: これが却下の決め手です。台帳は全プラットフォームのリリースノートを継続監視することを要求します。しかも監視を怠ったときの失敗の質が悪い。改定を見落とすと、道具は汚れた比較を「境界をまたいでいない」と誤って保証します。沈黙して壊れるのではなく、自信を持って誤答します。運用が開発者の注意を恒久的に拘束する構造であり、<code>evaluation-framework.md</code> が1点として定義する「規約変更による即死リスク」には至らないものの、低保守という個人開発の前提とは正反対です。</li></ul><h4 id="idea-3-ypp-runway-12-25-tier-3-drop">Idea 3: <code>ypp-runway</code> — 12 / 25 (Tier 3: DROP)</h4><ul><li><strong>タイミング 3</strong>: 2027年2月1日という期日は公示済みで、収益化を目指すクリエイターという母数も大きい。<strong>減点材料</strong>: 期日に何も失われません。既存の参加者は影響を受けず、新規申請者の要件が上がるだけです。喪失の期限ではなく到達の目標であり、緊急性が構造的に弱い。加えて対象が収益化前の層に限定されます。</li><li><strong>実現可能性 3</strong>: 移動窓の計算そのものは平易です。<strong>減点材料</strong>: qualified watch hours は API が返しません。Shorts フィード視聴、非公開・限定公開・削除済み動画、広告経由の視聴といった除外条件を、解説文から推測して再現することになります。結果は近似値にしかならず、しかも近似値が最も役に立たないのは閾値の近傍です。つまり<strong>最も必要とされる場面で最も信用できない</strong>道具になります。</li><li><strong>収益性 1</strong>: 収益化前のクリエイターは、定義上まだ YouTube から収入を得ていません。クリエイターエコノミー全体で最も支払い能力の低い層です。<strong>減点材料</strong>: 支払い意思以前に、同種の進捗可視化を vidIQ と TubeBuddy が集客用の無料機能として配っています。価格が存在しない領域です。</li><li><strong>競合優位性 2</strong>: <strong>減点材料</strong>: 大手の無料ツールと正面衝突します。さらに、進捗を表示する最も自然な立場は YouTube 自身です。現在「Get notified」という二値の通知しか出していないのは技術的制約ではなく方針であり、方針は変わり得ます。プラットフォームが1画面足せば消える位置にあります。</li><li><strong>個人開発適性 3</strong>: ローカル実行は可能です。<strong>減点材料</strong>: Idea 1 と同じ OAuth の導入負荷を負ったうえで、予測が外れた場合の問い合わせが加わります。収益化の可否は当事者にとって重大であり、近似値を出す道具のサポート負荷は事前に見積もれません。</li></ul><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="idea-1-が失敗する最大の理由">Idea 1 が失敗する最大の理由</h3><p><strong><code>engagedViews</code> の履歴が8月24日より前まで遡って取得できてしまうと、道具の存在理由の半分が消えます。</strong></p><p>この道具の前提は、過去の記録が2つの定義で分断されていることです。 しかし API が改定日以前についても <code>engagedViews</code> を返すなら、利用者は単に <code>engagedViews</code> の系列を通しで引けば済みます。 境界警告の価値は残りますが、それは1行の注記であって製品ではありません。</p><p>Emplifi の記述は「YouTube は取り込むデータについて過去分の再表示を announce していない」と書いており、<strong>API が過去分の <code>engagedViews</code> を返すかどうかまでは述べていません。</strong> ここは推測せず、実測すべき点です。</p><p>次に大きいリスクは配布です。 OAuth の導入をクリエイターに踏ませられなければ、実装が完成していても利用者はゼロになります。</p><p><strong>対策</strong>: 第5節の Day 1 と Day 2 を、この2点の検証だけに充てます。</p><h3 id="idea-2-が失敗する最大の理由">Idea 2 が失敗する最大の理由</h3><p><strong>台帳の網羅性が、開発者1人の継続的な注意に依存します。</strong></p><p>そして失敗が静かではありません。 改定を1つ見落とすだけで、道具は誤った比較へ「問題なし」と保証を与えます。 利用者はその保証を信じてクライアントへ提出するため、被害は道具の外側で発生します。</p><p><strong>対策</strong>: 継続的な台帳の維持を諦め、2026年の改定に限定した一度きりの注釈ツールとして再設計します。 「いま使えるかどうか」ではなく「いつまで正しいか」を製品の側から宣言する形にすれば、監視義務を負わずに済みます。 第6節で述べるとおり、今回の3案で再設計する価値があるのはこの案です。</p><h3 id="idea-3-が失敗する最大の理由">Idea 3 が失敗する最大の理由</h3><p><strong>買い手に収入がありません。</strong></p><p>これは設計で回避できる種類の欠陥ではないため、対策を書きません。 第3節の判定どおり落とします。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>対象は <code>view-asof</code> です。 <strong>初日と2日目は実装を含みません。</strong> 第4節で挙げた2つの前提を潰す工程に充てます。</p><div class="tw"><table><thead><tr><th>日程</th><th>内容</th><th>判定基準</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td>前提検証①: 自分のテストチャンネルで YouTube Analytics API に <code>engagedViews</code> を2026年6月〜7月の期間で問い合わせ、<strong>改定日以前のデータが返るかを実測する</strong></td><td>過去分が完全に返るなら、道具の価値は境界警告のみに縮小する。<strong>この時点で全体を破棄し、Idea 2 の再設計へ移る</strong></td></tr><tr><td class="tk"><strong>Day 2</strong></td><td>前提検証②: スポンサー案件を持つクリエイター3名に、レートカードの現物と「どちらの視聴回数で提示しているか」を尋ねる</td><td>3名とも境界を認識済み、または代理店任せであれば破棄する。1名以上が旧定義の数字をそのまま提示していれば続行</td></tr><tr><td class="tk"><strong>Day 3-4</strong></td><td>OAuth 導入経路の検証。非エンジニアのクリエイター1名に、GCP プロジェクト作成から認可完了までを実際に踏んでもらう</td><td>30分以内に完了しなければ、配布形態をローカル CLI からホスト型へ再設計する（工数が倍になるため、この時点で範囲を再判断する）</td></tr><tr><td class="tk"><strong>Day 5-7</strong></td><td>取得部の実装。動画ごと・日ごとの <code>views</code> / <code>engagedViews</code> を取得し、ローカルへ保存する</td><td>1チャンネル・過去24か月分を1回の実行で取り切れること</td></tr><tr><td class="tk"><strong>Day 8-10</strong></td><td>集計と境界判定。任意期間の両指標、チャンネル固有の乖離率、8月24日をまたぐ集計への警告を出す</td><td>境界をまたぐ期間指定に対し、必ず警告が出ること</td></tr><tr><td class="tk"><strong>Day 11-12</strong></td><td>出力の実装。スポンサーへ提出できる1枚（HTML / PDF）を生成し、両指標を並記して単位を明示する</td><td>Day 2 で協力を得たクリエイターが、そのまま案件先へ出せると答えること</td></tr><tr><td class="tk"><strong>Day 13-14</strong></td><td>価格の検証。買い切り $35 前後で提示し、Day 2 の3名へ購入意思を確認する</td><td>1名でも購入すれば継続。0名なら軸3の判定どおり Tier 2 として保留する</td></tr></tbody></table></div><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><ul><li><strong>最優先で検証すべき候補</strong>: <code>view-asof</code> (総合16点、Tier 2)。ただし推奨は「着手」ではなく「Day 1 の実測」です。この案の価値は API が過去分の <code>engagedViews</code> を返さないことに全面的に依存しており、その一点が未確認のままです。半日で判定でき、判定が黒なら14日を丸ごと節約できます。</li></ul><ul><li><strong>再設計する価値がある候補</strong>: <code>metric-asof</code> (総合15点、Tier 3)。今回唯一、却下したうえで再設計を勧める案です。落とした理由は軸5であり、台帳の継続監視が個人開発の前提と衝突しました。しかし<strong>継続監視をやめれば軸5の問題は消えます。</strong> 2026年の改定に対象を限定し、「2027年3月まで有効」と期限を明示した一度きりの注釈ツールにすれば、恒久的な注意の拘束から解放されます。網羅性を約束しない代わりに、約束した範囲では確実に正しい。この形なら軸5は2点から4点へ戻ります。</li></ul><ul><li><strong>今回却下した候補と理由</strong>:<ul><li><strong>Ingress NGINX の2026年3月リタイア後の移行判定</strong>: Kubernetes クラスタの約半数が使うコントローラが保守を終え、以後セキュリティパッチが出ません。買い手の切迫度は高い。しかし2026-09-03 の <code>eol-cliff</code>（OpenSSL 3.0 の保守終了と保守の帰属）と、解く課題もワークフロー上の位置づけも一致します。<code>evaluation-framework.md</code> の重複判定フィルタ2に該当するため、スコアリングせずに除外しました。</li><li><strong>SaaS の据え置きプラン廃止と AI 抱き合わせによる強制アップグレードの検知</strong>: H1 2026 の SaaS 値上げの最大要因が AI 機能の抱き合わせであり、据え置きプランの廃止で新プランは30〜200%高くなっています。組織の61%が想定外のソフトウェア費用増でプロジェクトを削ったという数字もあります。しかし2026-09-06 の <code>credit-burn</code>（失効するクレジット）および <code>rate-recon</code>（請求の独立再計算）と買い手が完全に一致し、「ベンダーの請求を自社側から検算する」という位置づけも同じです。重複として除外しました。</li><li><strong>GitHub Copilot の生成物を拒否する設定の不在</strong>: Copilot による issue / PR 生成を止める要望と、Copilot のコードレビューを無効化する要望が、いずれも高い支持を集めながら未解決のまま残っています。プラットフォームが明示的に断り続けている要望であり、空白としては良質です。しかし2026-08-27 の <code>repro-gate</code>（AI 生成 PR によるレビュー能力の飽和）と買い手（OSS メンテナ）も痛点も重なります。加えて、プラットフォームが方針として拒否している以上、外部ツールで実現できる範囲は表示の抑制にとどまり、根本解決になりません。除外しました。</li><li><strong>Lidarr のトラック単位管理の欠落（"Songarr"）</strong>: 自己ホスト音楽管理の中核的な欠落であり、Artist → Album → Track というスキーマ設計に由来する構造的な問題です。コミュニティ特化型の理想形に見えました。しかし買い手が自己ホスト層であり、周辺の *arr スタックがすべて無償の OSS です。軸3が1点となることが明らかで、スコアリング前に除外しました。</li></ul></li></ul><ul><li><strong>15回連続で Tier 1 に到達していません。</strong> 今回の探索軸の結果を整理します。 <strong>軸3（収益性）の平均は2.00点で、前回の2.33点からさらに下がりました。</strong> 提出先と提出期限を条件に加えれば軸3が立つ、という前回の仮説は否定されました。 今回の3案は、いずれも提出先と提出期限を持っています。Idea 1 はスポンサーへのレートカード、Idea 2 はクライアントへの月次レポート、Idea 3 は YouTube への収益化申請です。それでも軸3は伸びませんでした。 <strong>欠けていた条件が何かは、Idea 1 の構造がそのまま示しています。</strong> スポンサーは <code>engagedViews</code> を見る手段を持ちません。所有者しか取得できない指標だからです。したがってブランドは、クリエイターが提出した数字を検証できず、突き返すこともできません。<strong>受取人が検証できない文書は、正確に書いても報われません。</strong> 精度に金を払わせるのは提出義務ではなく、拒否される可能性です。 前回、宛先のない Idea 3（<code>yubin-delta</code>）だけが1点だったことから、宛先の存在を条件として採用しました。今回わかったのは、それが必要条件ではあっても十分条件ではないということです。<strong>宛先が存在し、かつその宛先が突き返す能力を持っているときにだけ、正確さに価格が付きます。</strong> 前回の <code>cbam-restate</code> と <code>shutoko-shift</code> で軸3が相対的に高かったのは、宛先が当局と荷主という、いずれも突き返す立場だったためだと読み直せます。 次回の探索軸は、この条件を直接使います。<strong>受取人が独立に検証する手段を持っており、不正確な提出物を実際に差し戻す構造</strong>を探します。監査、査定、認証、審査、検収のように、受取人の側にも照合材料があり、拒否が制度として組み込まれている位置です。提出義務の有無ではなく、<strong>拒否の実在</strong>が軸3の分かれ目になります。</li></ul><hr><h2 id="関連リンク">関連リンク</h2><ul><li>市場リサーチレポート一覧</li><li>5軸評価フレームワーク</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://blog.youtube/news-and-events/youtube-partner-program-updates-2027-new-opportunities-earn/" target="_blank" rel="noopener noreferrer">New opportunities to earn and changes to the YouTube Partner Program（YouTube 公式ブログ・2027年2月1日発効の新閾値）</a><span class="u">https://blog.youtube/news-and-events/youtube-partner-program-updates-2027-new-opportunities-earn/</span></li><li><a href="https://www.tubefilter.com/2026/08/18/youtubes-now-counting-public-views-from-the-first-frame-hoping-inflated-numbers-will-help-creators-negotiate-brand-deals/amp/" target="_blank" rel="noopener noreferrer">YouTube&#x27;s now counting public views from the \&quot;first frame,\&quot; hoping inflated numbers will help creators negotiate brand deals（Tubefilter 2026-08-18）</a><span class="u">https://www.tubefilter.com/2026/08/18/youtubes-now-counting-public-views-from-the-first-frame-hoping-inflated-numbers-will-help-creators-negotiate-brand-deals/amp/</span></li><li><a href="https://docs.emplifi.io/platform/latest/home/youtube-metric-update-august-2026" target="_blank" rel="noopener noreferrer">YouTube metric update (August 2026)（Emplifi Documentation Center・履歴の再表示を行わない旨の明示）</a><span class="u">https://docs.emplifi.io/platform/latest/home/youtube-metric-update-august-2026</span></li><li><a href="https://developers.google.com/youtube/analytics/metrics" target="_blank" rel="noopener noreferrer">Metrics | YouTube Analytics and Reporting APIs（Google for Developers・engagedViews の定義）</a><span class="u">https://developers.google.com/youtube/analytics/metrics</span></li><li><a href="https://ppc.land/youtube-clarifies-partner-program-eligibility-metrics-for-watch-hours/" target="_blank" rel="noopener noreferrer">YouTube clarifies Partner Program eligibility metrics for watch hours（ppc.land・qualified watch hours の除外条件）</a><span class="u">https://ppc.land/youtube-clarifies-partner-program-eligibility-metrics-for-watch-hours/</span></li><li><a href="https://quasa.io/insights/fix-your-youtube-media-kit-before-public-views-inflate-the-pitch" target="_blank" rel="noopener noreferrer">Fix Your YouTube Media Kit Before Public Views Inflate the Pitch（quasa.io・契約でどちらの指標を使うか定めよという指針）</a><span class="u">https://quasa.io/insights/fix-your-youtube-media-kit-before-public-views-inflate-the-pitch</span></li><li><a href="https://techcrunch.com/2026/08/10/youtube-now-requires-creators-to-have-twice-as-many-watch-hours-to-start-earning-money/" target="_blank" rel="noopener noreferrer">YouTube now requires creators to have twice as many watch hours to start earning money（TechCrunch 2026-08-10）</a><span class="u">https://techcrunch.com/2026/08/10/youtube-now-requires-creators-to-have-twice-as-many-watch-hours-to-start-earning-money/</span></li><li><a href="https://www.forbes.com/sites/gabrielalinzainescu/2026/08/17/youtube-changes-how-it-counts-views-handing-marketers-two-numbers-instead-of-one/" target="_blank" rel="noopener noreferrer">YouTube Changes How It Counts Views, Handing Marketers Two Numbers Instead Of One（Forbes 2026-08-17）</a><span class="u">https://www.forbes.com/sites/gabrielalinzainescu/2026/08/17/youtube-changes-how-it-counts-views-handing-marketers-two-numbers-instead-of-one/</span></li><li><a href="https://gyre.pro/blog/youtube-shorts-view-count-update-impact-strategy-what-to-do-next" target="_blank" rel="noopener noreferrer">YouTube Shorts view count update: impact and strategy for creators in 2026（Gyre・改定直後の視聴回数上昇幅）</a><span class="u">https://gyre.pro/blog/youtube-shorts-view-count-update-impact-strategy-what-to-do-next</span></li><li><a href="https://www.socialpilot.co/blog/social-media-updates" target="_blank" rel="noopener noreferrer">Social Media Updates May 2026: What Changed Across Platforms（SocialPilot・Meta の Engagement から Interactions への置換）</a><span class="u">https://www.socialpilot.co/blog/social-media-updates</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-09_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
