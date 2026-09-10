@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T06:26:42+09:00",
+  "generated_at": "2026-09-11T03:22:38+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -135,6 +135,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-11_market_research_report.html",
+          "title": "2026-09-11: 有効な証明書が10日後に「参考記録」へ変わる — FIPS 140-2 の Historical 化・州別年齢確認法の執行可否・Patreon 強制移行における穴場市場の特定",
+          "date": "2026-09-11",
+          "bytes": 85440
+        },
         {
           "file": "2026-09-10_market_research_report.html",
           "title": "2026-09-10: 送信は成功し、受理は確認できない — MTD 受領確認の空白・フランス請求書の拒否と拒絶・EUDR 提出前検査における穴場市場の特定",
