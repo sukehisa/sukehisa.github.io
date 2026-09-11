@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「施行日は確定しているのに、当局自身がまだ判定基準を決めていない」構造を探索軸に置き、正解の不在が参入余地と課金可能性のどちらに効くかを5軸評価で検証した結果">
+<title>2026-09-12: 期日は確定したが、正解はまだ書かれていない — California SB 122・令和9年分の青色申告特別控除・npm 監査エンドポイント撤去における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-12</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / sb122 / saas-tax / aoiro-shinkoku</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-12">市場リサーチ &amp; 5軸評価レポート (2026-09-12)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">sb122-lines</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 9 件（うち一次ソース 10 件）</div></div><div class="fig">17<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">sb122-lines</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">aoiro-75</div><div class="val">14<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">audit-410</div><div class="val">13<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="2 / 5 点" aria-label="1. タイミング / 市場規模 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="1 / 5 点" aria-label="3. 収益性 / 課金モデル 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="1 / 5 点" aria-label="4. 競合優位性 / ギャップ 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-11）のレポートは、探索の条件を次の一文に絞り込みました。</p><p><strong>「データは既に公開されており、変化が遅く、そして誰も結合していない」の3つが同時に満たされるときだけ、個人開発が成立する。</strong></p><p>そして、その3条件を満たした <code>cmvp-drift</code> が Tier 1 に届かなかった理由として、4番目の条件を挙げました。 <strong>結合の正解が存在すること</strong>です。 FIPS の後継証明書は、正解が存在するのに記録されていない状態でした。</p><p>今回はその4番目の条件を、正面から検証します。 探索軸を<strong>「施行日は確定しているのに、判定基準そのものが当局によってまだ書かれていない」構造</strong>に置きました。</p><p>正解が未確定であるという状態は、一見すると最大の参入余地に見えます。 誰も答えを持っていないなら、先に答えを組み立てた者が市場を取れるはずだからです。 本レポートは、その直感が成り立つかどうかを3つの事例で確かめます。</p><p><strong>ひとつめは、2026年1月1日に施行される California SB 122 です。</strong> カリフォルニア州は30年以上にわたって SaaS を売上税の対象外としてきましたが、2026年6月29日に知事が署名した SB 122 により、2027年1月1日から電子的に提供されるソフトウェアと SaaS が課税対象になります。 施行日は動きません。 一方で、何が課税対象かを決める線引きは、まだ規則になっていません。</p><p><strong>ふたつめは、令和9年分（2027年分）から適用される青色申告特別控除の改正です。</strong> 控除額が75万円・65万円・10万円の3段階になり、書面申告では最大10万円まで下がります。 こちらは対照的に、<strong>要件が条文として明確に書かれています。</strong></p><p><strong>みっつめは、2026年7月15日に完全撤去された npm のレガシー監査エンドポイントです。</strong> <code>pnpm audit</code> と <code>yarn audit</code> が HTTP 410 で停止しました。 移行先も明示されています。 つまり<strong>正解は最初から存在していました。</strong></p><p>3つを並べた理由は、正解の所在がそれぞれ違うからです。 SB 122 では正解が存在しません。 青色申告では正解が条文にあります。 npm では正解が移行先ドキュメントにあります。</p><p>結論を先に書きます。 <strong>Tier 1 は今回もありません。</strong> 最も高い <code>sb122-lines</code> で17点（Tier 2: HOLD）、残る2案は Tier 3（DROP）です。 そして重要なのは順位ではありません。 <strong>正解が未確定であることは、参入余地を作ると同時に、課金可能性を削る</strong>という両面性が3案の比較から取り出せました。 この観察が今回の収穫です。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-sb122-lines-課金システムのエクスポートから-2027年1月1日をまたぐ契約行とバンドル行を抽出し-契約日基準と支払日基準の両方で-california-売上税の露出額を出すローカル-cli">アイデア 1: <code>sb122-lines</code> (課金システムのエクスポートから、2027年1月1日をまたぐ契約行とバンドル行を抽出し、契約日基準と支払日基準の両方で California 売上税の露出額を出すローカル CLI)</h3><p>対象は、カリフォルニア州に顧客を持つ中小 SaaS 事業者と、その経理担当者です。 入力は Stripe / Paddle / Chargebee の請求明細エクスポートと、自社の SKU 一覧です。 出力は「12月31日までに手を打つべき行」の一覧で、次の3種類に分かれます。</p><p>1. <strong>2027年1月1日をまたぐ役務期間を持つ既存契約</strong>と、契約日基準・支払日基準それぞれで課税対象となる金額 2. <strong>ライセンス・導入支援・運用保守が1行にまとまっている請求行</strong>（行を分けないと全額が課税対象になる） 3. <strong>顧客単位の12か月ローリング集計と、500万ドル閾値までの距離</strong></p><p>3番目は売り手の義務が買い手へ移る境界であり、越えた瞬間に誰が納税するかが変わります。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>課税対象の線引きが未確定であることは、当局自身の言明として記録されています。 CDTFA は2026年7月21日に第1回の実装ワークショップを開きました。</p><blockquote class="voice"><p>"it has not yet defined the type or degree of human effort required to qualify" （<a href="https://www.gtlaw.com/en/insights/2026/7/california-sb-122-cdtfa-workshop-addresses-software-and-saas-tax-rules-effective-jan-1-2027" target="_blank" rel="noopener noreferrer">Greenberg Traurig: California SB 122 – CDTFA Workshop</a>）</p></blockquote><p>ここで言う「人的関与の程度」は、カスタムソフトウェア（非課税）と既製ソフトウェア（課税）を分ける基準です。 つまり、<strong>自社の製品が課税されるかどうかを決める基準が、施行の111日前の時点でまだ定義されていません。</strong></p><p>期間をまたぐ契約についても、当局は判断を示していません。</p><blockquote class="voice"><p>"the department declined to say whether the contract date or the payment and access date controls for renewals and multi-year agreements." （<a href="https://www.saastr.com/california-is-taxing-saas-and-ai-tools-and-is-about-to-make-your-software-8-10-more-expensive-heres-what-sb-122-does-to-buyers-and-vendors/" target="_blank" rel="noopener noreferrer">SaaStr: California Is Taxing SaaS and AI Tools</a>）</p></blockquote><p>最も価値の高いエビデンスは、税務側の実務家自身が「既存の枠組みでは解けない」と書いている一文です。</p><blockquote class="voice"><p>"The hard part used to be determining whether you owed tax. Now, the challenge is figuring out how much, since California has not given companies a formula or any guidance for splitting up a contract that touches many states." （<a href="https://exactera.com/resources/california-sb-122-software-tax-analysis/" target="_blank" rel="noopener noreferrer">Exactera: California SB 122 Says Where Software Is Taxed, Not How to Allocate The Bill</a>）</p></blockquote><p>同じ記事は、請求書の書き方が直接に課税額を変えると明示しています。</p><blockquote class="voice"><p>"Separately listed implementation charges now matter a lot. If a contract bundles license, setup, and managed services into one line, the whole line is taxable." （同上）</p></blockquote><p>そして、12月31日までにやるべきことを具体的な作業として挙げています。</p><blockquote class="voice"><p>"Then review contracts. Find every agreement that is silent on transaction taxes, every multi-year deal prepaid in 2026 that runs into 2027, and every customer relationship nearing $5 million." （同上）</p></blockquote><p>この一文が示しているのは、<strong>「探す」という作業が人間の手に残されている</strong>という事実です。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p><code>market-analysis-patterns.md</code> の <strong>5. 規制・プラットフォーム変更対応型</strong>に該当します。 ただし通常の規制対応型と違う点があります。 規制対応型の道具は普通、施行後に継続的な処理を担います。 この案が担うのは<strong>施行前の一度きりの棚卸し</strong>であり、需要は2027年1月1日で消えます。</p><p>Why Now は日付で説明できます。 CDTFA は緊急規則の草案を8月末に配布し、行政法室への提出を12月初旬に予定しています。 つまり<strong>規則が確定するのは施行の直前</strong>であり、事業者は正解を待っていると手当ての時間が残りません。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>境界線は明確に引けます。 Anrok は施行前の7ステップを公開しており、登録・顧客追跡・免税証明書・自社の使用税をいずれも自動化の対象として位置づけています。</p><p>しかし4番目のステップだけは、読者への指示の形で書かれています。</p><blockquote class="voice"><p>"Read contracts" （<a href="https://www.anrok.com/resources/california-saas-tax-prep-checklist" target="_blank" rel="noopener noreferrer">Anrok: California SaaS tax 2027: 7 steps to prepare now</a>）</p></blockquote><p>さらに、<strong>バンドルされた請求行の扱いについて、この文書は触れていません。</strong></p><p>整理するとこうなります。 <strong>解決済み</strong>は、2027年1月1日以降に流れる取引の計算・徴収・申告です。Avalara、Anrok、Stripe Tax がこの機構を持っています。 <strong>未解決</strong>は、2026年12月31日以前に既に発行された請求と既に結ばれた契約の棚卸しです。 税エンジンは取引の流れに対して働く道具であり、<strong>過去に発行済みの請求書を読み直す道具ではありません。</strong></p><hr><h3 id="アイデア-2-aoiro-75-令和9年分の青色申告特別控除について-過去の申告データから3段階のどこに落ちるかを判定し-75万円を取りに行く費用対効果を金額で出すツール">アイデア 2: <code>aoiro-75</code> (令和9年分の青色申告特別控除について、過去の申告データから3段階のどこに落ちるかを判定し、75万円を取りに行く費用対効果を金額で出すツール)</h3><p>対象は、青色申告を行っている個人事業主です。 入力は会計ソフトのエクスポートまたは過去の青色申告決算書で、出力は次の3つです。</p><p>1. <strong>令和7年分（2025年分）の事業所得・不動産所得の総収入金額</strong>と、それによって令和9年分の10万円控除が使えるかどうかの判定 2. 75万円・65万円・10万円それぞれを選んだ場合の<strong>所得税・住民税・国民健康保険料の合計差額</strong> 3. 75万円を取る場合に必要な作業と、その期限までの残日数</p><p>1番目が構造的に重要です。 <strong>判定に使われる年が既に過去であり、今から動かせません。</strong></p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>改正の内容は明文で確定しています。</p><blockquote class="voice"><p>「前々年の不動産所得または事業所得に係る総収入金額が1,000万円を超える場合は、原則として10万円控除の適用対象から除外される」 （<a href="https://keiridriven.mjs.co.jp/181353/" target="_blank" rel="noopener noreferrer">経理ドリブン（ミロク情報サービス）: 青色申告特別控除が最大75万円に</a>）</p></blockquote><p>適用開始も確定しています。</p><blockquote class="voice"><p>「令和9年分（2027年分）以後の所得から適用されます」 （同上）</p></blockquote><p>75万円の要件は、帳簿の作り方だけでは足りません。</p><blockquote class="voice"><p>「65万円控除の適用を受ける者がさらに電子帳簿保存要件を満たす場合は、控除額を75万円まで引き上げることができる」 （同上）</p></blockquote><p>弥生の解説によれば、優良な電子帳簿による75万円控除には<strong>使用開始前の税務署への届出</strong>が要り、届出期限は2028年3月15日とされています（<a href="https://www.yayoi-kk.co.jp/kaiketsu/blue-kaisei/" target="_blank" rel="noopener noreferrer">弥生: 【2027年分から改正】青色申告特別控除は最大75万円控除に！</a>）。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p><strong>5. 規制・プラットフォーム変更対応型</strong>です。 Why Now の根拠は弱い。 適用は令和9年分であり、実際の申告は2028年3月です。 <strong>今日から数えて18か月先</strong>であり、切迫はありません。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲-1">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>境界線を引こうとすると、線がほとんど残りません。 freee・マネーフォワード・弥生の3社は、いずれも改正の解説記事を無償で公開しており、届出書の提出が必要であることも明記しています。 帳簿要件は会計ソフトの機能そのものであり、<strong>3社が自社製品の中で対応する以外に実装場所がありません。</strong></p><p>残る空白は「自分にとって75万円は得か」という意思決定の部分だけです。 しかしこれは会計ソフトが機能として足せる範囲であり、しかも税理士が顧問料の中で答える範囲でもあります。</p><hr><h3 id="アイデア-3-audit-410-撤去された-npm-レガシー監査エンドポイントの代わりに-lockfile-から-bulk-advisory-endpoint-を叩いて同じ判定を再現するローカル-cli">アイデア 3: <code>audit-410</code> (撤去された npm レガシー監査エンドポイントの代わりに、lockfile から bulk advisory endpoint を叩いて同じ判定を再現するローカル CLI)</h3><p>対象は、<code>pnpm audit</code> または <code>yarn audit</code> を CI・pre-commit フックに組み込んでいるチームです。 入力は lockfile、出力は従来の audit と同じ形式の脆弱性一覧と終了コードです。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>撤去は当事者の報告として記録されています。</p><blockquote class="voice"><p>"Since <strong>2026-04-15</strong>, <code>pnpm audit</code> fails with HTTP 410 because the npm registry retired both legacy audit endpoints." （<a href="https://github.com/joshuafolkken/joshuafolkken-com/issues/446" target="_blank" rel="noopener noreferrer">joshuafolkken/joshuafolkken-com#446</a>）</p></blockquote><p>同じ Issue は、影響が開発の手前まで及んでいることを書いています。</p><blockquote class="voice"><p>"breaks our pre-commit hook (<code>lefthook.yml</code> → <code>pre-commit → audit</code>) and blocks every commit on this repo." （同上）</p></blockquote><p>告知の不在は、別の当事者がより直接に書いています。</p><blockquote class="voice"><p>"What I don't understand is how this could not be communicated plainly in GitHub's changelog." （<a href="https://ryanbigg.com/2026/04/npm-putting-the-brown-in-brownout" target="_blank" rel="noopener noreferrer">Ryan Bigg: NPM: putting the brown in brownout</a>）</p></blockquote><p>コミュニティ側の照会に対する GitHub の回答は、日付を確定させています。</p><blockquote class="voice"><p>"After July 15, 2026 the old endpoint will be fully retired." （<a href="https://github.com/orgs/community/discussions/192768" target="_blank" rel="noopener noreferrer">GitHub Community Discussion #192768</a>）</p></blockquote><p>同じスレッドで、調整の不在が指摘されています。</p><blockquote class="voice"><p>"Major breaking change like this should be coordinated with <code>yarn</code>, <code>pnpm</code>, <code>bun</code> (if affected?) right? These are the major consumers..." （同上）</p></blockquote><p>そして7月10日の時点で、質問者はこう書いています。</p><blockquote class="voice"><p>"We're still waiting for an official response." （同上）</p></blockquote><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p><strong>6. マイクロDevExツール型</strong>です。 Why Now は、実は既に過ぎています。 撤去は2026年7月15日であり、本日から2か月前です。 影響を受けたチームの多くは、既に audit を CI から外すか、別のスキャナへ移っています。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲-2">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>境界線が引けません。 移行先は最初から公開されています（bulk advisory endpoint）。 <code>npm audit</code> は新エンドポイントを使っているため影響を受けていません。 そして pnpm 本体が移行すれば、この道具の存在理由は消えます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>sb122-lines</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>aoiro-75</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>audit-410</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">施行まで111日、緊急規則は12月に行政法室へ提出予定で、正解を待つと手当ての時間が残らない。ただし規則の草案が出るまで買い手の意思決定が止まる可能性がある</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">改正は条文で確定済み。ただし適用は令和9年分で実際の申告は2028年3月、届出期限も2028年3月15日。今日払う理由が18か月先にある</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">撤去は2026年7月15日で既に2か月が経過。影響を受けたチームは回避済みか移行済みで、痛みのピークを過ぎている</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">請求エクスポートの期間按分と顧客別集計は平易で、2週間に収まる。ただしバンドル行の判定は文字列では決まらず、利用者が SKU へタグを付ける工程が必ず要る</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">控除額の比較は税額計算だが、所得税・住民税・国民健康保険料の3階建てになる。国保料率は自治体ごとに異なり、全国対応は14日に収まらない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">lockfile の解析と bulk advisory endpoint への問い合わせだけで、数日で動く。ただし従来の audit 出力を完全に再現するには終了コードと重大度の対応付けを合わせる必要がある</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">買い手は税務の予算を持ち、$99〜$199 の買い切りが成立する。ただし需要が2027年1月1日で消える一度きりの棚卸しであり、継続課金の形を取れない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">個人事業主向けの税務解説は3社のオウンドメディアが無償で配っている領域。単発数百円が上限で、100人でも月数万円に届かない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">開発者向けの脆弱性スキャナは無料が当たり前。osv-scanner が Google の名前つきで無償配布されており、価格が存在しない</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">税エンジン各社は取引の流れを押さえているが、発行済み請求の棚卸しは読者への指示のまま残っている。ただし Anrok・Numeral・Kintsugi のいずれかが無償の「SB 122 readiness レポート」を1週間で出せる位置にいる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">freee・マネーフォワード・弥生が自社製品内に実装する以外に置き場所がない。帳簿要件が会計ソフトの機能そのものであり、正面衝突する</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">pnpm 本体が bulk endpoint へ移行すれば存在理由が消える。他人のマージ1回で市場が消滅する位置</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">ローカル実行で顧客データを預からない設計にできる。ただし出力が税務助言に見える構造で、誤りが利用者の納税額に直結する</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル完結・サポート負荷は軽い。ただし税制は毎年改正され、年1回の追随が恒久的に必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ゼロインフラの CLI で運用負荷はほぼない。ただし advisory API の仕様変更に追随し続ける必要がある</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">14<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td><td><span class="tot">13<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-sb122-lines-17-25-tier-2-hold">Idea 1: <code>sb122-lines</code> — 17 / 25 (Tier 2: HOLD)</h4><ul><li><strong>タイミング 4</strong>: 変曲点が二重に確定しています。2027年1月1日の施行と、緊急規則が12月に行政法室へ提出されるという手続き上の日程です。この2つの間隔が狭いことが、そのまま需要の根拠になります。規則を待って動く事業者には、年末までの手当ての時間が残りません。母数はカリフォルニアに顧客を持つ SaaS 事業者すべてであり、30年ぶりの課税開始なので既存の運用が存在しません。<strong>減点材料</strong>: 同じ構造が逆にも働きます。草案が出るまで「まだ決まっていないから待つ」という判断が合理的に見えるため、11月までは財布が開かない可能性があります。切迫の日付は確定していますが、支払いの日付は確定していません。</li><li><strong>実現可能性 4</strong>: 入力が標準化されています。Stripe・Paddle・Chargebee のいずれも請求明細を CSV で出せ、役務期間の開始日と終了日を持っています。1月1日で期間を按分し、顧客単位で12か月ローリング集計を取る処理は、2週間の枠に無理なく収まります。<strong>減点材料</strong>: バンドル判定が自動化できません。ある請求行がライセンス単体なのか、導入支援を含んだ複合なのかは、行の文字列からは決まりません。利用者が SKU ごとに一度タグを付ける工程が必ず要り、そこが導入の摩擦になります。実装は容易ですが、<strong>導入が容易ではありません。</strong></li><li><strong>収益性 3</strong>: 買い手は明確で、支払い能力があります。SaaStr が指摘した「12月中に請求して前払いすれば8〜10%を回避できる」という構造は、道具の価値を金額で表せることを意味します。年間契約10万ドルの顧客が5社いれば、判断の対象になる金額は4万ドル規模です。$99〜$199 の買い切りは、それに比べて無視できる額です。<strong>減点材料</strong>: 需要が一度きりです。2027年1月1日を過ぎると、棚卸しの対象そのものが存在しなくなります。継続課金の形を取れないため、<code>evaluation-framework.md</code> が5点の条件とする「月額$10〜$30が成立し100人で月10〜20万円の粗利」という形には到達しません。売り切りで4か月を走り切る前提でしか成立しません。</li><li><strong>競合優位性 3</strong>: 境界線は原文で引けました。Anrok は7ステップのうち6つを自動化の対象として書き、契約の読み直しだけを "Read contracts" という<strong>読者への指示</strong>として残しています。さらにバンドル行の扱いには触れていません。この差は着想の先後ではなく、製品の構造に由来します。税エンジンは取引が流れる地点に置かれる道具であり、既に発行済みの請求書へ遡って働く設計になっていません。<strong>減点材料</strong>: それでも moat としては弱い。Anrok・Numeral・Kintsugi・Sphere・Taxwire という5社が同じ顧客層を取りに来ており、いずれも「SB 122 readiness レポート」を無償のリード獲得施策として1週間で出せる位置にいます。しかも彼らには顧客の請求データが既に手元にあります。<strong>4点を付けられないのは、この領域の競合が自分より近い場所にデータを持っているからです。</strong></li><li><strong>個人開発適性 3</strong>: ローカル実行の CLI にすれば、顧客の請求データを預からずに済みます。インフラ費用も監視も不要です。<strong>減点材料</strong>: 出力の性質が危険です。「この契約は課税対象です」という表示は、利用者の目には税務助言に見えます。しかも当局が基準を定義していない以上、正しい答えを出すことが原理的にできません。両論併記の形で幅を出す設計にすれば責任は薄まりますが、そのぶん「で、結局どちらなのか」という問いには答えられず、製品としての満足度が下がります。<strong>責任を回避する設計と、価値を出す設計が、逆方向を向いています。</strong></li></ul><h4 id="idea-2-aoiro-75-14-25-tier-3-drop">Idea 2: <code>aoiro-75</code> — 14 / 25 (Tier 3: DROP)</h4><ul><li><strong>タイミング 3</strong>: 改正は条文で確定しており、控除額が65万円から10万円へ落ちる層が実際に存在します。金額の差は65万円の所得控除であり、税率によっては年10万円を超える手取りの差になります。<strong>減点材料</strong>: 時間軸が遠すぎます。適用は令和9年分、申告は2028年3月、届出期限も2028年3月15日です。18か月先の期限に対して今日お金を払う動機は、個人事業主の層には生まれません。<code>evaluation-framework.md</code> の5点が求める「直後」という条件から最も遠い案です。</li><li><strong>実現可能性 3</strong>: 前々年の収入金額を読み取り、3段階の控除額を当てて税額差を出す処理そのものは平易です。<strong>減点材料</strong>: 比較すべき金額が所得税だけでは終わりません。住民税と国民健康保険料が所得控除に連動するため、3階建ての計算が要ります。国保料率は自治体ごとに異なり、全国1,700超の団体を持つのは14日の枠を超えます。主要都市に絞れば動きますが、<strong>絞った瞬間に「自分の街が無い」利用者が大半になります。</strong></li><li><strong>収益性 2</strong>: <strong>減点材料</strong>: ここが実質的な却下理由の半分です。この領域は無償の解説が飽和しています。弥生・freee・マネーフォワードの3社が、自社のオウンドメディアで改正内容・要件・届出手続きを詳細に無償公開しています。彼らにとって解説記事は製品の販促であり、原価を回収する必要がありません。原価ゼロで配られている情報の隣で、判定と試算に数百円を超える価格を付けるのは困難です。</li><li><strong>競合優位性 2</strong>: <strong>減点材料</strong>: 却下理由のもう半分です。75万円控除の要件は「優良な電子帳簿」であり、それは会計ソフトの機能そのものです。判定に必要なデータも、会計ソフトの中にあります。つまり<strong>この機能の自然な置き場所は会計ソフトの内側</strong>であり、3社のいずれかが1画面追加すれば外部ツールの存在理由が消えます。しかも彼らには、それを実装する明確な動機があります。75万円控除は自社製品を使い続ける理由そのものだからです。</li><li><strong>個人開発適性 4</strong>: ローカル完結でインフラ費用はゼロ、サポート負荷も軽い構造です。3案の中では運用面が最も健全です。<strong>減点材料</strong>: 税制は毎年改正されます。追随を1年怠ると、古い税率で自信を持って誤答します。完全な放置はできません。</li></ul><h4 id="idea-3-audit-410-13-25-tier-3-drop">Idea 3: <code>audit-410</code> — 13 / 25 (Tier 3: DROP)</h4><ul><li><strong>タイミング 2</strong>: <strong>減点材料</strong>: 痛みのピークが過去にあります。ブラウンアウトが始まったのが2026年4月15日、完全撤去が7月15日で、本日は9月12日です。5か月が経過しており、影響を受けたチームは既に何らかの決着をつけています。CI から audit を外す、別のスキャナへ移る、あるいは諦める。<strong>遅れて現れた道具が置き換えるべき対象は、手作業ではなく「もう気にしないという決定」です。</strong> これは最も動かしにくい状態です。</li><li><strong>実現可能性 5</strong>: 3案で唯一の5点です。lockfile を解析して bulk advisory endpoint へ問い合わせ、結果を整形するだけで、数日で動くものができます。移行先の仕様も公開されており、<code>npm audit</code> という動作する参照実装が手元にあります。<strong>他案より優れている点</strong>は、外部の承認・審査・未確定の基準がひとつも介在しないことです。作れば動きます。</li><li><strong>収益性 1</strong>: <strong>減点材料</strong>: <code>evaluation-framework.md</code> が1点として定義する「無料が当たり前の領域」に正確に当てはまります。osv-scanner が Google の名前つきで無償配布され、GitHub の Dependabot が同等の警告を無料で出し、<code>npm audit</code> 自体が無料です。しかも買い手である開発者は、この種の道具に課金する習慣を持ちません。原価はほぼゼロですが、価格もゼロです。</li><li><strong>競合優位性 1</strong>: <strong>減点材料</strong>: 却下の決め手です。上流が直せば市場が消えます。pnpm には Issue #11265 と #13033 が立っており、bulk advisory endpoint への移行は仕様上の必然です。<strong>他人のマージ1回で存在理由が消える位置に、moat はありません。</strong> しかも、その修正を望んでいるのは自分自身でもあります。自分が正しいと思う変更が起きると死ぬ製品は、構造として成立しません。</li><li><strong>個人開発適性 4</strong>: ゼロインフラの CLI で、監視もサーバーも不要です。<strong>減点材料</strong>: advisory API 自体も今回と同じように仕様変更され得ます。今回の撤去が告知なしに行われたという事実は、次も同じことが起きうることを意味します。</li></ul><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-12)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-12)"><title>アイデア候補のポジショニングマップ (2026-09-12)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="379.3" cy="143.6" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="391.3" y="147.6" text-anchor="start" class="qpt-label">1</text><circle cx="379.3" cy="143.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: SB122 Lines 総合 17 / 25（Tier 2）" data-tv="Idea 1: SB122 Lines" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="243.0" cy="217.4" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="255.0" y="221.4" text-anchor="start" class="qpt-label">2</text><circle cx="243.0" cy="217.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Aoiro 75 総合 14 / 25（Tier 3）" data-tv="Idea 2: Aoiro 75" data-td="総合 14 / 25（Tier 3）"/></g><g><circle cx="197.5" cy="245.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="209.5" y="249.8" text-anchor="start" class="qpt-label">3</text><circle cx="197.5" cy="245.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Audit 410 総合 13 / 25（Tier 3）" data-tv="Idea 3: Audit 410" data-td="総合 13 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: SB122 Lines</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Aoiro 75</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Audit 410</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="idea-1-が失敗する最大の理由">Idea 1 が失敗する最大の理由</h3><p><strong>CDTFA の緊急規則が、按分と経過措置の正解を明示してしまう可能性があります。</strong></p><p>これは一見すると追い風に見えますが、逆です。 この道具の価値は「正解が無いので、両論の幅と、判断を要する行を示す」ことにあります。 規則が「契約日基準で判定する」と一文で決めた瞬間、幅は消え、残るのは単純な按分計算になります。 単純な按分計算は、税エンジンが標準機能として持つべきものであり、独立した道具の居場所ではありません。</p><p>つまり<strong>この案は、正解が書かれないことに賭けています。</strong> そして規則の草案は8月末に配布済みで、9月には Interested Parties Meeting が予定されていました。 <strong>草案に何が書かれたかを読まないまま実装を始めるのは、賭けの内容を確認せずに賭けるのと同じです。</strong></p><p>対策は実装ではなく、読むことです。 CDTFA が配布した緊急規則の討議草案を入手し、次の3点が定義済みかを確認します。</p><p>1. カスタムと既製を分ける「人的関与」の基準 2. 期間をまたぐ契約の経過措置（契約日か、支払日か、役務期間の按分か） 3. バンドル取引の按分方法</p><p>3点すべてが定義済みなら、この案は破棄します。 1点でも未定義なら、その未定義の項目だけを扱う道具として範囲を絞ります。</p><h3 id="2番目に大きいリスク">2番目に大きいリスク</h3><p><strong>税エンジン各社が、無償のリード獲得施策として同等のレポートを出すことです。</strong></p><p>彼らには顧客の請求データが既にあり、こちらには無い。 この非対称は覆せません。</p><p>ただし、覆す必要がない部分もあります。 税エンジンを導入していない事業者、つまり<strong>カリフォルニアで初めて売上税の当事者になる小規模 SaaS</strong> は、そもそも彼らの顧客ではありません。 30年間 SaaS が非課税だった州なので、この層は相当に厚いはずです。 販路を「まだ税エンジンを入れていない事業者」に限定できるかどうかが、実質的な分岐点になります。</p><h3 id="idea-2-が失敗する理由">Idea 2 が失敗する理由</h3><p><strong>会計ソフト3社が実装する動機を持っており、しかも実装場所を独占しています。</strong></p><p>これは設計の変更で回避できません。 75万円控除の要件が会計ソフトの機能そのものである以上、外部ツールは常にデータの下流に立ちます。 税理士事務所向けに顧問先の一括判定として作り直す案も検討しましたが、その層は既存の税務ソフト（TKC、JDL、達人）が押さえており、同じ衝突が起きます。</p><h3 id="idea-3-が失敗する理由">Idea 3 が失敗する理由</h3><p><strong>修正されることを自分でも望んでいる欠陥に、事業を建てています。</strong></p><p>pnpm の Issue は開いており、移行は時間の問題です。 仮に半年間の空白があったとしても、その半年で課金できる金額は、無償の代替が3系統ある領域ではゼロに近い。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>対象は <code>sb122-lines</code> です。 <strong>初日と2日目は実装を含みません。</strong> 第4節で挙げた前提を潰す工程に充てます。</p><div class="tw"><table><thead><tr><th>日程</th><th>内容</th><th>判定基準</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td>前提検証①: CDTFA が配布した緊急規則の討議草案を入手し、「人的関与の基準」「期間をまたぐ契約の経過措置」「バンドル取引の按分」の3点が定義済みかを確認する</td><td>3点すべてが定義済みなら、<strong>この時点で全体を破棄する</strong>。未定義が1点でも残れば、その項目に範囲を絞って続行</td></tr><tr><td class="tk"><strong>Day 2</strong></td><td>前提検証②: カリフォルニアに顧客を持つ小規模 SaaS 3社へ、税エンジンを導入しているか、年末までに何を確認する予定かを聞く</td><td>3社とも税エンジン導入済みなら破棄する。1社でも未導入で手作業を予定していれば続行</td></tr><tr><td class="tk"><strong>Day 3-4</strong></td><td>入力層の実装。Stripe と Paddle の請求明細エクスポートを読み、役務期間・顧客・金額・SKU を正規化する</td><td>実データ1,000行を読み切れること</td></tr><tr><td class="tk"><strong>Day 5-6</strong></td><td>期間按分と両論併記の実装。2027年1月1日で役務期間を分割し、契約日基準・支払日基準の両方で課税対象額を出す</td><td>同一の入力に対して2つの数値が出て、その差が説明可能であること</td></tr><tr><td class="tk"><strong>Day 7-8</strong></td><td>顧客別の12か月ローリング集計と、500万ドル閾値までの距離を出す</td><td>閾値を越える顧客が、越える取引を特定できる形で出ること</td></tr><tr><td class="tk"><strong>Day 9-10</strong></td><td>バンドル行の検出。SKU へのタグ付け UI（CSV でよい）と、タグ未設定の行を「要判断」として一覧に残す仕組みを実装する</td><td>タグ未設定を握りつぶさず、必ず未判定として表示すること</td></tr><tr><td class="tk"><strong>Day 11</strong></td><td>判定点。Day 1 で確認した未定義項目が、9月の Interested Parties Meeting を経て定義されていないかを再確認する</td><td>定義済みになっていれば中断し、Tier 3 へ落とす</td></tr><tr><td class="tk"><strong>Day 12</strong></td><td>出力の実装。「12月31日までに手を打つべき行」を、行為（請求を分ける / 前倒しで請求する / 書面で確認を取る）ごとに分類した1枚にする</td><td>Day 2 の事業者が、その1枚を経理へ渡せると答えること</td></tr><tr><td class="tk"><strong>Day 13-14</strong></td><td>価格の検証。$149 の買い切りで提示し、Day 2 の3社へ購入意思を確認する</td><td>1社でも有償導入に同意すれば継続。0社なら軸3を下方修正して却下する</td></tr></tbody></table></div><p>Day 1 に実装を置かない理由は、この案の生死が<strong>自分の手の届かない文書1つ</strong>に握られているからです。 草案を読む作業は半日で終わります。 14日を投じた後に読むのは、順序が逆です。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><div class="tw"><table><thead><tr><th>順位</th><th>アイデア</th><th>総合スコア</th><th>判定</th><th>一言</th></tr></thead><tbody><tr><td class="tk">1</td><td><code>sb122-lines</code></td><td>17 / 25</td><td>Tier 2: HOLD</td><td>正解が無いことが参入余地だが、正解が無いことは同時に「答えを売れない」ことでもある</td></tr><tr><td class="tk">2</td><td><code>aoiro-75</code></td><td>14 / 25</td><td>Tier 3: DROP</td><td>正解が条文にあり、正解を実装する場所を会計ソフト3社が独占している</td></tr><tr><td class="tk">3</td><td><code>audit-410</code></td><td>13 / 25</td><td>Tier 3: DROP</td><td>正解が移行先に書かれており、上流が読めば市場が消える</td></tr></tbody></table></div><h3 id="今回却下した候補と理由">今回却下した候補と理由</h3><ul><li><strong>Companies House のソフトウェア限定申告（2027年4月1日）への対応支援</strong>: 探索軸には合致していました。しかし調査の過程で、日付そのものが割れていることが判明しました。2026年1月に改革は一旦停止され、2026年6月には損益計算書の提出義務が2028年4月へ移されたうえで「公開しない選択肢」が付きました。それにもかかわらず、多数の会計事務所のサイトが現在も「2027年4月1日からソフトウェア限定」と告知し続けています。この錯綜自体は興味深い題材ですが、道具としては日付の追跡にしかならず、軸3が2点以下になることが明らかでした。</li><li><strong>CRA 第14条の24時間報告における ENISA 提出プラットフォームの API 不在への対応</strong>: ENISA の Single Reporting Platform が初期リリースで API を持たず、すべての報告が人手による画面入力になるという事実は確認できました。しかし、この領域は2026-08-25 のレポートで <code>cra-clock</code> として既に提案済みです。提出前の項目整形という角度は、既出案への機能追加にあたるため、<code>evaluation-framework.md</code> の重複判定フィルタにより候補から除外しました。</li><li><strong>GitHub Copilot の使用量課金（2026年6月1日移行）に対する消費予測</strong>: 生の声は豊富にありました。しかし2026-08-29 の <code>token-clock</code> および2026-09-06 の <code>rate-recon</code> と、解く課題が重なります。</li></ul><h3 id="今回の探索から得られた条件">今回の探索から得られた条件</h3><p>3案はいずれも「期日が確定した制度・仕様の変更」でした。 割れたのは<strong>正解がどこにあるか</strong>です。</p><ul><li><code>sb122-lines</code>: 正解が<strong>まだ存在しない</strong>（当局が定義していない）。</li><li><code>aoiro-75</code>: 正解が<strong>条文にある</strong>。ただし実装場所を既存事業者が独占している。</li><li><code>audit-410</code>: 正解が<strong>移行先ドキュメントにある</strong>。上流が読めば終わる。</li></ul><p>前回のレポートは、個人開発が成立する4条件を出しました。 公開されている、変化が遅い、誰も結合していない、そして結合の正解が存在する。 今回の3案を当てると、4番目の条件について修正が要ることが分かります。</p><p><strong>正解が存在すると、正解を持つ者が実装します。</strong> <code>aoiro-75</code> と <code>audit-410</code> はどちらも正解が明文化されており、どちらも「正解を持つ側」（会計ソフト3社、pnpm の保守者）が実装する経路を持っていました。 正解の明文化は、道具を作りやすくすると同時に、<strong>自分以外の誰かにとっても作りやすくします。</strong></p><p>では正解が無ければよいのかというと、そうではありません。 <code>sb122-lines</code> が17点で止まったのは、まさに正解が無いからです。 <strong>答えを持たない道具に、答えの対価は請求できません。</strong></p><p>ここから条件を書き直します。</p><p><strong>個人開発が成立するのは、正解が存在しないときでも、正解が存在するときでもありません。</strong> <strong>正解は存在するが、その正解を適用するために必要な入力を、正解を持つ側が持っていないときです。</strong></p><p><code>sb122-lines</code> が Tier 2 に届いたのは、按分の正解が無いからではありません。 <strong>バンドル行をどう分けるかという入力が、税エンジンの側にも当局の側にも無い</strong>からです。 その入力を持っているのは、契約を結んだ本人だけです。</p><p>次回の探索軸は、この一点を直接狙います。 <strong>規則は明確で、判定ロジックも公開されているのに、判定に必要な入力の一部が当事者の頭の中にしか無い制度</strong>を探します。 外部から観測できない事実（意図、用途、内製か外注か、誰のために作られたか）が判定を左右する構造です。 そこでは正解を持つ者が実装できず、入力を持つ者は判定ロジックを持ちません。 その間にだけ、第三者の道具の居場所があります。</p><hr><h2 id="関連リンク">関連リンク</h2><ul><li>Market Researches Index</li><li>5軸評価フレームワーク</li><li>2026-09-11 レポート（FIPS 140-2 の Historical 化）</li><li>2026-09-10 レポート（MTD 受領確認の空白）</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.gtlaw.com/en/insights/2026/7/california-sb-122-cdtfa-workshop-addresses-software-and-saas-tax-rules-effective-jan-1-2027" target="_blank" rel="noopener noreferrer">California SB 122 – CDTFA Workshop Addresses Software and SaaS Tax Rules Effective Jan. 1, 2027（Greenberg Traurig 2026-07）</a><span class="u">https://www.gtlaw.com/en/insights/2026/7/california-sb-122-cdtfa-workshop-addresses-software-and-saas-tax-rules-effective-jan-1-2027</span></li><li><a href="https://exactera.com/resources/california-sb-122-software-tax-analysis/" target="_blank" rel="noopener noreferrer">California SB 122 Says Where Software Is Taxed, Not How to Allocate The Bill（Exactera）</a><span class="u">https://exactera.com/resources/california-sb-122-software-tax-analysis/</span></li><li><a href="https://www.saastr.com/california-is-taxing-saas-and-ai-tools-and-is-about-to-make-your-software-8-10-more-expensive-heres-what-sb-122-does-to-buyers-and-vendors/" target="_blank" rel="noopener noreferrer">California Is Taxing SaaS and AI Tools... Here&#x27;s What SB 122 Does to Buyers and Vendors（SaaStr）</a><span class="u">https://www.saastr.com/california-is-taxing-saas-and-ai-tools-and-is-about-to-make-your-software-8-10-more-expensive-heres-what-sb-122-does-to-buyers-and-vendors/</span></li><li><a href="https://www.anrok.com/resources/california-saas-tax-prep-checklist" target="_blank" rel="noopener noreferrer">California SaaS tax 2027: 7 steps to prepare now（Anrok）</a><span class="u">https://www.anrok.com/resources/california-saas-tax-prep-checklist</span></li><li><a href="https://www.pwc.com/us/en/services/tax/library/california-imposes-sales-and-use-tax-on-digital-products-and-saas.html" target="_blank" rel="noopener noreferrer">California to impose sales and use tax on digital products including prewritten software and SaaS beginning January 1, 2027（PwC）</a><span class="u">https://www.pwc.com/us/en/services/tax/library/california-imposes-sales-and-use-tax-on-digital-products-and-saas.html</span></li><li><a href="https://www.yayoi-kk.co.jp/kaiketsu/blue-kaisei/" target="_blank" rel="noopener noreferrer">【2027年分から改正】青色申告特別控除は最大75万円控除に！（弥生株式会社）</a><span class="u">https://www.yayoi-kk.co.jp/kaiketsu/blue-kaisei/</span></li><li><a href="https://keiridriven.mjs.co.jp/181353/" target="_blank" rel="noopener noreferrer">青色申告特別控除が最大75万円に！2027年からの変更点とe-Tax必須化への備え（経理ドリブン / ミロク情報サービス）</a><span class="u">https://keiridriven.mjs.co.jp/181353/</span></li><li><a href="https://github.com/orgs/community/discussions/192768" target="_blank" rel="noopener noreferrer">Clarification on retiring the Quick Audit endpoint and the impact on pnpm and Yarn（GitHub Community Discussion #192768）</a><span class="u">https://github.com/orgs/community/discussions/192768</span></li><li><a href="https://ryanbigg.com/2026/04/npm-putting-the-brown-in-brownout" target="_blank" rel="noopener noreferrer">NPM: putting the brown in brownout（Ryan Bigg 2026-04）</a><span class="u">https://ryanbigg.com/2026/04/npm-putting-the-brown-in-brownout</span></li><li><a href="https://github.com/pnpm/pnpm/issues/11265" target="_blank" rel="noopener noreferrer">`pnpm audit` fails with 410: npm registry has retired legacy audit endpoints（pnpm/pnpm#11265）</a><span class="u">https://github.com/pnpm/pnpm/issues/11265</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-12_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

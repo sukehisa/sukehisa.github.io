@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T06:19:51+09:00",
+  "generated_at": "2026-09-12T03:19:34+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -141,6 +141,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-12_market_research_report.html",
+          "title": "2026-09-12: 期日は確定したが、正解はまだ書かれていない — California SB 122・令和9年分の青色申告特別控除・npm 監査エンドポイント撤去における穴場市場の特定",
+          "date": "2026-09-12",
+          "bytes": 84899
+        },
         {
           "file": "2026-09-11_market_research_report.html",
           "title": "2026-09-11: 有効な証明書が10日後に「参考記録」へ変わる — FIPS 140-2 の Historical 化・州別年齢確認法の執行可否・Patreon 強制移行における穴場市場の特定",
