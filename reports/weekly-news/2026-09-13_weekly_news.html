@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="対象期間: 2026-09-06（日）〜 2026-09-12（土） ／ 収録 2 本">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今週読んだもの">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<title>Weekly Promo Dispatch Vol.4 — 2026年9月13日号</title>
+<style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
+:root {
+  color-scheme: light;
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
+  --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+           Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.85;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
+}
+a { color: inherit; text-decoration: none; }
+
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
+/* --- マストヘッド --- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
+  text-align: center;
+}
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.masthead .tagline {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.issue-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-3);
+}
+.issue-bar .vol { color: var(--accent); }
+
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
+/* --- リード（今週の総括） --- */
+.lede {
+  margin: 38px auto 0;
+  max-width: 60ch;
+}
+.lede p {
+  margin: 0 0 14px;
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+.lede p:first-child::first-letter {
+  float: left;
+  font-size: 2.8em;
+  line-height: 0.9;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- リード記事 --- */
+.lead-story {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
+.lead-story h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
+}
+.lead-story .dek {
+  margin: 20px 0 0;
+  max-width: 48ch;
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
+}
+
+/* --- 編集後記 --- */
+.note {
+  margin: 20px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+.note .byline { display: block; color: var(--accent); margin-bottom: 4px; }
+.note p { margin: 0; }
+.lead-story .note { max-width: 52ch; font-size: 1.02rem; }
+
+/* --- 記事メタ --- */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.meta .dot { color: var(--hairline); }
+.tag {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 1px 7px;
+}
+
+/* --- セクション --- */
+.section { margin-top: 56px; scroll-margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--accent);
+  padding-top: 10px;
+  margin-bottom: 26px;
+}
+.section-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.section-head .count {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.section-intro {
+  margin: -8px 0 26px;
+  max-width: 60ch;
+  color: var(--ink-2);
+  font-size: 0.97rem;
+}
+.stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
+}
+.story { padding-bottom: 4px; }
+.story h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
+
+/* --- 編集メモ --- */
+.colophon {
+  margin-top: 62px;
+  padding: 28px 30px;
+  background: var(--band);
+  border-top: 2px solid var(--accent);
+}
+.colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
+.colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
+.colophon p:last-child { margin-bottom: 0; }
+
+/* --- 索引 --- */
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.index ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 44px; }
+.index li { margin-bottom: 8px; break-inside: avoid; font-size: 0.92rem; color: var(--ink-2); }
+.index li a:hover { color: var(--accent); }
+@media (max-width: 719px) { .index ol { columns: 1; } }
+
+/* --- フッタ --- */
+.foot {
+  margin-top: 54px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.foot code { font-size: 0.9em; }
+
+@media print {
+  body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
+  .stories { grid-template-columns: 1fr 1fr; }
+  .story { break-inside: avoid; }
+  .sectionnav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">Weekly Dispatch from a Personal Knowledge Base</span>
+  <h1 class="wordmark">今週読んだもの</h1>
+  <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
+  <div class="issue-bar"><span class="vol">Vol. 4</span><span>2026年9月13日（日） 発行</span><span>収録期間 2026年9月6日（日） 〜 2026年9月12日（土）</span><span>2 本</span></div>
+</header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">AIが国内へ降りてくる</a></nav>
+<section class="lede has-drop"><p>今週集まった2本は、どちらも「AIをどこで走らせるか」という問いに答えている。片方はエージェントの実行単位をworktreeまで分解し、もう片方はデータの処理を国内に置く。性能でもモデルの賢さでもなく、実行環境の所在が判断の中心に来ている。AIを使うか使わないかの議論は終わり、どこに置くかの設計に移ったという感覚が残る週だった。</p></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://www.onorca.dev/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://www.onorca.dev/og-image.png" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://www.onorca.dev/" rel="noopener"><span class="grow-underline">Orca — The Worktree IDE for Claude Code, Ghostty &amp; AI Coding Agents</span></a></h2><div class="lead-body"><div><p class="dek">Orcaは、Claude CodeやCodex、Cursor CLIなど複数のコーディングエージェントを並列実行するIDEである。タスクごとに独立したgit worktreeを自動作成し、同じプロンプトを複数エージェントへ同時に投げて結果を比較・マージできるほか、Design Modeでは実際のChromiumウィンドウ上のUI要素をクリックしてHTML・CSS・切り取り画像をプロンプトへ送れる。</p><p class="meta"><span>onorca.dev</span><span class="dot">/</span><span>PROMO 9.7</span><span class="tag">ADE</span><span class="tag">AI</span><span class="tag">IDE</span><span class="tag">Tool</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実際に試してみて、タスク起点でworktreeが切られ、そこにエージェントが独立して立ち上がる流れが最もよくできていると感じた。エージェント時代の開発環境は、エディタの機能追加ではなく実行単位の切り方から設計し直す必要があるのだろう。IDEというよりも、並列作業の管理装置に近い。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>AIが国内へ降りてくる</h2><span class="count">1 本</span></div><p class="section-intro">海外プレイヤーが日本市場をどう扱うかは、ローカライズの話であると同時にデータの置き場所の話である。</p><div class="stories"><article class="story"><a class="thumb" href="https://ascii.jp/elem/000/004/340/4340811/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://ascii.jp/img/2025/10/29/4353201/xl/681d973f35428f0e.jpg?20200122" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://ascii.jp/elem/000/004/340/4340811/" rel="noopener"><span class="grow-underline">Anthropic日本法人設立、データ国内処理で日本市場に最適化</span></a></h3><p class="dek">米Anthropicが東京に日本法人「Anthropic Japan合同会社」を設立し、代表執行役社長に東條英俊氏が就任した。日本企業のセキュリティ・プライバシー要件に応えるためデータの国内処理体制を整え、商習慣や敬語の文脈理解を含むローカライズと技術支援を強化する方針を示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>データを外へ出さずにAIを使えるという条件が整えば、これまで検討の土俵にすら乗らなかった領域が動き出す。もうひとつの論点はローカライズがモデル側の話なのかアラインメント層の話なのかで、後者なら日本向けの調整は思ったより速く進むことになる。主要プレイヤーの国内での動きは、個別ニュースではなく地図として整理しておきたい。</p></div><p class="meta"><span>ascii.jp</span><span class="dot">/</span><span>PROMO 9.6</span><span class="tag">AI</span><span class="tag">trend</span></p></article></div></section>
+<section class="colophon"><span class="section-label">編集メモ</span><p>収録2本と薄い号になったが、論点は素直に重なった。実行環境の所在という切り口は、来週以降の記事にも当てはめてみる価値がある。対象期間より前にpromo化したまま未掲載の記事が6本（Spanner関連が中心）残っており、まとまった塊として別途扱うか判断が要る。</p></section>
+<nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://www.onorca.dev/" rel="noopener">Orca — The Worktree IDE for Claude Code, Ghostty &amp; AI Coding Agents</a> <span class="meta" style="display:inline">onorca.dev</span></li><li><a href="https://ascii.jp/elem/000/004/340/4340811/" rel="noopener">Anthropic日本法人設立、データ国内処理で日本市場に最適化</a> <span class="meta" style="display:inline">ascii.jp</span></li></ol></nav>
+<footer class="foot"><p>生成: 2026-09-13 04:07 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+</div>
+</body>
+</html>
