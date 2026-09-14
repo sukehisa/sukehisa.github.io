@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="「誰が義務を負うか」ではなく「義務を負う者の手元に記録があるか」を探索軸に置き、記録の所在が責任の所在とずれている3つの構造を5軸評価で検証した結果">
+<title>2026-09-15: 責任を負う者が記録を持っていない — エージェント決済の異議・消えた支払調書・個人事業者の災害報告における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-15</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / agentic-commerce / chargeback / creator-economy</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-リスク・反証分析-fail-safe-analysis" title="4. リスク・反証分析 (Fail-safe Analysis)">4. リスク・反証分析</a><a href="#5-参考ロードマップ-14日間mvpの想定仕様" title="5. 参考ロードマップ (14日間MVPの想定仕様)">5. 参考ロードマップ</a><a href="#6-スクリーニング結果と提案候補-参考情報" title="6. スクリーニング結果と提案候補 (参考情報)">6. スクリーニング結果と提案候補</a><a href="#関連リンク" title="関連リンク">関連リンク</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-15">市場リサーチ &amp; 5軸評価レポート (2026-09-15)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">order-witness</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 7 件（うち一次ソース 8 件）</div></div><div class="fig">17<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">order-witness</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">payout-recon</div><div class="val">12<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="3 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">saigai-scope</div><div class="val">14<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="2 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 2点"><i style="height:40%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</a></li><li><a href="#5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</a></li><li><a href="#6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</a></li><li><a href="#関連リンク">関連リンク</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>過去25本のレポートは、探索軸を2回しか変えていません。 最初の20本は「締切」を見ていました。 規制や仕様の発効日が決まり、その日までに当事者が棚卸しをする、という形です。 前回（2026-09-14）は「設置ベース」へ移しました。 壊れ続けるものを見張る道具は、動いている限り売れるという読みです。</p><p>どちらも、探しているものは同じでした。 <strong>義務や故障が、誰に発生するか</strong>です。</p><p>今回は問いを一段ずらします。 義務が発生する相手ではなく、<strong>その義務に答えるための記録が、誰の手元にあるか</strong>を見ます。</p><p>この軸が有効だと考えた理由は、前回の失敗の形にあります。 前回の3案のうち2案は、隙間そのものは実在したのに落ちました。 <code>key-blast</code> は「隙間を埋めるのはプラットフォームの側」で落ち、<code>send-gate</code> は「既存の持ち場が空いていない」で落ちています。 つまり、<strong>隙間の有無ではなく、隙間の埋め手が誰かで勝敗が決まっていました。</strong></p><p>埋め手を先に判定できる指標が要ります。 記録の所在は、その指標になります。 義務を負う者が記録を持っているなら、道具は「持っている記録を整える」仕事であり、個人が作れます。 義務を負う者が記録を持っていないなら、道具は「他人から記録をもらう」仕事になり、もらう先のプラットフォームが自分で提供して終わります。</p><p>今回はこの軸で3つの構造を拾いました。</p><ul><li><strong>エージェントが行った決済の異議申立</strong>（責任は加盟店、記録はエージェント基盤）</li><li><strong>米国クリエイターの年間所得</strong>（納税義務は本人、記録は支払調書を出さなくなったプラットフォーム）</li><li><strong>個人事業者の業務上災害報告</strong>（報告義務は注文者、記録は自社の労務台帳に載らない他人）</li></ul><p>3つとも「責任と記録がずれている」点は同じです。 違いは、<strong>ずれを個人開発者が埋められるか、それとも構造上埋められないか</strong>でした。 結論から書くと、埋められたのは1つだけで、残り2つは記録の所在が動かないために落ちました。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-order-witness-エージェント経由の注文について-加盟店側に届いた証跡を注文の瞬間に固定し-届かなかった項目を-不在-として記録に残す異議申立用の証拠保全サービス">アイデア 1: <code>order-witness</code> (エージェント経由の注文について、加盟店側に届いた証跡を注文の瞬間に固定し、届かなかった項目を「不在」として記録に残す異議申立用の証拠保全サービス)</h3><p>対象は、AIエージェント経由の注文を受け付け始めた中小EC事業者です。 Shopify のようにプラットフォーム側が異議対応を抱える層ではなく、自前のカートで決済を通している層が射程です。</p><p>入力は、注文確定時のリクエストです。 出力は、次の3つを1件ずつ封緘した注文ドシエです。</p><p>1. <strong>その注文に付いていたエージェント側の識別情報</strong>（署名付きヘッダ、エージェントトークン、ACP のペイロード） 2. <strong>加盟店が購入者へ送った通知の内容と送信時刻</strong>、および取消可能だった時間幅 3. <strong>受け取れなかった項目の明示的な不在記録</strong>（購入者がエージェントへ与えた権限の範囲、金額上限、承認の有無）</p><p>3番目が本体です。 新しい証拠を作ることではなく、<strong>「加盟店側には届いていない」という事実を、異議が起きる前の日付で確定させる</strong>のが売り物です。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>最も価値の高いエビデンスは、この領域を解説している当事者自身が、必要な記録の所在を明言している一文です。</p><blockquote class="voice"><p>Right now, that information lives in the agent platform's logs, if it exists at all, and has no path into the agentic commerce dispute process. — <a href="https://www.fraudbeat.com/agentic-commerce-disputes-friendly-fraud/" target="_blank" rel="noopener noreferrer">Agentic Commerce Disputes: A Fraud Window Left Open（FraudBeat）</a></p></blockquote><p>同じ文書は、加盟店が反証できない理由を、取引の見え方の側から書いています。</p><blockquote class="voice"><p>They receive a valid, tokenized, network-authenticated transaction. They fulfill the order. Then they receive a dispute they have no evidence playbook to fight, because the authorization trail proves the agent acted, not that the consumer approved the specific outcome. — <a href="https://www.fraudbeat.com/agentic-commerce-disputes-friendly-fraud/" target="_blank" rel="noopener noreferrer">FraudBeat</a></p></blockquote><p>従来の反証材料が消える理由は、異議解決の実務側からも記述されています。</p><blockquote class="voice"><p>There is no human click trail. No behavioral session data from the cardholder. The device fingerprint belongs to the agent's MCP server, not the buyer's device. — <a href="https://justt.ai/blog/solving-agentic-commerce-chargebacks/" target="_blank" rel="noopener noreferrer">Agentic Commerce Chargebacks and the Evidence Gap（Justt）</a></p></blockquote><p>プロトコル自身が責任配分を扱わないことは、法務側の解説が明示しています。</p><blockquote class="voice"><p>ACP moves data between parties; it does not allocate fault among them. — <a href="https://fintechlaw.ai/blog/agentic-commerce-protocol-instant-checkout-payments-risk" target="_blank" rel="noopener noreferrer">Agentic Commerce Protocol: Payment Rail Risk for Merchants（Fintech Law）</a></p></blockquote><blockquote class="voice"><p>Standard e-commerce terms assume a human clicked buy. — <a href="https://fintechlaw.ai/blog/agentic-commerce-protocol-instant-checkout-payments-risk" target="_blank" rel="noopener noreferrer">Fintech Law</a></p></blockquote><p>規模の見通しは、異議件数の予測として出ています。</p><blockquote class="voice"><p>Datos Insights projects a 24% rise in global chargeback volume between 2025 and 2028, reaching 324 million disputes annually. — <a href="https://justt.ai/blog/solving-agentic-commerce-chargebacks/" target="_blank" rel="noopener noreferrer">Justt</a></p></blockquote><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは <strong>4. ワークフロー糊付け型</strong> と <strong>5. 規制・プラットフォーム変更対応型</strong> の中間です。 既存の注文フローに寄生し、決済レールの変更に伴って必要になった記録を作ります。</p><p>なぜ今かは、時間差にあります。 異議は注文の瞬間には起きません。 カード不正利用の異議申立は注文から数か月後に届き、その時点で取りに行っても、注文時にどのヘッダが付いていたかはもう再現できません。 <strong>証拠の保全は事前にしか行えず、異議対応の道具は事後にしか呼ばれません。</strong> この非対称が、異議解決SaaSの手前に空きを作っています。</p><p>必要な記録の中身が、2026年に入って具体化した点も効きます。 何を残すべきかは、異議対応側が既に列挙しています。</p><blockquote class="voice"><p>Evidence that the agent acted within the parameters the customer defined, not outside them — <a href="https://www.chargeflow.io/blog/agentic-commerce-chargebacks-the-evidence-playbook-merchants-need" target="_blank" rel="noopener noreferrer">Agentic Commerce Chargebacks: Evidence Playbook（Chargeflow）</a></p></blockquote><p>列挙されているのに取得経路がない、という状態が今の位置です。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>解決済みの範囲は、<strong>異議が届いた後</strong>です。 Chargeflow、Justt、Chargebacks911 は、届いた異議に対して反証書面を組み立て、期限内に提出する工程を持っています。 証拠の型も、上記のとおり公開済みです。</p><p>解決していない範囲は、<strong>異議が届く前</strong>です。 これらのサービスは決済事業者の異議レコードを起点に動くため、参照できるのは決済側に残った項目に限られます。 エージェント識別のヘッダや ACP のペイロードは加盟店のアプリケーション層に届いて、そこで捨てられます。</p><p>境界線はここに引けます。 <strong>決済事業者に残る情報は既存プレイヤーの持ち場であり、加盟店のリクエストハンドラを通過して消える情報は誰の持ち場でもありません。</strong></p><p>ただし、この境界線は動きます。 カード国際ブランドがエージェント用の認証証跡を整備すれば、決定的な項目は決済レールに乗り、加盟店側で拾う理由が消えます。 現状の進捗は「まだ成熟していない」段階ですが、これは猶予期間であって安定した堀ではありません。</p><hr><h3 id="アイデア-2-payout-recon-支払調書が発行されなくなった帯域の所得を-プラットフォームの入金履歴から再構成する米国クリエイター向けの年次集計ツール">アイデア 2: <code>payout-recon</code> (支払調書が発行されなくなった帯域の所得を、プラットフォームの入金履歴から再構成する米国クリエイター向けの年次集計ツール)</h3><p>対象は、複数プラットフォームから収入を得ている米国の個人クリエイターです。 2026年1月1日以降の支払について、支払調書（Form 1099）の発行閾値が $600 から $2,000 へ引き上げられました。 納税義務は変わらないまま、義務を思い出させていた紙だけが消えます。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>閾値の変更は条文の適用日として確定しています。</p><blockquote class="voice"><p>The $2,000 threshold applies to payments made on or after January 1, 2026, up from the previous $600 threshold under the One Big Beautiful Bill Act. — <a href="https://www.gigapay.com/blog/influencer-payment-tax-compliance-in-2026" target="_blank" rel="noopener noreferrer">Influencer Payment Tax Compliance in 2026（Gigapay）</a></p></blockquote><p>書類の義務は閾値と連動していません。</p><blockquote class="voice"><p>The W-9 is not tied to the 1099 threshold. A brand paying a creator $200 for a single Instagram Story still needs the W-9 on file. — <a href="https://www.gigapay.com/blog/influencer-payment-tax-compliance-in-2026" target="_blank" rel="noopener noreferrer">Gigapay</a></p></blockquote><p>当事者の理解度は低い水準にとどまっています。</p><blockquote class="voice"><p>Around 71% of creators still do not realise that free products and brand trips count as taxable income, which pushes the reporting responsibility further onto the brands paying them. — <a href="https://www.gigapay.com/blog/influencer-payment-tax-compliance-in-2026" target="_blank" rel="noopener noreferrer">Gigapay</a></p></blockquote><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは <strong>5. 規制・プラットフォーム変更対応型</strong> です。 2027年1月から4月の申告期が、変更後の最初の実務になります。</p><p>ただし引用の最後の一文が、この案の急所を指しています。 理解不足は「支払う側へ責任を押し戻す」方向に作用しており、<strong>痛みを最初に感じるのはクリエイター本人ではなくブランド側</strong>です。 本人は、書類が来ないことに気づきません。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲-1">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>解決済みの範囲が広すぎます。 入金履歴の集計は、会計SaaS（QuickBooks Self-Employed、Hurdlr、Found）が既にプラットフォーム連携込みで提供しています。 未解決なのは「書類が来ない収入を本人が思い出す」工程ですが、これは道具の不足ではなく認知の不足です。 <strong>記録はプラットフォームの管理画面に残っており、責任者本人がアクセスできます。</strong> 今回の探索軸に照らすと、これは「ずれ」ではありません。</p><hr><h3 id="アイデア-3-saigai-scope-改正労働安全衛生法の個人事業者等業務上災害報告について-自社が特定注文者に当たるかを判定し-判定根拠を文書として残すツール">アイデア 3: <code>saigai-scope</code> (改正労働安全衛生法の個人事業者等業務上災害報告について、自社が特定注文者に当たるかを判定し、判定根拠を文書として残すツール)</h3><p>対象は、フリーランスや一人親方へ発注し、同じ場所で作業させている国内事業者です。 建設、介護、芸能、物流が中心になります。 2027年1月1日から、発注先の個人事業者が休業4日以上の災害に遭った場合、注文者側に労働基準監督署への報告義務が生じます。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>義務者の定義は、多重下請けの中で位置が決まります。</p><blockquote class="voice"><p>特定注文者とは、基本的にはフリーランスへ直接仕事を依頼した直近の上位者を指します — <a href="https://sr.platworks.jp/column/12281" target="_blank" rel="noopener noreferrer">【2027年1月施行】フリーランスの「死傷病報告」義務化（プラットワークス）</a></p></blockquote><p>報告の対象範囲も限定されています。</p><blockquote class="voice"><p>休業4日以上の死傷災害が報告対象 — <a href="https://sr.platworks.jp/column/12281" target="_blank" rel="noopener noreferrer">プラットワークス</a></p></blockquote><p>未報告の帰結は罰金にとどまりません。</p><blockquote class="voice"><p>50万円以下の罰金（安衛法120条）に加え、悪質な未報告は「労災かくし」として公表や送検の対象となるリスクがあり、企業の社会的信用を大きく損なう可能性 — <a href="https://sr.platworks.jp/column/12281" target="_blank" rel="noopener noreferrer">プラットワークス</a></p></blockquote><p>実務側で先に整備が必要とされているのは、契約時点の情報確認です。</p><blockquote class="voice"><p>発注企業としては今後、契約時にこれらの「特別加入の有無と番号」情報を確認しておく体制づくりが、実務上のスタンダードになると予想される — <a href="https://sr.platworks.jp/column/12281" target="_blank" rel="noopener noreferrer">プラットワークス</a></p></blockquote><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは <strong>5. 規制・プラットフォーム変更対応型</strong> です。 施行日が2027年1月1日に確定しており、対象業種も明確です。</p><h4 id="既存プレイヤーが解決済みの範囲と-していない範囲-2">既存プレイヤーが解決済みの範囲と、していない範囲</h4><p>解決済みの範囲は、自社の労働者に関する部分です。 労務SaaS（SmartHR、人事労務freee）は雇用関係のある人の台帳を持ち、労働者死傷病報告の様式も扱えます。</p><p>未解決の範囲は、<strong>雇用関係のない人の災害</strong>です。 個人事業者は労務台帳に載らないため、誰がどの現場に何日入っていたかを事後に再構成できません。 記録の所在は、発注書と現場の入退場記録に分散しています。</p><p>境界線は引けます。 ただし、この案は発火頻度が致命的です。 休業4日以上の災害は、1社あたり年に何度も起きる事象ではありません。 <strong>使う日が来ないかもしれない道具に、事業者は月額を払いません。</strong></p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>order-witness</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>payout-recon</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>saigai-scope</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">異議件数は2028年までに24%増・年3.24億件の予測があり、必要な証拠の型も2026年に公開済み。ただし異議は注文の数か月後に届くため、今日エージェント経由の異議を実際に食らっている加盟店はまだ少ない。買い手は痛みではなく予測で買うことになり、購買動機が一段弱い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">2026年1月1日適用の閾値変更は確定しており、2027年1月からの申告期が最初の実務になる。ただし当事者の71%が課税対象の認識を持たない水準で、痛みを自覚していない者には売れない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">2027年1月1日施行が確定し、対象業種も特定できる。ただし報告が必要な災害は休業4日以上に限られ、1社あたりの発生頻度が年1回に満たない</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">注文確定時のリクエストを受けるミドルウェアと、封緘保管、反証書面の出力で構成でき、2〜3週間に収まる。ただしエージェント識別の項目名がプラットフォームごとに異なり、対応先を増やすたびに手作業のマッピングが要る</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">集計ロジック自体は平易。ただしプラットフォームごとの入金履歴の取得経路が統一されておらず、CSV取り込みに落とすと利用者の手作業が残る</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">判定は決定木で表現でき、様式の出力も定型。2週間で動く。ただし多重下請けの「最も後次の注文者」の判定は契約実態に依存し、入力項目の設計が重い</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">証拠保全は継続課金の型に乗り、注文量に応じた月 $29〜$99 が成立する。異議1件の平均損失が商品代を上回るため、支払いの正当化が容易。ただし異議が来ない月も払い続けてもらう説明が必要で、解約が起きるのは「何も起きなかった」ときになる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">年1回の申告期にしか使わず、単発 $15〜$30 が上限。同機能を会計SaaSが月額に含めて配っており、価格が立たない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">災害発生時にしか使わない道具であり、継続課金の器にならない。顧問社労士が同じ判断を無償の相談枠で行う</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">異議解決SaaS3社は決済事業者の異議レコードを起点とするため、加盟店のアプリ層で捨てられる項目には手が届かない。事前保全という位置は空いている。ただしカード国際ブランドがエージェント用の認証証跡を整えれば、決定的な項目は決済レールに乗り、この位置は消える。堀ではなく猶予期間</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">QuickBooks・Hurdlr・Found が入金集計を既に提供済み。加えて記録は本人がアクセスできる場所にあり、そもそも「ずれ」が存在しない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">労務SaaSは雇用関係のある人しか扱わず、個人事業者の現場記録は空白。ただし顧問社労士という既存の担い手が同じ判断を担っており、事業者は新しいツールではなく既存の相談先へ行く</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">注文データを18か月保管する設計であり、ゼロインフラにならない。加えて異議の提出期限は固定で、期限直前の問い合わせに個人が即応する必要がある。逆に、平時の運用負荷はほぼ発生しない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">申告期に問い合わせが集中し、金額の誤りが利用者の納税額に直結する。個人が負う責任の水準に見合わない</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">法解釈の誤りが利用者の刑事・行政リスクへ直結する。改正の運用通達が出るたびに判定木を追随させる必要があり、個人の保守負荷が高い</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">12<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td><td><span class="tot">14<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="配点理由">配点理由</h3><h4 id="idea-1-order-witness-17点-tier-2-hold">Idea 1: <code>order-witness</code> — 17点 (Tier 2: HOLD)</h4><p>唯一、3つの条件を同時に満たしました。 責任が加盟店にあること、決定的な記録が加盟店の手元を素通りしていること、そして<strong>素通りする地点が加盟店のサーバであること</strong>です。 3番目が効きます。 加盟店のリクエストハンドラは加盟店の持ち物なので、個人が書いたミドルウェアを差し込めます。</p><p>減点は2か所です。 軸1は、痛みの到来が遅いことで落としました。 エージェント経由の注文が増えているのは事実でも、それが異議になって返ってくるのは数か月先であり、加盟店は現時点で損失を計上していません。 軸4は、堀の性質で落としました。 空いている位置は実在しますが、空いている理由は「カード国際ブランドがまだ整えていないから」です。 整えた瞬間に消える位置を、堀とは呼べません。</p><h4 id="idea-2-payout-recon-12点-tier-3-drop">Idea 2: <code>payout-recon</code> — 12点 (Tier 3: DROP)</h4><p>探索軸に照らして落ちました。 責任者は本人であり、記録はプラットフォームの管理画面にあり、本人はそこへログインできます。 これは記録の所在のずれではなく、単に本人が見に行かないだけです。 <strong>見に行かない人向けの道具は、見に行こうと思った人にしか売れません。</strong> 加えて、軸3と軸4の両方で既存の会計SaaSと正面から重なりました。</p><h4 id="idea-3-saigai-scope-14点-tier-3-drop">Idea 3: <code>saigai-scope</code> — 14点 (Tier 3: DROP)</h4><p>ずれ自体は本物でした。 雇用関係のない人の災害は、既存の労務SaaSの外側にあります。 落としたのは頻度です。 軸3で書いたとおり、年に1度も使わない可能性が高い道具に継続課金は成立しません。 さらに軸5で、法解釈の誤りが利用者の刑事リスクへ直結する点を減点しました。 個人開発者がこの責任を引き受ける理由が、収益の側にありません。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-15)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-15)"><title>アイデア候補のポジショニングマップ (2026-09-15)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="367.9" cy="132.2" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="379.9" y="136.2" text-anchor="start" class="qpt-label">1</text><circle cx="367.9" cy="132.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Order Witness 総合 17 / 25（Tier 2）" data-tv="Idea 1: Order Witness" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="186.2" cy="251.5" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="198.2" y="255.5" text-anchor="start" class="qpt-label">2</text><circle cx="186.2" cy="251.5" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Payout Recon 総合 12 / 25（Tier 3）" data-tv="Idea 2: Payout Recon" data-td="総合 12 / 25（Tier 3）"/></g><g><circle cx="288.4" cy="223.1" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="300.4" y="227.1" text-anchor="start" class="qpt-label">3</text><circle cx="288.4" cy="223.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: Saigai Scope 総合 14 / 25（Tier 3）" data-tv="Idea 3: Saigai Scope" data-td="総合 14 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Order Witness</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Payout Recon</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: Saigai Scope</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-リスク・反証分析-fail-safe-analysis">4. リスク・反証分析 (Fail-safe Analysis)</h2><h3 id="idea-1-が失敗する最大の理由">Idea 1 が失敗する最大の理由</h3><p><strong>保全した証拠が、異議の場で読まれない可能性があります。</strong></p><p>異議申立の審査は、カード発行会社と国際ブランドの定める証拠区分に沿って行われます。 提出できる項目は様式で決まっており、様式にない項目を添付しても、審査側が評価する義務はありません。 <code>order-witness</code> が保全するエージェント識別のヘッダや ACP のペイロードは、現時点でどの証拠区分にも対応していません。</p><p>つまり、<strong>「証拠を持っている」ことと「証拠として採用される」ことの間に、まだ橋が架かっていません。</strong> 橋を架けるのは国際ブランドであり、個人開発者ではありません。</p><p>対策は、売り物の主張を変えることです。 異議に勝つための証拠ではなく、<strong>責任の所在を交渉するための記録</strong>として売ります。 具体的には、エージェント基盤の提供者との契約交渉や、決済事業者への申し入れの材料として使う形です。 先に引用したとおり、法務側の指摘は契約の不備を指しています。</p><blockquote class="voice"><p>If your contracts do not name that party, your contracts are incomplete. — <a href="https://fintechlaw.ai/blog/agentic-commerce-protocol-instant-checkout-payments-risk" target="_blank" rel="noopener noreferrer">Fintech Law</a></p></blockquote><p>契約に名前を書くには、何が届いていて何が届いていないかの実測が要ります。 この用途なら、証拠区分の外にあることは障害になりません。</p><h3 id="2番目に大きいリスク">2番目に大きいリスク</h3><p><strong>エージェント経由の注文量が、まだ課金を正当化する水準に達していない可能性です。</strong></p><p>エージェントのブラウジングが増えていることと、エージェントが決済まで完走していることは別です。 完走した注文の件数は、加盟店ごとに大きく割れます。 月に数件しかない加盟店にとって、保全サービスの月額は損失の期待値を上回ります。</p><p>対策は、課金の起点を注文件数に連動させることです。 初期は無料で計測だけ行い、エージェント経由の注文が一定件数を超えた加盟店にだけ課金へ移行します。 これは同時に、後述するロードマップ初日の検証にもなります。</p><h3 id="idea-2-が失敗する理由">Idea 2 が失敗する理由</h3><p>売る相手を間違えています。 痛みを負っているのはクリエイター本人ではなく、支払調書と源泉徴収の責任を負うブランド側です。 ブランド側を対象にすると、今度は Gigapay のような支払プラットフォームと正面衝突します。</p><h3 id="idea-3-が失敗する理由">Idea 3 が失敗する理由</h3><p>判定が必要になる瞬間が、事故の直後だからです。 事故の直後に事業者が最初に連絡するのは、ソフトウェアではなく顧問社労士と元請けです。 道具が呼ばれる順番が、構造的に後ろすぎます。</p><hr><h2 id="5-参考ロードマップ-14日間mvpの想定仕様">5. 参考ロードマップ (14日間MVPの想定仕様)</h2><p>対象は <code>order-witness</code> です。</p><div class="tw"><table><thead><tr><th>Day</th><th>内容</th></tr></thead><tbody><tr><td class="tk"><strong>1〜2</strong></td><td><strong>前提の事前検証</strong>。実際にエージェント経由の注文がどれだけ到達しているかを、自前で確かめる。ダミーの商品ページと決済導線を1つ立て、ACP 対応の導線と主要なエージェントブラウザから注文を通し、<strong>加盟店のリクエストハンドラに何が届き、何が届かないか</strong>を項目単位で記録する。ここで「届く項目が空である」または「届く項目が決済事業者のダッシュボードにも既に出ている」と判明した場合、本案は成立しないため打ち切る</td></tr><tr><td class="tk"><strong>3〜4</strong></td><td>中小EC事業者5社へヒアリング。エージェント経由の注文件数の実数と、直近1年の異議件数を聞く。件数がゼロの層しか見つからない場合は、課金の起点を再設計する</td></tr><tr><td class="tk"><strong>5〜7</strong></td><td>注文確定時のリクエストを受けるミドルウェアを実装（Node / Python の2言語）。エージェント識別項目の抽出、通知送信時刻の記録、不在項目の明示的な記録までを含む</td></tr><tr><td class="tk"><strong>8〜10</strong></td><td>封緘保管の実装。注文ごとにハッシュを付け、後から追記できない形で18か月保管する。保管期間と削除ポリシーを明文化する</td></tr><tr><td class="tk"><strong>11〜12</strong></td><td>注文ドシエの出力。異議が届いたときに提出する書面と、契約交渉で使う「届いていない項目の一覧」の2種類を生成する</td></tr><tr><td class="tk"><strong>13〜14</strong></td><td>ヒアリング先5社のうち2社へ試験導入。1か月の無償計測を提示し、エージェント経由の注文件数が課金の閾値を超えるかを実データで確認する</td></tr></tbody></table></div><p>初日を実装ではなく実測に充てているのは、この案の前提が1つの観測で崩れるからです。 加盟店のリクエストハンドラに何も届かないのであれば、保全する対象が存在しません。 その確認に必要なのは2日であり、14日ではありません。</p><hr><h2 id="6-スクリーニング結果と提案候補-参考情報">6. スクリーニング結果と提案候補 (参考情報)</h2><div class="tw"><table><thead><tr><th>順位</th><th>アイデア</th><th>総合スコア</th><th>判定</th><th>一言</th></tr></thead><tbody><tr><td class="tk">1</td><td><code>order-witness</code></td><td>17 / 25</td><td>Tier 2: HOLD</td><td>記録が素通りする地点が自分の持ち物なら、個人でも拾える</td></tr><tr><td class="tk">2</td><td><code>saigai-scope</code></td><td>14 / 25</td><td>Tier 3: DROP</td><td>空白は本物だが、道具が呼ばれる順番が遅すぎる</td></tr><tr><td class="tk">3</td><td><code>payout-recon</code></td><td>12 / 25</td><td>Tier 3: DROP</td><td>記録は本人の手元にある。ずれているのは所在ではなく関心</td></tr></tbody></table></div><h3 id="今回却下した候補と理由">今回却下した候補と理由</h3><p><strong>セルフホスト環境のバージョン整合チェック</strong>。 Level1Techs の2026年の自己ホスティング討議には、具体的な痛点が繰り返し現れます。</p><blockquote class="voice"><p>Auto updates! Tried watchtower for auto docker updates once, dont recommend. — Jojo314, <a href="https://forum.level1techs.com/t/self-hosting-series-in-2026-what-are-you-running-whats-your-pain-points/249411" target="_blank" rel="noopener noreferrer">Self-Hosting Series in 2026（Level1Techs Forums）</a></p></blockquote><blockquote class="voice"><p>Immich in particular is notorious for having app versions incompatible with older server versions — Jojo314, <a href="https://forum.level1techs.com/t/self-hosting-series-in-2026-what-are-you-running-whats-your-pain-points/249411" target="_blank" rel="noopener noreferrer">同スレッド</a></p></blockquote><p>痛点は実在し、互換表を蓄積すれば模倣されにくい資産にもなります。 落としたのは支払い意欲です。 同じスレッドで語られる利用者像は、<strong>サブスクリプションから降りるために自己ホストを選んだ層</strong>であり、月額を払う対象を増やす動機が構造的にありません。 軸3が2点を超えないため、他の軸が高くても Tier 2 に届きません。</p><p><strong>AIエージェント経由の売上が自社解析に現れない問題</strong>（オフサイト計測）。 記録の所在がずれている点では今回の軸に合致しますが、ずれの相手がエージェント基盤であり、そこから記録を引き出す経路が加盟店側に存在しません。 Idea 1 と違い、<strong>素通りする地点が自分の持ち物ではない</strong>ため、同じ軸で落ちます。</p><h3 id="今回の探索から得られた条件">今回の探索から得られた条件</h3><p>3案を並べて分かったのは、記録の所在という指標が、そのままでは粗いことです。 「責任と記録がずれている」だけでは足りません。 条件はもう一段細かく、次の形になります。</p><p><strong>記録が素通りしていく地点が、責任者自身の持ち物であること。</strong></p><p><code>order-witness</code> が通ったのは、記録が消える場所が加盟店のサーバだったからです。 <code>payout-recon</code> は記録が本人のアクセス可能な場所にあり、ずれていませんでした。 オフサイト計測は記録が他人の内側にあり、拾う場所がありませんでした。</p><p>ずれの有無ではなく、<strong>ずれが起きる地点の所有権</strong>を見ます。</p><hr><h2 id="関連リンク">関連リンク</h2><ul><li>Market Researches Index</li><li>5軸評価フレームワーク</li><li>前回のレポート (2026-09-14)</li></ul><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.fraudbeat.com/agentic-commerce-disputes-friendly-fraud/" target="_blank" rel="noopener noreferrer">Agentic Commerce Disputes: A Fraud Window Left Open（FraudBeat）</a><span class="u">https://www.fraudbeat.com/agentic-commerce-disputes-friendly-fraud/</span></li><li><a href="https://justt.ai/blog/solving-agentic-commerce-chargebacks/" target="_blank" rel="noopener noreferrer">Agentic Commerce Chargebacks and the Evidence Gap（Justt）</a><span class="u">https://justt.ai/blog/solving-agentic-commerce-chargebacks/</span></li><li><a href="https://www.chargeflow.io/blog/agentic-commerce-chargebacks-the-evidence-playbook-merchants-need" target="_blank" rel="noopener noreferrer">Agentic Commerce Chargebacks: Evidence Playbook（Chargeflow）</a><span class="u">https://www.chargeflow.io/blog/agentic-commerce-chargebacks-the-evidence-playbook-merchants-need</span></li><li><a href="https://fintechlaw.ai/blog/agentic-commerce-protocol-instant-checkout-payments-risk" target="_blank" rel="noopener noreferrer">Agentic Commerce Protocol: Payment Rail Risk for Merchants（Fintech Law）</a><span class="u">https://fintechlaw.ai/blog/agentic-commerce-protocol-instant-checkout-payments-risk</span></li><li><a href="https://www.gigapay.com/blog/influencer-payment-tax-compliance-in-2026" target="_blank" rel="noopener noreferrer">Influencer Payment Tax Compliance in 2026: 1099s, W-9s, and DAC7 Explained（Gigapay）</a><span class="u">https://www.gigapay.com/blog/influencer-payment-tax-compliance-in-2026</span></li><li><a href="https://sr.platworks.jp/column/12281" target="_blank" rel="noopener noreferrer">【2027年1月施行】フリーランスの「死傷病報告」義務化（社会保険労務士法人プラットワークス）</a><span class="u">https://sr.platworks.jp/column/12281</span></li><li><a href="https://www.yurokyo.or.jp/info/view/6619" target="_blank" rel="noopener noreferrer">2027年1月から「個人事業者等に係る労働災害報告制度」が始まります（全国有料老人ホーム協会）</a><span class="u">https://www.yurokyo.or.jp/info/view/6619</span></li><li><a href="https://forum.level1techs.com/t/self-hosting-series-in-2026-what-are-you-running-whats-your-pain-points/249411" target="_blank" rel="noopener noreferrer">Self-Hosting Series in 2026: What are you running? What&#x27;s your pain points?（Level1Techs Forums）</a><span class="u">https://forum.level1techs.com/t/self-hosting-series-in-2026-what-are-you-running-whats-your-pain-points/249411</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-15_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
