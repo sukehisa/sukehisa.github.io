@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-17T06:21:23+09:00",
+  "generated_at": "2026-09-20T06:56:46+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -7,6 +7,12 @@
       "description": "バフェット流ファンダメンタル（Gate 1）× テクニカルシグナル（Gate 2）による日次の市場分析・売買プラン。",
       "icon": "📈",
       "reports": [
+        {
+          "file": "2026-09-20_daily_market_report.html",
+          "title": "株式市場分析 & 投資判断レポート (2026-09-20)",
+          "date": "2026-09-20",
+          "bytes": 298977
+        },
         {
           "file": "2026-09-17_daily_market_report.html",
           "title": "株式市場分析 & 投資判断レポート (2026-09-17)",
@@ -177,6 +183,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-20_market_research_report.html",
+          "title": "2026-09-20: 撤去ではなく既定値の反転 — Supabase の grant 既定・NTLMv1 の Audit 終了・Entra 旧リスクポリシー退役における穴場市場の特定",
+          "date": "2026-09-20",
+          "bytes": 70815
+        },
         {
           "file": "2026-09-17_market_research_report.html",
           "title": "2026-09-17: 警告は出ている、出る場所が違うだけ — Chrome の XSLT 撤去・apt が拒否する署名鍵・送られない Sunset ヘッダにおける穴場市場の特定",
