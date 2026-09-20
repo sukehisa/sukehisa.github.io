@@ -1,188 +1,18 @@
 {
-  "generated_at": "2026-09-20T07:03:01+09:00",
+  "generated_at": "2026-09-21T06:36:36+09:00",
   "categories": [
-    {
-      "slug": "stock-investment",
-      "title": "株式市場分析 & 投資判断レポート",
-      "description": "バフェット流ファンダメンタル（Gate 1）× テクニカルシグナル（Gate 2）による日次の市場分析・売買プラン。",
-      "icon": "📈",
-      "reports": [
-        {
-          "file": "2026-09-20_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-20)",
-          "date": "2026-09-20",
-          "bytes": 316851
-        },
-        {
-          "file": "2026-09-17_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-17)",
-          "date": "2026-09-17",
-          "bytes": 298097
-        },
-        {
-          "file": "2026-09-16_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-16)",
-          "date": "2026-09-16",
-          "bytes": 296028
-        },
-        {
-          "file": "2026-09-15_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-15)",
-          "date": "2026-09-15",
-          "bytes": 299865
-        },
-        {
-          "file": "2026-09-14_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-14)",
-          "date": "2026-09-14",
-          "bytes": 298491
-        },
-        {
-          "file": "2026-09-13_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-13)",
-          "date": "2026-09-13",
-          "bytes": 294719
-        },
-        {
-          "file": "2026-09-12_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-12)",
-          "date": "2026-09-12",
-          "bytes": 291723
-        },
-        {
-          "file": "2026-09-11_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-11)",
-          "date": "2026-09-11",
-          "bytes": 301273
-        },
-        {
-          "file": "2026-09-10_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-10)",
-          "date": "2026-09-10",
-          "bytes": 300007
-        },
-        {
-          "file": "2026-09-09_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-09)",
-          "date": "2026-09-09",
-          "bytes": 293963
-        },
-        {
-          "file": "2026-09-08_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-08)",
-          "date": "2026-09-08",
-          "bytes": 289788
-        },
-        {
-          "file": "2026-09-07_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-07)",
-          "date": "2026-09-07",
-          "bytes": 285100
-        },
-        {
-          "file": "2026-09-06_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-06)",
-          "date": "2026-09-06",
-          "bytes": 287234
-        },
-        {
-          "file": "2026-09-05_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-05)",
-          "date": "2026-09-05",
-          "bytes": 286255
-        },
-        {
-          "file": "2026-09-04_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-04)",
-          "date": "2026-09-04",
-          "bytes": 300610
-        },
-        {
-          "file": "2026-09-03_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-03)",
-          "date": "2026-09-03",
-          "bytes": 303613
-        },
-        {
-          "file": "2026-09-02_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-02)",
-          "date": "2026-09-02",
-          "bytes": 296359
-        },
-        {
-          "file": "2026-09-01_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-09-01)",
-          "date": "2026-09-01",
-          "bytes": 295673
-        },
-        {
-          "file": "2026-08-31_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-31)",
-          "date": "2026-08-31",
-          "bytes": 297004
-        },
-        {
-          "file": "2026-08-30_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-30)",
-          "date": "2026-08-30",
-          "bytes": 290298
-        },
-        {
-          "file": "2026-08-29_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-29)",
-          "date": "2026-08-29",
-          "bytes": 288212
-        },
-        {
-          "file": "2026-08-28_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-28)",
-          "date": "2026-08-28",
-          "bytes": 304634
-        },
-        {
-          "file": "2026-08-27_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-27)",
-          "date": "2026-08-27",
-          "bytes": 286555
-        },
-        {
-          "file": "2026-08-26_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-26)",
-          "date": "2026-08-26",
-          "bytes": 278976
-        },
-        {
-          "file": "2026-08-25_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-25)",
-          "date": "2026-08-25",
-          "bytes": 300469
-        },
-        {
-          "file": "2026-08-24_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-24)",
-          "date": "2026-08-24",
-          "bytes": 286961
-        },
-        {
-          "file": "2026-08-23_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-23)",
-          "date": "2026-08-23",
-          "bytes": 283567
-        },
-        {
-          "file": "2026-08-22_daily_market_report.html",
-          "title": "株式市場分析 & 投資判断レポート (2026-08-22)",
-          "date": "2026-08-22",
-          "bytes": 280824
-        }
-      ]
-    },
     {
       "slug": "side-hustle",
       "title": "市場リサーチ & 5軸評価レポート",
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-21_market_research_report.html",
+          "title": "2026-09-21: 値上げではなく数え方の新設 — Atlassian の自動化ステップ・WhatsApp のサービスメッセージ・Rovo クレジットにおける穴場市場の特定",
+          "date": "2026-09-21",
+          "bytes": 70332
+        },
         {
           "file": "2026-09-20_market_research_report.html",
           "title": "2026-09-20: 撤去ではなく既定値の反転 — Supabase の grant 既定・NTLMv1 の Audit 終了・Entra 旧リスクポリシー退役における穴場市場の特定",
@@ -356,52 +186,6 @@
           "title": "2026-08-21: AIエージェント・個人開発エコシステムにおける穴場市場の特定",
           "date": "2026-08-21",
           "bytes": 46364
-        }
-      ]
-    },
-    {
-      "slug": "weekly-news",
-      "title": "週刊ニュースページ (Weekly Promo Dispatch)",
-      "description": "その週に「掘り下げる」と決めた記事だけを編集した、個人ナレッジベース発の週刊ダイジェスト。",
-      "icon": "📰",
-      "reports": [
-        {
-          "file": "2026-09-13_weekly_news.html",
-          "title": "Weekly Promo Dispatch Vol.4 — 2026年9月13日号",
-          "date": "2026-09-13",
-          "bytes": 16598
-        },
-        {
-          "file": "2026-09-06_weekly_news.html",
-          "title": "Weekly Promo Dispatch Vol.3 — 2026年9月6日号",
-          "date": "2026-09-06",
-          "bytes": 24784
-        },
-        {
-          "file": "2026-08-30_weekly_news.html",
-          "title": "Weekly Promo Dispatch Vol.2 — 2026年8月30日号",
-          "date": "2026-08-30",
-          "bytes": 30745
-        },
-        {
-          "file": "2026-08-23_weekly_news.html",
-          "title": "Weekly Promo Dispatch Vol.1 — 2026年8月23日号",
-          "date": "2026-08-23",
-          "bytes": 69511
-        }
-      ]
-    },
-    {
-      "slug": "notes-articles",
-      "title": "テーマ別 解説記事 (Notes Long-form)",
-      "description": "個人ナレッジベースの恒久ノートを素材に、テーマごとの論旨へ組み直した解説記事。人間のレビューを通ったものだけを掲載している。",
-      "icon": "📝",
-      "reports": [
-        {
-          "file": "2026-09-05_ai-era-engineer-architect-roles.html",
-          "title": "コードを書く人から「検証の構造」を設計する人へ —— AI時代におけるエンジニアとアーキテクトの変容",
-          "date": "2026-09-05",
-          "bytes": 32401
         }
       ]
     }
