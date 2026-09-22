@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="対象期間: 2026-09-13（日）〜 2026-09-19（土） ／ 収録 14 本">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今週読んだもの">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<title>Weekly Promo Dispatch Vol.5 — 2026年9月20日号</title>
+<style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
+:root {
+  color-scheme: light;
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
+  --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+           Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.85;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
+}
+a { color: inherit; text-decoration: none; }
+
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
+/* --- マストヘッド --- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
+  text-align: center;
+}
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.masthead .tagline {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.issue-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-3);
+}
+.issue-bar .vol { color: var(--accent); }
+
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
+/* --- リード（今週の総括） --- */
+.lede {
+  margin: 38px auto 0;
+  max-width: 60ch;
+}
+.lede p {
+  margin: 0 0 14px;
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+.lede p:first-child::first-letter {
+  float: left;
+  font-size: 2.8em;
+  line-height: 0.9;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- リード記事 --- */
+.lead-story {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
+.lead-story h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
+}
+.lead-story .dek {
+  margin: 20px 0 0;
+  max-width: 48ch;
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
+}
+
+/* --- 編集後記 --- */
+.note {
+  margin: 20px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+.note .byline { display: block; color: var(--accent); margin-bottom: 4px; }
+.note p { margin: 0; }
+.lead-story .note { max-width: 52ch; font-size: 1.02rem; }
+
+/* --- 記事メタ --- */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.meta .dot { color: var(--hairline); }
+.tag {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 1px 7px;
+}
+
+/* --- セクション --- */
+.section { margin-top: 56px; scroll-margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--accent);
+  padding-top: 10px;
+  margin-bottom: 26px;
+}
+.section-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.section-head .count {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.section-intro {
+  margin: -8px 0 26px;
+  max-width: 60ch;
+  color: var(--ink-2);
+  font-size: 0.97rem;
+}
+.stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
+}
+.story { padding-bottom: 4px; }
+.story h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
+
+/* --- 編集メモ --- */
+.colophon {
+  margin-top: 62px;
+  padding: 28px 30px;
+  background: var(--band);
+  border-top: 2px solid var(--accent);
+}
+.colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
+.colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
+.colophon p:last-child { margin-bottom: 0; }
+
+/* --- 索引 --- */
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.index ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 44px; }
+.index li { margin-bottom: 8px; break-inside: avoid; font-size: 0.92rem; color: var(--ink-2); }
+.index li a:hover { color: var(--accent); }
+@media (max-width: 719px) { .index ol { columns: 1; } }
+
+/* --- フッタ --- */
+.foot {
+  margin-top: 54px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.foot code { font-size: 0.9em; }
+
+@media print {
+  body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
+  .stories { grid-template-columns: 1fr 1fr; }
+  .story { break-inside: avoid; }
+  .sectionnav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">Weekly Dispatch from a Personal Knowledge Base</span>
+  <h1 class="wordmark">今週読んだもの</h1>
+  <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
+  <div class="issue-bar"><span class="vol">Vol. 5</span><span>2026年9月20日（日） 発行</span><span>収録期間 2026年9月13日（日） 〜 2026年9月19日（土）</span><span>14 本</span></div>
+</header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">自律エージェントを走らせる足場</a><a class="navlink" href="#sec1">指示の引き算と組織の再設計</a><a class="navlink" href="#sec2">思考と伝達を律する言葉</a><a class="navlink" href="#sec3">分散データ基盤とポリシーの規律</a></nav>
+<section class="lede has-drop"><p>深層学習のスケーリングが「異質な知能」を立ち上がらせつつある現在、現場ではエージェントに長時間自律で作業を委譲する試みが一気に現実味を帯びてきた。手厚い手順でモデルを縛る時代は終わり、問われているのは使い捨ての実行環境や完了条件、そしてプロンプトの「引き算」といった境界線の設計である。知能の飛躍をただ傍観するのではなく、業務そのものの再定義や記述言語の規律、分散データ基盤の足腰までを含めて、人間がどのような足場を築くべきかを多層的に考えた週だった。</p></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://openai.com/index/an-alien-mind/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://images.ctfassets.net/kftzwdyauwt9/7f6sLIUC3tdeliJMQ3PwOq/c47109c8b3f00ccbf881271c9c720877/og-an-alien-mind.png?w=1600&amp;h=900&amp;fit=fill" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://openai.com/index/an-alien-mind/" rel="noopener"><span class="grow-underline">An Alien Mind</span></a></h2><div class="lead-body"><div><p class="dek">OpenAIのチーフサイエンティストが、深層学習知能を「設計されたものではなく育てられたもの」と捉え、思考の連鎖（CoT）監視の限界や再帰的自己改善（RSI）への道筋、および国際的な安全基準の必要性を論じている。</p><p class="meta"><span>openai.com</span><span class="dot">/</span><span>PROMO 9.19</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>フロンティアモデルの開発現場において、再帰的自己改善（RSI）はもはや遠い未来の仮説ではなく、既定路線として現実的な工学課題になっている。知能のブラックボックス化と急速な能力拡大が進むなかで、技術の進化史と人間社会の関わりをどのように位置づけるべきか、長期的な視座を問い直される。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>自律エージェントを走らせる足場</h2><span class="count">3 本</span></div><p class="section-intro">エージェントを現場の作業へ自律的に組み込むための、実行環境の分離、自律ループの設計、および組織内での役割分担。</p><div class="stories"><article class="story no-image"><h3><a href="https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf" rel="noopener"><span class="grow-underline">How Anthropic teams use Claude Code</span></a></h3><p class="dek">Anthropic社内の10チームにおけるClaude Codeの実務活用事例をまとめ、自律ループの設計、詳細な設定ファイルの整備、および非エンジニアへの権限委譲のパターンを報告している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>開発部門だけでなくマーケティングや法務までを含め、組織全体でエージェントを前提としたワークフローへ移行している姿が具体的に示されている。単なるツールの導入ではなく、チームごとのユースケースと運用ルールが一体となって効果を出している。</p></div><p class="meta"><span>www-cdn.anthropic.com</span><span class="dot">/</span><span>PROMO 9.19</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/sompojapan_dx/articles/846c6038fee45d" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--KNvpEwrj--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:%25E3%2583%25AB%25E3%2583%25BC%25E3%2583%2597%25E3%2582%25A8%25E3%2583%25B3%25E3%2582%25B8%25E3%2583%258B%25E3%2582%25A2%25E3%2583%25AA%25E3%2583%25B3%25E3%2582%25B0%25EF%25BC%2588ralph%2520loop%25EF%25BC%2589%25E3%2581%25A7%25E6%25A5%25AD%25E5%258B%2599%25E3%2582%25B7%25E3%2582%25B9%25E3%2583%2586%25E3%2583%25A0%25E3%2581%25AEUI%25E3%2582%2592%25E4%25B8%2580%25E6%2596%25B0%25E3%2581%2597%25E3%2581%25A6%25E3%2581%25BF%25E3%2581%259F%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_34:Namiyama%2Cx_220%2Cy_108/bo_3px_solid_rgb:d6e3ed%2Cg_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzM4MDY0MmJiMDcuanBlZw==%2Cr_20%2Cw_90%2Cx_92%2Cy_102/co_rgb:6e7b85%2Cg_south_west%2Cl_text:notosansjp-medium.otf_30:SOMPO%2520Digital%2520Lab%2Cx_220%2Cy_160/bo_4px_solid_white%2Cg_south_west%2Ch_50%2Cl_fetch:aHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSWNkcG9sTUVnNUMzMXFnbEJ4QVdud21EMHhMS1F0SUp1OHhrY0V1X2d5PXM5Ni1j%2Cr_max%2Cw_50%2Cx_139%2Cy_84/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/sompojapan_dx/articles/846c6038fee45d" rel="noopener"><span class="grow-underline">ループエンジニアリング（ralph loop）で業務システムのUIを一新してみた</span></a></h3><p class="dek">40画面に及ぶ業務システムのUI再構築においてralph-loopを適用し、コンテキスト圧縮対策やテストエージェントの並列化により1日で実装とテストを完遂した経緯を詳述している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>定型的な画面刷新のような反復作業において、完了条件の厳格化と判断待ち用エスケープルートの組み合わせが自律走行を成立させている。一方で、新旧画面の機能同等性をどの水準で客観的に保証し切るかというテスト検証の設計には依然として課題が残る。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 9.19</span></p></article><article class="story"><a class="thumb" href="https://github.com/aws-samples/remote-swe-agents/blob/main/README_ja.md" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://opengraph.githubassets.com/5c73e0721997db6fc0c61e6d60f8024d50531d32fb674ea9368b877dcb3eb6f4/aws-samples/remote-swe-agents" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/aws-samples/remote-swe-agents/blob/main/README_ja.md" rel="noopener"><span class="grow-underline">remote-swe-agents/README_ja.md at main · aws-samples/remote-swe-agents</span></a></h3><p class="dek">AWSクラウド上にセッションごとの隔離された開発環境を構築し、長時間の開発タスクを非同期かつ自律的に実行させるソフトウェア開発エージェントのアーキテクチャを解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>セッション単位の使い捨て環境による影響範囲の限定と、最小権限の原則に基づくアクセス制御は、エージェントを実務に解き放つための必須の防壁である。ミッションクリティカルな開発に耐えうる自律基盤には、後からすべての挙動を検証できる追跡可能性と可観測性の担保が欠かせない。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">AI</span><span class="tag">Agent</span></p></article></div></section>
+<section class="section" id="sec1"><div class="section-head"><h2>指示の引き算と組織の再設計</h2><span class="count">2 本</span></div><p class="section-intro">モデル性能の進化に合わせて手厚い指示を削ぎ落とすプロンプトの規律と、既存業務の自動化にとどまらない全社プロセスの再構築。</p><div class="stories"><article class="story"><a class="thumb" href="https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://developers.openai.com/images/blog/rethinking-skills-and-prompts-for-gpt-6-astra/cover.webp" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra" rel="noopener"><span class="grow-underline">Rethinking skills and prompts for GPT-6 Astra | OpenAI Developers</span></a></h3><p class="dek">高度な推論能力を備えた次世代モデルへの移行に伴い、過剰な手順や制約指示を削減し、段階的開示や明確な完了条件を定義するプロンプト設計の刷新指針を示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>実務を重ねるほど指示や安全確認をプロンプトへ継ぎ足して肥大化させがちだが、モデルの自律判断力が高まった段階で定期的に大掃除を行うことが不可欠である。手取り足取りの誘導をやめ、探索の境界と終了条件だけを厳密に渡す姿勢が求められる。</p></div><p class="meta"><span>developers.openai.com</span><span class="dot">/</span><span>PROMO 9.19</span></p></article><article class="story"><a class="thumb" href="https://special.nikkeibp.co.jp/atclh/ONB/20/accenture_newfuture/vol22/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://special.nikkeibp.co.jp/atclh/ONB/20/accenture_newfuture/vol22/600_315.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://special.nikkeibp.co.jp/atclh/ONB/20/accenture_newfuture/vol22/" rel="noopener"><span class="grow-underline">リスクを取り変革を伴走するAI時代の新しいコンサルティングへ 日本企業のAI導入停滞を打破するリインベンションとRDE - New Future | 日経ビジネス電子版 Special</span></a></h3><p class="dek">日本企業でAI導入がPoC止まりになる要因として既存プロセスの「重ね塗り」を挙げ、人間が担う価値創出を再定義した上で戦略から実装までを一気通貫で伴走する新職種RDEの役割を提唱している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>既存の業務フローをAIで部分的に効率化しても経営インパクトは限定的であり、業務そのものの再設計と大胆な権限移譲が必要になる。提言やドキュメント納品で終わるのではなく、少数精鋭で短期間に実装と成果検証までをやり切る現場伴走力が変革の成否を分ける。</p></div><p class="meta"><span>special.nikkeibp.co.jp</span><span class="dot">/</span><span>PROMO 9.19</span></p></article></div></section>
+<section class="section" id="sec2"><div class="section-head"><h2>思考と伝達を律する言葉</h2><span class="count">2 本</span></div><p class="section-intro">曖昧な断定や誤解を排し、事実・文脈・読み手に即して表現を精密化するためのライティング規律。</p><div class="stories"><article class="story no-image"><h3><a href="https://en.wikipedia.org/wiki/E-Prime" rel="noopener"><span class="grow-underline">E-Prime - Wikipedia</span></a></h3><p class="dek">動詞to beの全活用形を排除して書く制限英語E-Primeの歴史と8つの機能を整理し、固定的な同一視や独断的な断定を避ける論理的効果と批判をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>単にbe動詞を機械的に削ることではなく、「AはBである」という絶対的な同一視を避けて観察事実や主観、動作の文脈を具体的に言語化する点に本質がある。この規律は人間が書く技術文書の精度を研ぎ澄ますだけでなく、AIに対する指示やスキルの設計にも直結する。</p></div><p class="meta"><span>en.wikipedia.org</span><span class="dot">/</span><span>PROMO 9.19</span><span class="tag">Writing</span></p></article><article class="story no-image"><h3><a href="https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/pdf/92895101_01.pdf" rel="noopener"><span class="grow-underline">新しい「公用文作成の要領」に向けて（報告）</span></a></h3><p class="dek">昭和27年の旧要領を約70年ぶりに見直し、文書を目的や読者層に応じて4分類した上で表記の弾力的な運用と伝わる表現の原則を提示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>文書を一様な規則で縛るのではなく、目的と読み手の知識水準に合わせて分類し、表記の厳密さと親しみやすさを切り替える視点が整理されている。書くという行為に対してメタ的になり、誰に何を届けるための文章かを自覚的に設計する態度はあらゆる文書作成の基礎となる。</p></div><p class="meta"><span>bunka.go.jp</span><span class="dot">/</span><span>PROMO 9.19</span><span class="tag">Writing</span></p></article></div></section>
+<section class="section" id="sec3"><div class="section-head"><h2>分散データ基盤とポリシーの規律</h2><span class="count">6 本</span></div><p class="section-intro">分散型トランザクションデータベースの安定運用に向けた内部動作の理解と、環境に依存しないポリシーコード化の基盤。</p><div class="stories"><article class="story"><a class="thumb" href="https://engineering.mercari.com/blog/entry/2019-04-18-090000/" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://storage.googleapis.com/prd-engineering-asset/2019/04/a5e2e149-20190415125514.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://engineering.mercari.com/blog/entry/2019-04-18-090000/" rel="noopener"><span class="grow-underline">メルペイでのSpannerとの戦いの日々 | メルカリエンジニアリング</span></a></h3><p class="dek">決済基盤のメインデータベースとしてCloud Spannerを大規模運用する中で生じた、Goクライアントのセッションプール初期化遅延やgRPC再接続に伴うレイテンシ課題と解決策を記録している。</p><p class="meta"><span>engineering.mercari.com</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">Operation</span><span class="tag">Spanner</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/apstndb/articles/spanner-query-optimizing-guide" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--aipDX2xm--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:%25E5%25AE%259F%25E8%25A1%258C%25E8%25A8%2588%25E7%2594%25BB%25E3%2582%2592%25E5%2585%2583%25E3%2581%25AB%25E3%2581%2597%25E3%2581%259F%2520Spanner%2520%25E3%2582%25AF%25E3%2582%25A8%25E3%2583%25AA%25E6%259C%2580%25E9%2581%25A9%25E5%258C%2596%25E3%2581%25AE%25E5%25AE%259F%25E8%25B7%25B5%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:apstndb%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYXZhdGFyLzkzNTQ3Y2RlNGMuanBlZw==%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/apstndb/articles/spanner-query-optimizing-guide" rel="noopener"><span class="grow-underline">実行計画を元にした Spanner クエリ最適化の実践</span></a></h3><p class="dek">Cloud Spannerの実行計画（Query Execution Plan）を読み解き、分散結合の回避や適切なインデックス指示によって大規模環境で高速に動作させる最適化ノウハウを体系化している。</p><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/schema-design" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/schema-design" rel="noopener"><span class="grow-underline">Schema design best practices  |  Spanner  |  Google Cloud Documentation</span></a></h3><p class="dek">Cloud Spannerにおける主キーの分散選定手法やインターリーブテーブルの配置設計など、分散ノードでの書き込みホットスポットを防ぐためのスキーマ設計原則を解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>分散データベースの性能は、単調増加キーを避ける分散配置や親子データの物理的同居といった初期のスキーマ設計によって決定的に左右される。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">Performance</span><span class="tag">Spanner</span><span class="tag">performance tuning</span></p></article><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/schema-and-data-model" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/schema-and-data-model" rel="noopener"><span class="grow-underline">Schemas overview | Spanner | Google Cloud Documentation</span></a></h3><p class="dek">Cloud Spannerのデータモデル、GoogleSQLおよびPostgreSQLダイアレクトの型体系、ならびにサーバースプリットによる負荷分散の仕組みを網羅的に解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>データの物理配置とスプリット境界を意識したスキーマ構造の把握が、大規模スケール時の安定運用の前提となる。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">Cloud Spanner</span><span class="tag">Database</span><span class="tag">Google Cloud</span><span class="tag">インターリーブテーブル</span><span class="tag">スキーマ設計</span></p></article><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/secondary-indexes" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/secondary-indexes" rel="noopener"><span class="grow-underline">Secondary indexes  |  Spanner  |  Google Cloud Documentation</span></a></h3><p class="dek">Cloud Spannerにおけるセカンダリインデックスの同期機構、STORING句を用いたカバリングインデックスによるバックジョイン防止、および容量最適化手法を解説している。</p><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.5</span><span class="tag">Performance</span><span class="tag">Spanner</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/mizutani/books/d2f1440cfbba94/viewer/introduction" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--dxS6d0VT--/g_center%2Ch_280%2Cl_fetch:aHR0cHM6Ly9zdGF0aWMuemVubi5zdHVkaW8vdXNlci11cGxvYWQvYm9va19jb3Zlci84ZWI2OGJlN2VkLmpwZw==%2Cw_200/v1627283836/default/og-base-book_yz4z02.jpg?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/mizutani/books/d2f1440cfbba94/viewer/introduction" rel="noopener"><span class="grow-underline">📕 はじめに｜OPA/Rego入門</span></a></h3><p class="dek">汎用ポリシーエンジンOpen Policy Agent（OPA）とポリシー記述言語Regoについて、特定ツールに依存しない言語仕様と実システムへの組み込み手法を解説した入門書である。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>ポリシーをインフラやツール個別設定から切り離し、コードとして宣言的に一元管理・評価するための基礎的な実装手段として位置づけられる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 9.19</span></p></article></div></section>
+<section class="colophon"><span class="section-label">編集メモ</span><p>モデルの推論能力が高まるほど、エージェントを制御する手段はプロンプトの細かな言及から、隔離された実行環境やポリシーコードといったアーキテクチャ側の制約へと重心が移っている。自律ループがもたらす開発速度と、出力の機能担保や安全性をどのように両立させるか。知能の飛躍を実務の成果に結びつけるための境界線の引き方を、今後も探り続けたい。</p></section>
+<nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://openai.com/index/an-alien-mind/" rel="noopener">An Alien Mind</a> <span class="meta" style="display:inline">openai.com</span></li><li><a href="https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf" rel="noopener">How Anthropic teams use Claude Code</a> <span class="meta" style="display:inline">www-cdn.anthropic.com</span></li><li><a href="https://zenn.dev/sompojapan_dx/articles/846c6038fee45d" rel="noopener">ループエンジニアリング（ralph loop）で業務システムのUIを一新してみた</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://github.com/aws-samples/remote-swe-agents/blob/main/README_ja.md" rel="noopener">remote-swe-agents/README_ja.md at main · aws-samples/remote-swe-agents</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra" rel="noopener">Rethinking skills and prompts for GPT-6 Astra | OpenAI Developers</a> <span class="meta" style="display:inline">developers.openai.com</span></li><li><a href="https://special.nikkeibp.co.jp/atclh/ONB/20/accenture_newfuture/vol22/" rel="noopener">リスクを取り変革を伴走するAI時代の新しいコンサルティングへ 日本企業のAI導入停滞を打破するリインベンションとRDE - New Future | 日経ビジネス電子版 Special</a> <span class="meta" style="display:inline">special.nikkeibp.co.jp</span></li><li><a href="https://en.wikipedia.org/wiki/E-Prime" rel="noopener">E-Prime - Wikipedia</a> <span class="meta" style="display:inline">en.wikipedia.org</span></li><li><a href="https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/pdf/92895101_01.pdf" rel="noopener">新しい「公用文作成の要領」に向けて（報告）</a> <span class="meta" style="display:inline">bunka.go.jp</span></li><li><a href="https://engineering.mercari.com/blog/entry/2019-04-18-090000/" rel="noopener">メルペイでのSpannerとの戦いの日々 | メルカリエンジニアリング</a> <span class="meta" style="display:inline">engineering.mercari.com</span></li><li><a href="https://zenn.dev/apstndb/articles/spanner-query-optimizing-guide" rel="noopener">実行計画を元にした Spanner クエリ最適化の実践</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/schema-design" rel="noopener">Schema design best practices  |  Spanner  |  Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/schema-and-data-model" rel="noopener">Schemas overview | Spanner | Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/secondary-indexes" rel="noopener">Secondary indexes  |  Spanner  |  Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://zenn.dev/mizutani/books/d2f1440cfbba94/viewer/introduction" rel="noopener">📕 はじめに｜OPA/Rego入門</a> <span class="meta" style="display:inline">zenn.dev</span></li></ol></nav>
+<footer class="foot"><p>生成: 2026-09-22 11:58 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+</div>
+</body>
+</html>
