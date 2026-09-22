@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="コミットではなく上流の停止時計（Deprecation Clock）の到達によってパイプラインが突然死する変曲点を軸に置き、3つの基盤変更を5軸評価で検証した結果">
+<title>2026-09-23: コードではなく日付で壊れる — GitHub Actions の Node 20 撤去・Runner 退役 API・Cloudflare KV 旧ルート停止における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-23</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / github-actions / deprecation / cloudflare</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-最有力アイデアの深掘りと検証計画-runner-clock" title="4. 最有力アイデアの深掘りと検証計画 (runner-clock)">4. 最有力アイデアの深掘りと検証計画</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-23">市場リサーチ &amp; 5軸評価レポート (2026-09-23)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">runner-clock</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 3 件（うち一次ソース 3 件）</div></div><div class="fig">19<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">runner-clock</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">action-node-audit</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">cf-path-scan</div><div class="val">14<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="1 / 5 点" aria-label="3. 収益性 / 課金モデル 1点"><i style="height:20%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="2 / 5 点" aria-label="4. 競合優位性 / ギャップ 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-runner-clock">4. 最有力アイデアの深掘りと検証計画 (runner-clock)</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-21）は、値上げではなく数え方の新設を軸に置きました。 請求が立つ前に、新しい単位での消費量を自分の持ち物だけで再構成できるかどうかが道具の成立境界でした。</p><p>今回は、障害の原因を見ます。 ただし「自分が何を変更したか」ではありません。 <strong>何も変更していないのに、なぜ壊れるのか</strong>、です。</p><p>通常の障害はコミットが引き起こします。 コードを書き換え、PRをマージし、デプロイした瞬間にテストが落ちます。 原因は自分の手元にあり、Git の差分が犯人を指します。</p><p>上流の停止時計（Deprecation Clock）は、そう動きません。 ワークフロー定義もアプリケーションコードも何ヶ月も触っていません。 <strong>ただカレンダーの日付が進んだという理由だけで、昨夜までグリーンだったパイプラインが朝一番に突然死します。</strong> 原因は自社のリポジトリの外にあり、差分を見ても何も変わっていません。</p><p>2026年9月下旬から10月中旬にかけて、この形の「サイレントな停止時計」が集中して期日を迎えます。</p><ul><li><strong>GitHub Actions runners の Node.js 20 完全撤去</strong>（2026年9月23日本日、GitHub-hosted runner から Node 20 が消滅）</li><li><strong>GitHub Actions 自己ホストランナーの最小バージョン強制執行</strong>（2026年9月25日、最新版から30日以上遅れたランナーのジョブ実行を完全遮断）</li><li><strong>Cloudflare Workers KV レガシー名前空間ルートの完全停止</strong>（2026年10月15日、<code>/accounts/{account_id}/workers/namespaces/*</code> が完全停止）</li></ul><p>3つとも、上流が一方的に定めた時計です。 違いは、<strong>期日が到来したとき、その時計の進捗を利用者が自前で観測・予見できる仕組みがあるか</strong>でした。 提供元が「APIを公開したから各自で定期的に叩いて監視せよ」と運用を放任した場所に、個人開発者が入り込める隙間が生まれます。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-runner-clock-自己ホストランナーのバージョンと新設-deprecations-api-を照合し-30日ルールと強制執行によるジョブ遮断日を逆算して事前警告する監視">アイデア 1: <code>runner-clock</code> (自己ホストランナーのバージョンと新設 deprecations API を照合し、30日ルールと強制執行によるジョブ遮断日を逆算して事前警告する監視)</h3><p>対象は、<strong>GitHub Actions の自己ホストランナー（Self-hosted runner）を自前で運用しているインフラエンジニア・SRE・プラットフォームチーム</strong>です。 GPUインスタンス、オンプレミスサーバー、Kubernetes（Actions Runner Controller）で専用ランナーを動かしているチームが該当します。</p><p>入力は2つです。 1. <strong>GitHub API のランナー一覧</strong>（<code>GET /orgs/{org}/actions/runners</code> で取得できる各ランナーのバージョン情報） 2. <strong>2026年9月3日に新設された退役API</strong>（<code>GET /actions/runners/deprecations/{version}</code>）</p><p>出力は次の3点です。 1. <strong>組織内に点在する全ランナーの退役予定日一覧</strong>（<code>runtime_deprecates_at</code> および <code>registration_deprecates_at</code>） 2. <strong>最新リリースから30日経過による強制遮断までの残り日数カウントダウン</strong> 3. <strong>遮断の14日前・7日前・3日前に Slack / GitHub Issue へ届く事前アラート通知</strong></p><p>本体は3番目です。 APIを叩いて期日を知るだけなら難しくありません。 <strong>難しいのは、組織内の複数リポジトリ・ランナーグループに散らばった数百台のランナーを定期走査し、パイプラインが止まる前に更新作業を計画メンテナンスへ落とし込むことです。</strong></p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>最も価値の高いエビデンスは、GitHub 自身が「自己ホストランナーは自動更新されないため、APIを定期的に叩くワークフローを自作せよ」と利用者に丸投げしている一文です。</p><blockquote class="voice"><p>A new REST API returns when registration and runtime support end for a given runner version, so you can plan runner upgrades before a version is deprecated. Call <code>GET /actions/runners/deprecations/{version}</code> at the repository, organization, or enterprise level. The response includes <code>runner_version</code>, <code>runtime_deprecates_at</code>, and <code>registration_deprecates_at</code>. — <a href="https://github.blog/changelog/2026-09-03-github-actions-early-september-2026-updates/" target="_blank" rel="noopener noreferrer">GitHub Actions: Early September 2026 updates（The GitHub Blog）</a></p></blockquote><p>GitHub-hosted runner は提供元が勝手に更新します。 しかし自己ホストランナーは利用者が更新しない限り古くなり続けます。 GitHub は 2026年9月25日に強制執行（Full Enforcement）を開始し、古いランナーを容赦なく弾きます。</p><blockquote class="voice"><p>Once enforcement is active, self-hosted runners below the minimum required version are unable to register, re-register, or execute workflow jobs. — <a href="https://github.blog/changelog/2026-09-03-github-actions-early-september-2026-updates/" target="_blank" rel="noopener noreferrer">GitHub Changelog: Minimum self-hosted runner version enforcement</a></p></blockquote><p>さらに、GitHub の標準運用規則では、最新リリースから30日遅れたランナーは退役対象になります。 自前で監視を組まない限り、「週明けに出社したら社内GPUランナーが全滅していた」という事態が構造的に発生します。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevEx型</strong>と<strong>規制・プラットフォーム変更対応型</strong>の複合です。</p><p>Why Now は2026年9月3日の新API公開と、9月25日の強制執行開始です。 GitHub が公式の判定口（<code>GET /actions/runners/deprecations/{version}</code>）を配ったことで、推測に頼らず確定した期日を取得できるようになりました。 提供元が「APIは渡したからあとは自分でやれ」と引いた境界線が、そのままツールの設置場所になります。</p><p>既存プレイヤーが解決済みの範囲と未解決の範囲の境界線は次のとおりです。</p><ul><li><strong>解決済み</strong>: 各ランナーの現在のバージョン番号の表示。GitHub の Settings 画面に出ます。</li><li><strong>解決済み</strong>: 指定した1つのバージョンがいつ退役するか。新設 API が即座に返します。</li><li><strong>未解決</strong>: <strong>組織内の全ランナーを突き合わせ、最短であと何日でジョブが拒否されるかの統合警告。</strong> GitHub は単一画面で期日一覧を出さず、アラートも飛ばしません。</li></ul><hr><h3 id="アイデア-2-action-node-audit-リポジトリ内のワークフローが依存する第三者-action-を走査し-本日撤去された-node-20-依存と偽の非推奨警告を切り分ける静的検査">アイデア 2: <code>action-node-audit</code> (リポジトリ内のワークフローが依存する第三者 Action を走査し、本日撤去された Node 20 依存と偽の非推奨警告を切り分ける静的検査)</h3><p>対象は、<strong>GitHub Actions でビルドやデプロイを行っている開発チーム全般</strong>です。</p><p>2026年9月23日（本日）、GitHub-hosted runner から Node.js 20 が完全に撤去されました。 利用している第三者 Action の <code>action.yml</code> が <code>runs.using: node20</code> のまま放置されていると、本日以降ワークフローが実行時エラーでクラッシュします。</p><p>さらに現場を混乱させているのが、GitHub Actions runner の実装バグによる「偽警告」です。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>GitHub の公式 Issue に、回避設定を入れても誤った警告が出続ける不満が報告されています。</p><blockquote class="voice"><p>When <code>FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true</code> is set in a workflow's <code>env:</code> section, JavaScript actions with <code>using: node20</code> are correctly upgraded to run on Node 24 at runtime — but the end-of-job deprecation annotation still fires with the misleading message: "The following actions are running on Node.js 20 and may not work as expected". — <a href="https://github.com/actions/runner/issues/4295" target="_blank" rel="noopener noreferrer">Misleading Node 20 deprecation warning when FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true is set（actions/runner #4295）</a></p></blockquote><blockquote class="voice"><p>The action is added to <code>DeprecatedNode20Actions</code> based on its <em>declared</em> version (<code>node20</code>) before <code>DetermineActionsNodeVersion</code> has a chance to check the <code>FORCE_JAVASCRIPT_ACTIONS_TO_NODE24</code> env var and upgrade the runtime to <code>node24</code>. The end-of-job warning then iterates over that list and claims the actions "are running on Node.js 20", even though they ran on Node 24. — <a href="https://github.com/actions/runner/issues/4295" target="_blank" rel="noopener noreferrer">同 Issue</a></p></blockquote><p>この不具合により、<strong>「本当に壊れる Action」と「設定により Node 24 で動いているが警告だけ出ている Action」が画面上で見分けられません。</strong></p><p>このアイデアは、<code>.github/workflows/*.yml</code> を解析し、各 Action の宣言とランタイム強制フラグを照合して、真の即死対象だけを浮き彫りにする CLI です。 しかし、このツールは本日以降に駆け込みで使われた後、各 Action が <code>node24</code> 対応版をリリースすれば役目を終えます。 寿命が短すぎるため、恒久的なプロダクトとしては成立しません。</p><hr><h3 id="アイデア-3-cf-path-scan-リポジトリ内のコード・ci・terraform-を走査し-10月15日に停止する-cloudflare-workers-kv-旧ルートの呼び出しを検知して一括置換するツール">アイデア 3: <code>cf-path-scan</code> (リポジトリ内のコード・CI・Terraform を走査し、10月15日に停止する Cloudflare Workers KV 旧ルートの呼び出しを検知して一括置換するツール)</h3><p>対象は、Cloudflare Workers や Terraform でインフラを管理する開発者です。</p><p>2026年10月15日に、Workers KV のレガシールートが完全に停止します。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><blockquote class="voice"><p>The legacy Workers KV API routes under <code>/accounts/{account_id}/workers/namespaces/<em></code> are deprecated in favor of the Workers KV API routes under <code>/accounts/{account_id}/storage/kv/namespaces/</em></code>. The legacy and replacement routes are interchangeable...After October 15, 2026, requests to the legacy <code>/accounts/{account_id}/workers/namespaces/*</code> routes will no longer be supported. — <a href="https://developers.cloudflare.com/fundamentals/api/reference/deprecations/" target="_blank" rel="noopener noreferrer">API deprecations（Cloudflare Fundamentals docs）</a></p></blockquote><p>パスを <code>/workers/namespaces/</code> から <code>/storage/kv/namespaces/</code> へ変えるだけの単純な置換です。 リポジトリ内のスクリプトや Terraform を走査して置換パッチを出すツールは技術的に容易に作れます。</p><p>しかし、この変更は置換ルールが単純すぎます。 公式ドキュメントに書かれた対応表を見れば開発者が <code>sed</code> やエディタの一括置換で数分で修正できます。 独立した有料ツールとして対価を請求できるだけの価値がありません。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>runner-clock</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>action-node-audit</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>cf-path-scan</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年9月3日に退役APIが公開され、9月25日に強制執行が始まる。自前ランナーを抱える企業はGPU機械学習や独自ビルド環境で急増しており需要が強い。ただし対象が自己ホストランナーを運用する中規模以上のチームに絞られ、全開発者向けではない</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年9月23日本日がまさに Node 20 撤去当日であり全 Actions 利用者が対象。ただし移行が一巡した後は需要が急激に縮小する</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">10月15日停止で期日が迫る。ただし Workers KV を REST API で直接叩いている層は限定的で市場が小さい</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub REST API のランナー一覧と新設 deprecations API を突合し、残り日数を計算して Slack へ送るだけ。2週間でプロトタイプが完成する。ただし Enterprise 階層の権限構造やランナーグループの差分処理に一定の工数を要する</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">ワークフローの YAML と Action の定義を取得して比較する静的CLI。1週間で完成可能</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ripgrep / ast-grep を内包したパス置換CLI。1週間で完成可能だが、変数展開されたURLの静的追跡に限界がある</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">CI停止は開発組織全体の作業停止に直結するため、月額 $20〜$50 の Marketplace アプリとして課金動機が成立する。ただし単機能アラートであるため、月数十万円の高額SaaSにはスケールしにくい</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">オープンソースの無料CLIとして消費されるのが自然で、単体での課金化が極めて困難</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">1<span class="u"> / 5</span></span><span class="why">1回置換したら二度と使われない使い捨てツールであり、課金モデルが成立しない</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub 公式が API を出しただけで「通知やダッシュボードは各自でワークフローを組め」と丸投げしている空白を突く。汎用 CI 監視ツールもランナー退役時計までは特化していない。ただし GitHub が公式コンソールに退役日アラートを直接統合した場合は優位性が失われる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Issue #4295 の偽警告と実障害を切り分けるロジックに独自性があるが、Action 側が順次対応すれば自然消滅する</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">エディタの全ファイル置換や sed で代替可能であり、参入障壁がほぼゼロ</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub App または定期実行 Actions ワークフローとして提供可能で、サーバーレス構成によりインフラ費用の負担が小さい。サポート負荷も通知設定に限られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカルCLIとして配布すればゼロインフラ。ただし Node 20 撤去後は保守する動機が消える</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカルCLIで保守容易だが、10月15日以降は需要が消滅する</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">14<span class="u">/ 25</span></span> <span class="chip chip-drop"><span aria-hidden="true">⛔</span>DROP（Tier 3）</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-23)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-23)"><title>アイデア候補のポジショニングマップ (2026-09-23)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="487.2" cy="115.2" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="499.2" y="119.2" text-anchor="start" class="qpt-label">1</text><circle cx="487.2" cy="115.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Runner Clock 総合 19 / 25（Tier 2）" data-tv="Idea 1: Runner Clock" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="316.8" cy="129.4" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="328.8" y="133.4" text-anchor="start" class="qpt-label">2</text><circle cx="316.8" cy="129.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Action Node Audit 総合 18 / 25（Tier 2）" data-tv="Idea 2: Action Node Audit" data-td="総合 18 / 25（Tier 2）"/></g><g><circle cx="231.6" cy="228.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="243.6" y="232.8" text-anchor="start" class="qpt-label">3</text><circle cx="231.6" cy="228.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: CF Path Scan 総合 14 / 25（Tier 3）" data-tv="Idea 3: CF Path Scan" data-td="総合 14 / 25（Tier 3）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Runner Clock</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Action Node Audit</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: CF Path Scan</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-runner-clock">4. 最有力アイデアの深掘りと検証計画 (<code>runner-clock</code>)</h2><h3 id="リスク・反証分析">リスク・反証分析</h3><p><code>runner-clock</code> を推進する上での最大のリスクと反証は以下の3点です。</p><p>1. <strong>GitHub 公式によるダッシュボード統合リスク（最大リスク）</strong></p><ul><li>GitHub が <code>GET /actions/runners/deprecations/{version}</code> を新設したのは、管理画面に将来組み込むための布石である可能性があります。GitHub が Organization の Settings 画面に「退役まであと○日のランナーがあります」という警告バナーと通知を標準実装した場合、外部ツールの存在意義が消失します。</li></ul><p>2. <strong>大手オートスケールソリューションへの内包リスク</strong></p><ul><li>多くの企業はランナーを素の VM ではなく、Actions Runner Controller (ARC) や Kubernetes、WarpBuild、Runs-on などのオーケストレーター経由で動かしています。これら上流のコントローラーが「退役期日前の自動ローリングアップデート」を標準機能として取り込んだ場合、単体監視ツールの出番がなくなります。</li></ul><p>3. <strong>退役サイクルの頻度と関心の低下</strong></p><ul><li>ランナーのバージョン退役は毎日発生するわけではなく、数ヶ月に一度のイベントです。定常的にログインするダッシュボードとしての定着が難しく、通知が届かない期間の解約（チャーン）リスクが高くなります。</li></ul><h3 id="14日間mvpロードマップ">14日間MVPロードマップ</h3><p>ロードマップの初日には、前提の生死を最短で確かめる「事前検証」を配置します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>具体的タスク</th><th>判定基準 / 成果物</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提の事前検証</strong></td><td>ARC 利用者および自前 GPU ランナー運用者 5名にヒアリング。「退役日APIの存在を知っているか」「現在ランナーの強制停止をどう検知しているか」を確認</td><td>「過去に突然のランナー停止でCIが止まった経験があり、監視に困っている」という回答が 3名以上で進行</td></tr><tr><td class="tk"><strong>Day 2-3</strong></td><td><strong>API コア設計</strong></td><td><code>GET /actions/runners/deprecations/{version}</code> と <code>GET /orgs/{org}/actions/runners</code> の連携スクリプト作成</td><td>指定 Org の全ランナーを走査し、退役期日と残り日数を JSON 出力する CLI</td></tr><tr><td class="tk"><strong>Day 4-6</strong></td><td><strong>判定エンジンの実装</strong></td><td>「30日経過ルール」「runtime_deprecates_at」「registration_deprecates_at」の3つの期限を統合し、最短の遮断日を確定するロジック実装</td><td>正常系・各種退役バージョンのテストケース通過</td></tr><tr><td class="tk"><strong>Day 7-9</strong></td><td><strong>通知・レポート機能</strong></td><td>Slack Incoming Webhook 連携および Markdown 形式の週次サマリー生成機能の実装</td><td>Slack チャンネルへの見やすい期日カウントダウン通知</td></tr><tr><td class="tk"><strong>Day 10-12</strong></td><td><strong>GitHub Action 化</strong></td><td>ユーザーが自分のリポジトリで <code>.github/workflows/runner-clock.yml</code> として日次実行できる Action パッケージング</td><td>自前サーバー不要の完全サーバーレス実行形態の確立</td></tr><tr><td class="tk"><strong>Day 13</strong></td><td><strong>ドッグフーディング &amp; 検証</strong></td><td>実際の複数ランナーを抱えるリポジトリへ導入し、通知精度と誤検知の検証</td><td>意図しない通知の抑制と正確な期日表示</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>公開 &amp; フィードバック収集</strong></td><td>GitHub Marketplace への公開、Zenn / Reddit (r/devops) での技術解説記事投稿</td><td>初期インストール 20件の獲得</td></tr></tbody></table></div><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://github.blog/changelog/2026-09-03-github-actions-early-september-2026-updates/" target="_blank" rel="noopener noreferrer">GitHub Actions: Early September 2026 updates（The GitHub Blog）</a><span class="u">https://github.blog/changelog/2026-09-03-github-actions-early-september-2026-updates/</span></li><li><a href="https://github.com/actions/runner/issues/4295" target="_blank" rel="noopener noreferrer">Misleading Node 20 deprecation warning when FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true is set（actions/runner #4295）</a><span class="u">https://github.com/actions/runner/issues/4295</span></li><li><a href="https://developers.cloudflare.com/fundamentals/api/reference/deprecations/" target="_blank" rel="noopener noreferrer">API deprecations（Cloudflare Fundamentals docs）</a><span class="u">https://developers.cloudflare.com/fundamentals/api/reference/deprecations/</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-23_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

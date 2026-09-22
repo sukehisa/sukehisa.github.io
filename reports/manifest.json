@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T06:14:26+09:00",
+  "generated_at": "2026-09-23T07:06:16+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -195,6 +195,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-23_market_research_report.html",
+          "title": "2026-09-23: コードではなく日付で壊れる — GitHub Actions の Node 20 撤去・Runner 退役 API・Cloudflare KV 旧ルート停止における穴場市場の特定",
+          "date": "2026-09-23",
+          "bytes": 58083
+        },
         {
           "file": "2026-09-21_market_research_report.html",
           "title": "2026-09-21: 値上げではなく数え方の新設 — Atlassian の自動化ステップ・WhatsApp のサービスメッセージ・Rovo クレジットにおける穴場市場の特定",
