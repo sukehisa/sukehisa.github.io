@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24T06:14:45+09:00",
+  "generated_at": "2026-09-24T07:05:54+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -201,6 +201,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-24_market_research_report.html",
+          "title": "2026-09-24: 200 OK の裏で静かに壊れる — Prompt Cache プレフィックス破壊・Structured Outputs 文法コンパイル制約・16KB ページ境界の推移的 ELF 爆弾における穴場市場の特定",
+          "date": "2026-09-24",
+          "bytes": 61685
+        },
         {
           "file": "2026-09-23_market_research_report.html",
           "title": "2026-09-23: コードではなく日付で壊れる — GitHub Actions の Node 20 撤去・Runner 退役 API・Cloudflare KV 旧ルート停止における穴場市場の特定",

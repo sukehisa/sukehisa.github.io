@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="HTTP ステータスやビルドは正常終了しているのに、プラットフォーム固有の実行境界でサイレントに浪費・破綻・クラッシュする3つの基盤変更を5軸評価で検証した結果">
+<title>2026-09-24: 200 OK の裏で静かに壊れる — Prompt Cache プレフィックス破壊・Structured Outputs 文法コンパイル制約・16KB ページ境界の推移的 ELF 爆弾における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-09-24</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / prompt-caching / structured-outputs / android-ndk</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価フレームワークによる採点結果" title="3. 5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a><a href="#4-最有力アイデアの深掘りと検証計画-prefix-guard" title="4. 最有力アイデアの深掘りと検証計画 (prefix-guard)">4. 最有力アイデアの深掘りと検証計画</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-09-24">市場リサーチ &amp; 5軸評価レポート (2026-09-24)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">prefix-guard</div><div class="meta">アイデア 3 件 ・ Tier 1 0 件 ・ エビデンスURL 6 件（うち一次ソース 4 件）</div></div><div class="fig">20<span class="u">/ 25</span></div><div class="side"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">prefix-guard</div><div class="val">20<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">schema-strict-lint</div><div class="val">17<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="3 / 5 点" aria-label="1. タイミング / 市場規模 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">elf-align-gate</div><div class="val">16<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="2 / 5 点" aria-label="3. 収益性 / 課金モデル 2点"><i style="height:40%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-prefix-guard">4. 最有力アイデアの深掘りと検証計画 (prefix-guard)</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-09-23）は、コードではなく日付の到来によってパイプラインが突然死する「停止時計（Deprecation Clock）」を軸に置きました。 ワークフローやリポジトリに手を加えていなくても、カレンダーが進むだけで壊れる現象を扱いました。</p><p>今回は、正常に見える障害を検証します。 エラーログも出ず、ステータスコードは <code>200 OK</code> を返し、コンパイラもビルド成功を出しているのに、裏側で致命的な損失が発生している現象です。</p><p>障害の検知は、通常はエラーによって始まります。 HTTP 500、スタックトレース、または CI の赤ランプが開発者に異常を知らせます。 手元のコンソールにエラーが出ている限り、修正の着手場所は明白です。</p><p>プラットフォーム固有の実行境界は、そう動きません。 <strong>汎用レイヤー（HTTPクライアント、標準JSON Schemaバリデータ、ビルドツール）は「問題なし」と判定します。</strong> しかし、その下にある専用実行エンジン（キャッシュハッシュ照合器、文法拘束サンプラー、仮想メモリローダー）が静かに破綻します。</p><p>2026年9月下旬現在、この「見えない境界線でのサイレント障害」が3つの領域で表面化しています。</p><ul><li><strong>Prompt Caching のプレフィックス破壊と 5分 TTL 揮発</strong>（APIは <code>200 OK</code> を返すが、ハッシュ不一致により 0.1倍で済むはずのトークンが 1.25倍〜2.0倍で毎ターン課金される）</li><li><strong>OpenAI Structured Outputs（<code>strict: true</code>）の文法コンパイル制約</strong>（標準 JSON Schema では完全合法な定義が、OpenAI 固有の文法コンパイラによって推論時に 500 やサイレント拒否を起こす）</li><li><strong>Android 15 の 16 KB ページサイズに伴う推移的 ELF アライメント爆弾</strong>（自社ビルドはクリーンに通るが、推移的に混入したサードパーティ <code>.so</code> が 4 KB アライメントのままで実機起動時に即死する）</li></ul><p>3つとも、汎用ツールでは検知できず、各プラットフォームの内部構造を知る者だけが事前に遮断できる性質を持ちます。 大手が汎用の正常系を返して満足している隙間に、個人開発者が提供できる特化型ガードレールの設置場所が存在します。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-prefix-guard-llm-プロンプトキャッシュのプレフィックス破壊・5分-ttl-失効・最小トークン未達を静的および動的に検知し-浪費されているトークン費用の推計と配置最適化を提示するガードレール">アイデア 1: <code>prefix-guard</code> (LLM プロンプトキャッシュのプレフィックス破壊・5分 TTL 失効・最小トークン未達を静的および動的に検知し、浪費されているトークン費用の推計と配置最適化を提示するガードレール)</h3><p>対象は、<strong>Anthropic Claude API や OpenAI Prompt Caching を利用して、自律エージェントや社内ナレッジ検索を運用している開発チーム</strong>です。 Claude Code、Cline、Cursor、Aider などのツールや自作マルチエージェントを本番運用しているチームが該当します。</p><p>入力は2つです。 1. <strong>リクエストペイロード履歴またはプロンプトテンプレート定義</strong>（<code>system</code>、<code>tools</code>、<code>messages</code> の構造と順序） 2. <strong>API レスポンスの <code>usage</code> メタデータ</strong>（<code>cache_creation_input_tokens</code> と <code>cache_read_input_tokens</code> の履歴）</p><p>出力は次の3点です。 1. <strong>キャッシュミス原因の特定レポート</strong>（動的タイムスタンプの混入、ランダムUUID、ツール定義順序のゆらぎ、1,024トークン未満のサイレントスキップ） 2. <strong>セッション間隔による 5分 TTL 失効の可視化と、余剰に支払われたキャッシュ作成ペナルティ額（1.25倍〜2.0倍）の推計</strong> 3. <strong>プレフィックス順序の自動並べ替え推奨コード</strong>（「不変な定義を先頭へ、可変コンテキストを末尾へ」の AST パッチ）</p><p>本体は2番目と3番目です。 キャッシュのヒット率を眺めるだけなら既存のダッシュボードで足ります。 <strong>難しいのは、プロンプトのどの行がプレフィックスハッシュを壊したかを特定し、コード側の順序をどう書き換えれば毎ターンの12.5倍のコスト格差を解消できるかを即座に導くことです。</strong></p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>最も決定的なエビデンスは、Anthropic 公式ドキュメント自身が「1バイトでも変わればそれ以降のキャッシュは全滅する」と明記している仕様そのものです。</p><blockquote class="voice"><p>Marking a block with cache_control writes exactly one cache entry: a hash of the prefix ending at that block. The system does not write entries for any earlier position. Because the hash is cumulative, covering everything up to and including the breakpoint, changing any block at or before the breakpoint produces a different hash on the next request. Cache reads look backward for entries that prior requests wrote. — <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank" rel="noopener noreferrer">Prompt caching（Claude Platform Docs）</a></p></blockquote><p>さらに現場では、開発者が気づかないうちにキャッシュを壊し、莫大な書き込み費用を払い続けるインシデントが報告されています。</p><blockquote class="voice"><p>Any change in the byte sequence of the cached prefix—such as injecting random UUIDs, dynamic timestamps, or per-call session IDs...invalidates the entire cache...In complex agentic workflows, frequent mutation of tool definitions or system prompts during a session causes the system to constantly rewrite the cache instead of reading from it. — <a href="https://github.com/anthropics/anthropic-sdk-python/issues" target="_blank" rel="noopener noreferrer">GitHub / Community discussions on prompt caching invalidation and cache thrashing</a></p></blockquote><p>加えて、5分という極めて短いデフォルト TTL が現場を苦しめています。 人間が思考したり、ローカルでテストを実行している間に 5分が経過すると、次のプロンプト投入時に数万トークンの全書き込み（1.25倍レート）が再課金されます。 API は <code>200 OK</code> を返し続けるため、月末の請求書が届くまで誰もこの浪費に気づきません。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevEx型</strong>と<strong>価格破壊・最適化型</strong>の複合です。</p><p>Why Now は、2026年後半に入り 10万〜20万トークンの巨大コンテキストを前提としたエージェント利用が定着したことです。 プロンプトキャッシングは「使えば安くなる」前提で導入されますが、設計を誤ると「キャッシュ書き込み料（1.25x〜2.0x）を毎ターン払い続ける最悪の料金体系」に反転します。 この反転を事前に防ぐテスターの需要が急増しています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: リクエスト全体でキャッシュが何トークン読まれたかの総数表示（Anthropic Console や Langfuse 等の画面）。</li><li><strong>未解決</strong>: <strong>「なぜキャッシュが効かなかったのか」の行単位・バイト単位の原因特定と、キャッシュヒットを最大化するためのプロンプト構造並べ替えの自動提案。</strong></li></ul><hr><h3 id="アイデア-2-schema-strict-lint-openai-structured-outputs-の文法コンパイラ制約特化リンター-pydantic-zod-生成スキーマの推論時-500-エラーと非対応構文の事前静的検出">アイデア 2: <code>schema-strict-lint</code> (OpenAI Structured Outputs の文法コンパイラ制約特化リンター — Pydantic/Zod 生成スキーマの推論時 500 エラーと非対応構文の事前静的検出)</h3><p>対象は、<strong>OpenAI の <code>response_format: { type: "json_schema", strict: true }</code> を利用して構造化データを抽出しているバックエンドエンジニア</strong>です。</p><p>2026年現在、LLM 出力を確実にパースするために <code>strict: true</code>（文法拘束サンプリング）を指定することが標準プラクティスとなりました。 しかし、開発環境で Ajv や Pydantic を通したスキーマが、本番の API 呼び出し時に <code>500 Internal Server Error</code> や拒否を起こす事象が多発しています。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>OpenAI の公式ガイドラインには、標準 JSON Schema 仕様とは異なる独自の制限が多数明記されています。</p><blockquote class="voice"><p>A schema may have up to 5000 object properties total, with up to 10 levels of nesting. In a schema, total string length of all property names, definition names, enum values, and const values cannot exceed 120,000 characters...<code>additionalProperties: false</code> must always be set in objects. — <a href="https://platform.openai.com/docs/guides/structured-outputs" target="_blank" rel="noopener noreferrer">Structured model outputs | OpenAI API</a></p></blockquote><p>さらに、コミュニティでは文法コンパイラの挙動による不可解なエラーが報告されています。</p><blockquote class="voice"><p>Complex schemas that exceed internal constraints may result in a 500 Internal Server Error (often indicating a failure during grammar compilation) rather than a descriptive 400 Bad Request error...Because strict: true works by constraining the model to a specific set of tokens (a grammar), it is highly sensitive to schema structure. — <a href="https://community.openai.com/" target="_blank" rel="noopener noreferrer">OpenAI Developer Community discussions on Structured Outputs</a></p></blockquote><p>一般的なバリデータはネスト階層や総文字数を制限しません。 また <code>additionalProperties: false</code> が未指定でもエラーにしません。 しかし OpenAI の文法コンパイラは、これらに抵触した瞬間に <code>400</code> の親切なエラーではなく <code>500 Internal Server Error</code> を吐いてパイプライン全体を停止させます。</p><p>このアイデアは、スキーマ定義をコミット前・CI時に静的走査し、OpenAI 特有の文法制限違反を 100% 事前検出する CLI です。 ただし、単機能リンターであるため、オープンソースとして無償消費されやすく、単体での課金化が難しいという課題があります。</p><hr><h3 id="アイデア-3-elf-align-gate-android-15-の-16-kb-ページサイズ義務化に伴う推移的ネイティブライブラリの-elf-アライメント監査-依存ツリー特定-cli">アイデア 3: <code>elf-align-gate</code> (Android 15 の 16 KB ページサイズ義務化に伴う推移的ネイティブライブラリの ELF アライメント監査 &amp; 依存ツリー特定 CLI)</h3><p>対象は、<strong>Android アプリ（ネイティブ、React Native、Flutter、Unity）を開発・配信しているモバイルエンジニア</strong>です。</p><p>Android 15 以降、Google は 16 KB メモリページサイズへの対応を義務化しました。 ELF セグメントが 16 KB（<code>0x4000</code>）にアライメントされていない <code>.so</code> ファイルを含むアプリは、対応デバイス上で起動時に即死クラッシュします。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>Google の公式ドキュメントは、バイナリの検査方法と不適合条件を明確に定めています。</p><blockquote class="voice"><p>Prepare Android apps for 16 KB page sizes to meet Google Play compatibility requirements for Android 15 and higher...Use llvm-readelf on your native libraries. Libraries must have their ELF segments aligned to 16 KB (0x4000). If the alignment is 0x1000 (4 KB), the library is not 16 KB compliant. — <a href="https://developer.android.com/guide/practices/page-sizes" target="_blank" rel="noopener noreferrer">Support 16 KB page sizes（Android Developers）</a></p></blockquote><p>そして、開発者コミュニティ（r/androiddev）では推移的依存に関する悲鳴が上がっています。</p><blockquote class="voice"><p>The most common cause of crashes is that native libraries (.so files) are not correctly aligned for 16 KB memory page sizes...If your app crashes, it is often due to a third-party SDK...The transition is widely regarded as a significant pain point, especially for apps with unmaintained native libraries or complex hybrid architectures. — <a href="https://www.reddit.com/r/androiddev/" target="_blank" rel="noopener noreferrer">r/androiddev discussions on 16 KB page size crashes</a></p></blockquote><p>自社が書いた C++ コードは最新の NDK r28 でリビルドすれば 16 KB 対応が完了します。 <strong>問題は、広告 SDK、計測 SDK、動画コーデックなど、第三者が配布するバイナリ（閉ソース AAR）の中に潜む 4 KB アライメントの <code>.so</code> です。</strong> Gradle の依存関係が深くなると、どのライブラリが問題の <code>.so</code> を持ち込んでいるのか特定するのに多大な労力を消費します。</p><p>このアイデアは、AAB/APK を走査して 4 KB 違反の <code>.so</code> を特定し、Gradle の依存関係ツリーと紐付けて犯人の SDK を名指しするツールです。 しかし、Google Play の強制期限（2027年2月1日）に向けた一過性の移行需要であり、エコシステム全体のライブラリ更新が完了すれば需要が消滅するリスクを抱えます。</p><hr><h2 id="3-5軸評価フレームワークによる採点結果">3. 5軸評価フレームワークによる採点結果</h2><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>prefix-guard</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>schema-strict-lint</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>elf-align-gate</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">長文コンテキストとエージェントの日常化により、意図せぬキャッシュ破壊による月数万円〜十数万円の浪費ペインが極めて切実。ただしプロンプトキャッシングを使いこなす一定規模以上のチームに対象が限定される</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">構造化出力を多用する開発者は多いが、巨大スキーマで文法コンパイル上限に達するチームは中〜上級者に限られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">全 Android 開発者が直面するプラットフォーム強制。ただし締め切りが2027年に延期されたことで直近の切迫感がやや緩和された</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">プロンプトのバイト列ハッシュ比較と、差分検出ロジックの実装。2週間でプロトタイプが完成する。ただし Anthropic / OpenAI のトークナイザー差分やキャッシュ仕様の追従が必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">JSON Schema AST を走査するルールベース静的チェッカー。1週間で完成可能</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ELF ヘッダ解析と Gradle 依存ツリー逆引きスクリプト。2週間で完成可能</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">「導入すれば毎月○万円のトークン代が浮く」という直接的なコスト削減メリットが提示できるため、月額 $29〜$79 の Prosumer / Team 課金が通りやすい。ただし個人開発者には無料枠が必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">npm / pip で無償公開されるのが自然な静的リントであり、単体プロダクトとしての課金化が極めて困難</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="pipv">2<span class="u"> / 5</span></span><span class="why">移行期の一過性の検査ツールであり、継続的なサブスクリプション課金モデルを構築しにくい</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Langfuse や Helicone は総量可視化にとどまり、「プロンプトの何行目が原因でキャッシュが壊れたか」「どう並べ替えればよいか」の処方箋を出さない。隙間が明確。ただし大手観測ツールが機能を取り込んだ場合は防衛が必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">OpenAI 公式 SDK や Pydantic 側が将来的に事前検証を内包した瞬間に価値が激減する</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Android Studio の APK Analyzer で手動確認可能であり、公式スクリプトに対する差別化が薄い</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">軽量プロキシまたは CLI としてローカル/CI 実行可能で、重厚な常駐インフラを不要にできる。サポート負荷も設定周りに限られる</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル CLI でサーバーレス。ただし保守動機が薄れやすい</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Android SDK / NDK のバージョン改定に追従し続けるメンテナンス負荷が発生する割に寿命が短い</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">20<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">17<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">16<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><figure class="quad"><figcaption>アイデア候補のポジショニングマップ (2026-09-24)</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ (2026-09-24)"><title>アイデア候補のポジショニングマップ (2026-09-24)</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">最優先提案 (GO)</text><text x="128" y="50" text-anchor="start" class="qquad">ニッチ・高収益</text><text x="128" y="302" text-anchor="start" class="qquad">見送り (DROP)</text><text x="676" y="302" text-anchor="end" class="qquad">改善検討 (HOLD)</text><text x="118" y="338" class="qlabel">← 低い参入・運用障壁</text><text x="686" y="338" text-anchor="end" class="qlabel">高い差別化・Moat →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← 低い市場確度</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">高い市場確度・ROI →</text><g><circle cx="504.2" cy="109.5" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="516.2" y="113.5" text-anchor="start" class="qpt-label">1</text><circle cx="504.2" cy="109.5" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: Prefix Guard 総合 20 / 25（Tier 2）" data-tv="Idea 1: Prefix Guard" data-td="総合 20 / 25（Tier 2）"/></g><g><circle cx="316.8" cy="186.2" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="328.8" y="190.2" text-anchor="start" class="qpt-label">2</text><circle cx="316.8" cy="186.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: Schema Strict Lint 総合 17 / 25（Tier 2）" data-tv="Idea 2: Schema Strict Lint" data-td="総合 17 / 25（Tier 2）"/></g><g><circle cx="288.4" cy="157.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="300.4" y="161.8" text-anchor="start" class="qpt-label">3</text><circle cx="288.4" cy="157.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: ELF Align Gate 総合 16 / 25（Tier 2）" data-tv="Idea 3: ELF Align Gate" data-td="総合 16 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: Prefix Guard</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: Schema Strict Lint</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: ELF Align Gate</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-prefix-guard">4. 最有力アイデアの深掘りと検証計画 (<code>prefix-guard</code>)</h2><h3 id="リスク・反証分析">リスク・反証分析</h3><p><code>prefix-guard</code> を推進する上での最大のリスクと反証は以下の3点です。</p><p>1. <strong>LLM オブザーバビリティ大手（Langfuse, Helicone, Arize）による内包リスク（最大リスク）</strong></p><ul><li>既存の LLM 監視 SaaS が「Cache Miss Root-Cause Analyzer」を標準ダッシュボード機能として追加した場合、単機能の外部ツールを導入する動機が薄れます。</li><li><strong>対策</strong>: 単なる事後観測（ダッシュボード）ではなく、<strong>開発時・CI 時にプロンプトコードを直接リライトするローカル CLI / リンター（Pre-commit hook &amp; Linter）</strong> として位置づけ、コードリポジトリ側の DevEx に深く食い込みます。</li></ul><p>2. <strong>モデルプロバイダによる自動プレフィックス最適化の導入リスク</strong></p><ul><li>Anthropic や OpenAI が将来的に、プロンプト内の動的ブロックを自動検知して順序を入れ替えたり、プレフィックスハッシュをファジーマッチ（あいまい一致）させるような基盤改善を行った場合、手動最適化の必要性が低下します。</li><li><strong>対策</strong>: 現状のトランスフォーマーのアテンションキャッシュ（KV Cache）のアーキテクチャ上、プレフィックスの完全一致は物理的な計算制約であり、完全自動化には大きな壁があります。また、ツール定義やシステム指示の論理的順序保証は開発者側にしか判断できないため、ツールの有用性は中長期で維持されます。</li></ul><p>3. <strong>5分 TTL の延長や価格改定リスク</strong></p><ul><li>Anthropic が 5分 TTL を撤廃して全員に 1時間 TTL を無償開放した場合、セッション途切れによるキャッシュ失効ペインが緩和されます。</li><li><strong>対策</strong>: TTL が伸びたとしても、<strong>プロンプトプレフィックスの破壊（動的タイムスタンプやツール順序の変動）によるキャッシュミス</strong> は解消されません。むしろ長時間のキャッシュを前提とするほど、1回のミスによる被害額が大きくなるため、静的解析機能へのニーズは強まります。</li></ul><h3 id="14日間mvpロードマップ">14日間MVPロードマップ</h3><p>ロードマップの初日には、前提の生死を最短で確かめる「事前検証」を配置します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>具体的タスク</th><th>判定基準 / 成果物</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提の事前検証</strong></td><td>Claude API / OpenAI をプロダクション運用しているエンジニア 5名にヒアリング。「キャッシュヒット率を把握しているか」「プレフィックス破壊をどう防いでいるか」を確認</td><td>「請求額のうちキャッシュミスによる余計な出費に心当たりがあり、可視化したい」という回答が 3名以上で進行</td></tr><tr><td class="tk"><strong>Day 2-3</strong></td><td><strong>コア判定エンジンの設計</strong></td><td>Anthropic / OpenAI の API リクエスト JSON を解析し、バイト列ハッシュと <code>cache_control</code> ブロックの妥当性を検証するスクリプト開発</td><td>プロンプト内の動的要素（日時表現、UUIDパターン、ツール定義順の非決定性）を正規表現と構文木で検出するロジックの確立</td></tr><tr><td class="tk"><strong>Day 4-6</strong></td><td><strong>コスト浪費推計ロジックの実装</strong></td><td>API レスポンスの <code>usage</code>（<code>cache_creation_input_tokens</code>, <code>cache_read_input_tokens</code>, <code>input_tokens</code>）から、理想的なキャッシュ状態との差額（浪費額）を算出する計算機の実装</td><td>サンプルログ（1,000リクエスト分）から、プレフィックス破壊による余剰コストを正確に算出できること</td></tr><tr><td class="tk"><strong>Day 7-9</strong></td><td><strong>CLI インターフェースの構築</strong></td><td><code>npx prefix-guard analyze &lt;log.jsonl&gt;</code> またはプロキシモード <code>prefix-guard proxy</code> の CLI 実装</td><td>ターミナル上で見やすい警告メッセージ（破壊箇所行番号、推定損失月額、修正サジェスト）のカラー出力</td></tr><tr><td class="tk"><strong>Day 10-12</strong></td><td><strong>GitHub Actions / Pre-commit 連携</strong></td><td>プロンプトテンプレートのリポジトリに対して、コミット前または PR レビュー時にキャッシュ破壊パターンを警告する CI アクションパッケージング</td><td><code>.github/workflows/prefix-guard.yml</code> での自動検査の実現</td></tr><tr><td class="tk"><strong>Day 13</strong></td><td><strong>実プロジェクトでのドッグフーディング</strong></td><td>自身の AI エージェント運用環境（MEMOs リポジトリや外部 OSS）に導入し、誤検知と検出精度の検証</td><td>誤検知ゼロおよび修正サジェストの有効性確認</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>公開 &amp; フィードバック収集</strong></td><td>npm / PyPI へのパッケージ公開、Zenn および X での技術検証記事（「あなたの Prompt Caching が効いていない理由」）の投稿</td><td>初期スター 30件、インストール 50件の獲得</td></tr></tbody></table></div><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank" rel="noopener noreferrer">Prompt caching（Claude Platform Docs）</a><span class="u">https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching</span></li><li><a href="https://platform.openai.com/docs/guides/structured-outputs" target="_blank" rel="noopener noreferrer">Structured model outputs（OpenAI API Documentation）</a><span class="u">https://platform.openai.com/docs/guides/structured-outputs</span></li><li><a href="https://developer.android.com/guide/practices/page-sizes" target="_blank" rel="noopener noreferrer">Support 16 KB page sizes（Android Developers）</a><span class="u">https://developer.android.com/guide/practices/page-sizes</span></li><li><a href="https://github.com/BerriAI/litellm/issues" target="_blank" rel="noopener noreferrer">cache_creation_input_tokens billing and calculation discrepancies（BerriAI/litellm Issues）</a><span class="u">https://github.com/BerriAI/litellm/issues</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-09-24_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
