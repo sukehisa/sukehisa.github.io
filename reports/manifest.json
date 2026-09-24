@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T06:14:24+09:00",
+  "generated_at": "2026-09-25T07:03:35+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -207,6 +207,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-25_market_research_report.html",
+          "title": "2026-09-25: 認証と結線の切断時計 — Snowflake サービスアカウントのパスワード遮断・Cloudflare Tunnel connections 削除・AWS App Mesh 完全停止における穴場市場の特定",
+          "date": "2026-09-25",
+          "bytes": 63071
+        },
         {
           "file": "2026-09-24_market_research_report.html",
           "title": "2026-09-24: 200 OK の裏で静かに壊れる — Prompt Cache プレフィックス破壊・Structured Outputs 文法コンパイル制約・16KB ページ境界の推移的 ELF 爆弾における穴場市場の特定",
