@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T05:02:42+09:00",
+  "generated_at": "2026-09-27T07:04:48+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -213,6 +213,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-27_market_research_report.html",
+          "title": "2026-09-27: 分裂するクラウドと消えるオーケストレーション — Amazon Pinpoint 終了・Docker Content Trust 閉鎖・Entra PIM beta 退役における穴場市場の特定",
+          "date": "2026-09-27",
+          "bytes": 67370
+        },
         {
           "file": "2026-09-26_market_research_report.html",
           "title": "2026-09-26: 消えるプラットフォーム機能と実行境界の罠 — OpenAI Reusable Prompts/Evals 終了・MCP Confused Deputy 攻撃・Google Ads API v22 サンセットにおける穴場市場の特定",
