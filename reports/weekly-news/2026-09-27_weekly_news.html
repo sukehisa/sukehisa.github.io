@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="対象期間: 2026-09-20（日）〜 2026-09-26（土） ／ 収録 14 本">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="今週読んだもの">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Serif+JP:wght@400;600;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<title>Weekly Promo Dispatch Vol.6 — 2026年9月27日号</title>
+<style>
+/* 配色は Tablet Magazine の CSS 変数（--red / --off-white / --black / --beige …）に合わせている。
+   ライトは Tablet そのまま。ダークは Tablet 自身が持つ反転ペア（--off-white:#222 / --black:#ccc）を使う。 */
+:root {
+  color-scheme: light;
+  --page: #f7f6f2;
+  --surface: #f7f7f2;
+  --band: #efe9dc;
+  --ink: #222222;
+  --ink-2: #444444;
+  --ink-3: #888888;
+  --rule: #222222;
+  --hairline: #e2dacb;
+  --accent: #dd3418;
+  --accent-soft: rgba(221, 52, 24, 0.09);
+  --duotone: #dd3418;
+  --duotone-strength: 0.5;
+  --serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+           Georgia, "Times New Roman", serif;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #222222;
+    --surface: #2b2b2b;
+    --band: #2b2b2b;
+    --ink: #cccccc;
+    --ink-2: #b0b0b0;
+    --ink-3: #888888;
+    --rule: #cccccc;
+    --hairline: #3d3d3d;
+    /* Tablet の赤 #dd3418 は #222 上で 3.47:1 しか出ない。色相を保ったまま明度を上げて 4.76:1 にする */
+    --accent: #f4573a;
+    --accent-soft: rgba(221, 52, 24, 0.20);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #222222;
+  --surface: #2b2b2b;
+  --band: #2b2b2b;
+  --ink: #cccccc;
+  --ink-2: #b0b0b0;
+  --ink-3: #888888;
+  --rule: #cccccc;
+  --hairline: #3d3d3d;
+  /* 同上（明示テーマ指定時） */
+  --accent: #f4573a;
+  --accent-soft: rgba(221, 52, 24, 0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.85;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3.6vw, 40px) 96px;
+  padding-left: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.6vw, 40px), env(safe-area-inset-right));
+}
+a { color: inherit; text-decoration: none; }
+
+/* --- 大文字・字間広めのサンセリフ（Graebenbach の役どころ） --- */
+.eyebrow, .byline, .section-label, .rubric, .meta, .credit, .navlink {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  font-size: 0.66rem;
+}
+
+/* --- 赤い下線がホバーで伸びる（linked-border-bottom-on-hover-red） --- */
+.grow-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.28s ease;
+  padding-bottom: 2px;
+}
+a:hover .grow-underline, .grow-underline:hover { background-size: 100% 2px; }
+
+/* --- マストヘッド --- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 0 0;
+  text-align: center;
+}
+.masthead .eyebrow { color: var(--accent); display: block; margin-bottom: 12px; }
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.4vw, 3.7rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.masthead .tagline {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.issue-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 20px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-3);
+}
+.issue-bar .vol { color: var(--accent); }
+
+/* --- セクションナビ（Tablet のセクション行に相当） --- */
+.sectionnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.navlink { color: var(--ink-2); white-space: nowrap; }
+.navlink:hover { color: var(--accent); }
+
+/* --- 記事画像: 赤のデュオトーン → ホバーでフルカラー --- */
+.thumb {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #222222;
+  border-radius: 2px;
+  margin: 0 0 14px;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+  transition: filter 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone);
+  mix-blend-mode: multiply;
+  opacity: var(--duotone-strength);
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.story:hover .thumb img, .lead-story:hover .thumb img { filter: grayscale(0); }
+.story:hover .thumb::after, .lead-story:hover .thumb::after { opacity: 0; }
+.thumb.lead img { aspect-ratio: 21 / 9; }
+.story .thumb img { aspect-ratio: 16 / 9; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb img, .thumb::after, .grow-underline { transition: none; }
+}
+
+/* --- リード（今週の総括） --- */
+.lede {
+  margin: 38px auto 0;
+  max-width: 60ch;
+}
+.lede p {
+  margin: 0 0 14px;
+  font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+.lede p:first-child::first-letter {
+  float: left;
+  font-size: 2.8em;
+  line-height: 0.9;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- リード記事 --- */
+.lead-story {
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.lead-story .rubric { color: var(--accent); display: block; margin-bottom: 14px; }
+.lead-story h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  max-width: 20ch;
+}
+.lead-story .dek {
+  margin: 20px 0 0;
+  max-width: 48ch;
+  font-size: clamp(1.04rem, 1.9vw, 1.28rem);
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.lead-body { display: grid; gap: 0 48px; }
+@media (min-width: 900px) {
+  .lead-body { grid-template-columns: 1.15fr 1fr; align-items: start; }
+  .lead-body .note { margin-top: 0; }
+}
+
+/* --- 編集後記 --- */
+.note {
+  margin: 20px 0 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+.note .byline { display: block; color: var(--accent); margin-bottom: 4px; }
+.note p { margin: 0; }
+.lead-story .note { max-width: 52ch; font-size: 1.02rem; }
+
+/* --- 記事メタ --- */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.meta .dot { color: var(--hairline); }
+.tag {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 1px 7px;
+}
+
+/* --- セクション --- */
+.section { margin-top: 56px; scroll-margin-top: 16px; }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--accent);
+  padding-top: 10px;
+  margin-bottom: 26px;
+}
+.section-head h2 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.section-head .count {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.section-intro {
+  margin: -8px 0 26px;
+  max-width: 60ch;
+  color: var(--ink-2);
+  font-size: 0.97rem;
+}
+.stories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 34px 40px;
+}
+.story { padding-bottom: 4px; }
+.story h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.story .dek { margin: 10px 0 0; color: var(--ink-2); font-size: 0.94rem; line-height: 1.8; }
+.story .note { margin-top: 14px; font-size: 0.92rem; }
+.story.no-image { border-top: 1px solid var(--hairline); padding-top: 18px; }
+
+/* --- 編集メモ --- */
+.colophon {
+  margin-top: 62px;
+  padding: 28px 30px;
+  background: var(--band);
+  border-top: 2px solid var(--accent);
+}
+.colophon .section-label { color: var(--accent); display: block; margin-bottom: 10px; }
+.colophon p { margin: 0 0 12px; color: var(--ink-2); max-width: 66ch; }
+.colophon p:last-child { margin-bottom: 0; }
+
+/* --- 索引 --- */
+.index { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.index h2 {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.index ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 44px; }
+.index li { margin-bottom: 8px; break-inside: avoid; font-size: 0.92rem; color: var(--ink-2); }
+.index li a:hover { color: var(--accent); }
+@media (max-width: 719px) { .index ol { columns: 1; } }
+
+/* --- フッタ --- */
+.foot {
+  margin-top: 54px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.85;
+  color: var(--ink-3);
+}
+.foot code { font-size: 0.9em; }
+
+@media print {
+  body { background: #fff; font-size: 10.5pt; }
+  .thumb::after { display: none; }
+  .thumb img { filter: grayscale(1); }
+  .stories { grid-template-columns: 1fr 1fr; }
+  .story { break-inside: avoid; }
+  .sectionnav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <span class="eyebrow">Weekly Dispatch from a Personal Knowledge Base</span>
+  <h1 class="wordmark">今週読んだもの</h1>
+  <p class="tagline">個人ナレッジベース MEMOs に取り込んだ記事のうち、その週に「掘り下げる」と決めたものだけを編集した週刊ダイジェスト。</p>
+  <div class="issue-bar"><span class="vol">Vol. 6</span><span>2026年9月27日（日） 発行</span><span>収録期間 2026年9月20日（日） 〜 2026年9月26日（土）</span><span>14 本</span></div>
+</header>
+<nav class="sectionnav"><a class="navlink" href="#lead">今週の1本</a><a class="navlink" href="#sec0">自律ループとしての「ソフトウェアファクトリー」</a><a class="navlink" href="#sec1">生成から判定へ――「System One」モデルの分業</a><a class="navlink" href="#sec2">エージェントを駆動する現場の作法</a><a class="navlink" href="#sec3">組織とシステムの境界を定める</a></nav>
+<section class="lede has-drop"><p>単にAIにコードを書かせる段階を越え、目標の定義から変更の実装、本番監視、そして性能劣化の自動修正までを自律的に循環させる「ソフトウェアファクトリー」の構想が現実の現場から立ち上がってきた。一方で、何でも重厚なLLMに自己回帰生成させるのではなく、ロジット読み出しによる高速・安価な判断モデル（System One）を一次判定として配置するような、賢い分業の輪郭も見え始めている。ログ圧縮や自己検証といった現場の泥臭い足回りを固めつつ、組織や分散基盤の境界線をどこに引くべきか、エージェントを本格稼働させるための現実的な設計論を多面的に考えた週だった。</p></section>
+<article class="lead-story" id="lead"><span class="rubric">今週の1本</span><a class="thumb lead" href="https://x.com/iwashi86/status/2100342938429686057" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/profile_images/1409992269973704705/PIGP4eEZ_400x400.jpg" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer"></a><h2><a href="https://x.com/iwashi86/status/2100342938429686057" rel="noopener"><span class="grow-underline">iwashi / Yoshimasa Iwase on X: &quot;この図がめちゃくちゃ良い。現代のAI開発 + CI/CDの到達点の1つだと思う。&quot;</span></a></h2><div class="lead-body"><div><p class="dek">OpenAIが社内で構築した「エージェント型ソフトウェアファクトリー」の構成図を引き、成果定義からコンテキスト収集、変更実装、分散エージェントによるレビュー、変更単位での監視ダッシュボード生成、そして本番性能の劣化検知から自動修正PR起票（Perf Factory）までをつなぐ9工程の自律ループを解説している。</p><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 9.20</span></p></div><div><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>単にAIがコードを書くだけでなく、変更単位での本番監視や性能劣化の自動修正までをひとつの閉ループとして繋ぎ込んでいる点に、開発プロセスの質的な転換がある。</p></div></div></div></article>
+<section class="section" id="sec0"><div class="section-head"><h2>自律ループとしての「ソフトウェアファクトリー」</h2><span class="count">2 本</span></div><p class="section-intro">単発のコード生成にとどまらず、目標の提示から本番監視・自動修正までを自律的に循環させるソフトウェアファクトリーの実験が、OpenAIや米スタートアップの現場から具体的に報告され始めている。</p><div class="stories"><article class="story"><a class="thumb" href="https://x.com/GergelyOrosz/status/2099945497377091902" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/media/HSSBIdfWEAAbXl8?format=webp&amp;name=large" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://x.com/GergelyOrosz/status/2099945497377091902" rel="noopener"><span class="grow-underline">Gergely Orosz on X: &quot;Here&#x27;s what OpenAI&#x27;s agentic software factory looks like, today&quot;</span></a></h3><p class="dek">The Pragmatic EngineerによるOpenAI社内の取材記事を紹介し、Codexの全社浸透に伴い手動レビューやIDE中心の開発が解体され、本番監視から自動修正までを担う複数の自律ループへ移行した実態を報告している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントがコードを書く速度に既存のレビューやCIが追いつかなくなった結果、ボトルネックを解消するために監視やレビュー自体も自律化せざるを得ない力学が働いている。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 9.22</span></p></article><article class="story"><a class="thumb" href="https://x.com/iwashi86/status/2102533404717904308" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/card_img/2100038193659699200/7HTX_bns?format=webp&amp;name=medium" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://x.com/iwashi86/status/2102533404717904308" rel="noopener"><span class="grow-underline">iwashi / Yoshimasa Iwase on X: &quot;Will Larson氏の新しいポストから。Imprint社でのソフトウェアファクトリー実験&quot;</span></a></h3><p class="dek">米Imprint社におけるClaude Code導入後の実践として、並列エージェント基盤を整えた上で、Notionの目標定義とDatadogの指標を読み込ませてタスク起票からPR作成、リリース後監視までを自律的に回す実験の知見をまとめている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>人間の手から離れて自律走行させるためには、これまで開発者が暗黙知として抱えていた目標や成功基準を、ダッシュボードや仕様として機械が読める形へ徹底的に言語化することが前提条件になる。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 9.23</span></p></article></div></section>
+<section class="section" id="sec1"><div class="section-head"><h2>生成から判定へ――「System One」モデルの分業</h2><span class="count">3 本</span></div><p class="section-intro">文章やコードを1トークンずつ自己回帰生成する重厚なLLMとは異なり、与えられた状況と質問に対して型付きの判断と確率をミリ秒単位・高並列で返すモデルが台頭している。</p><div class="stories"><article class="story"><a class="thumb" href="https://note.com/npaka/n/n6f8dd30a5fa4" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://assets.st-note.com/production/uploads/images/314387011/rectangle_large_type_2_293dd8729c6e486d96d9eac9494141b5.png?fit=bounds&amp;quality=85&amp;width=1280" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://note.com/npaka/n/n6f8dd30a5fa4" rel="noopener"><span class="grow-underline">高速な判断に特化したAI - TypeSafe「Jev」 と System One Model｜npaka</span></a></h3><p class="dek">TypeSafe AIが発表した「Jev」を取り上げ、自由文を生成する代わりに状況と質問から型付きの判断と確率を70〜500msで直接出力する「System One Model」のアーキテクチャとリアルタイム運用の可能性を解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>通常のLLMでも構造化出力は可能だが、内部でトークン生成を挟むため遅延とコストがかさむ。</p></div><p class="meta"><span>note.com</span><span class="dot">/</span><span>PROMO 9.20</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/mizchi/articles/jev-is-gpu-for-llms" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--A3IX07SH--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:%25E6%2597%25A2%25E5%25AD%2598%25E3%2581%25AE%2520LLM%2520%25E3%2581%258C%2520CPU%2520%25E3%2581%25AA%25E3%2582%2589%25E3%2580%2581%2520Jev%2520%25E3%2581%25AF%25E3%2581%259D%25E3%2581%25AE%2520GPU%2520%25E7%2589%2588%25E3%2581%25BF%25E3%2581%259F%25E3%2581%2584%25E3%2581%25AA%25E3%2582%2584%25E3%2581%25A4%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:mizchi%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2liclRHT052Z3d3ay1fNGxlcVk4TGNGSlNuX0FoWnpEWVlKaXJNcWc9czI1MC1j%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/mizchi/articles/jev-is-gpu-for-llms" rel="noopener"><span class="grow-underline">既存の LLM が CPU なら、 Jev はその GPU 版みたいなやつ</span></a></h3><p class="dek">Jevを実際に動かした検証を通じ、単体性能の高さよりも1リクエストあたり256並列で判断を処理できるスループットと極めて低い運用コストにこそゲームチェンジャーとしての本質があると論じている。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>Bloom filterのように高速・安価な一次スクリーニングを担わせ、確信度が低い境界領域だけを重厚なLLMに委譲する二段構えのパイプラインが現実的な解となる。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 9.20</span></p></article><article class="story no-image"><h3><a href="https://openjev.com/" rel="noopener"><span class="grow-underline">SemIf — local decisions in your browser</span></a></h3><p class="dek">WebGPUを活用してブラウザ内でオープンモデルを動かし、選択肢のロジットを直接読み出す経路と自己回帰でJSONトークンを生成させる経路を同一モデル上で比較検証できる実験環境を公開している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>プロプライエタリな判断特化モデルの仕組みを、オープンモデルの最終層ロジットを直接読み出すことで手元で再現・実証できる点が示唆的である。</p></div><p class="meta"><span>openjev.com</span><span class="dot">/</span><span>PROMO 9.20</span></p></article></div></section>
+<section class="section" id="sec2"><div class="section-head"><h2>エージェントを駆動する現場の作法</h2><span class="count">4 本</span></div><p class="section-intro">日常の開発へエージェントを組み込むにあたり、トークン消費の極小化、検証可能な作業境界の設計、成果物の共有ループといった泥臭くも不可欠なプラクティスが整理されつつある。</p><div class="stories"><article class="story"><a class="thumb" href="https://x.com/kenn/status/2093701458445439033" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://pbs.twimg.com/profile_images/2101495370660655104/F8tzCryw_400x400.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://x.com/kenn/status/2093701458445439033" rel="noopener"><span class="grow-underline">AIエージェント開発におけるテスト実行ログのトークン消費削減手法（@kenn）</span></a></h3><p class="dek">AIコーディングエージェントがテストを実行する際、コマンドをラッパースクリプトで包み、成功時は要約のみ、失敗時のみスタックトレースを出力させることで、ログ行数を6,500行から10行へ圧縮してトークン浪費を防ぐ実践知を紹介している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>コンテキスト長がどれほど拡大しても、雑多な実行ログで枠を埋め尽くせばコスト高と精度劣化を招く。</p></div><p class="meta"><span>x.com</span><span class="dot">/</span><span>PROMO 9.20</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">テスト</span><span class="tag">トークン削減</span><span class="tag">開発効率化</span></p></article><article class="story no-image"><h3><a href="https://claude-code-best-practices.pages.dev/" rel="noopener"><span class="grow-underline">Claude Code Best Practices - 効果的なプロンプト・セッション管理・自動化ガイド</span></a></h3><p class="dek">Claude Codeを効果的に動かす原則として、エージェント自身に成否を確認させる検証方法の提供、探索・計画・実装・検証の4段階の分離、およびセッション分割によるコンテキスト汚染防止の具体策を提示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントに指示を与えること以上に、「自らの作業結果を客観的に検証できるテストや観測手段を渡す」という原則は、あらゆる自律エージェントの暴走を防ぐ要石となる。</p></div><p class="meta"><span>claude-code-best-practices.pages.dev</span><span class="dot">/</span><span>PROMO 9.22</span><span class="tag">AI</span><span class="tag">Claude Code</span><span class="tag">プロンプト</span><span class="tag">ベストプラクティス</span><span class="tag">開発効率化</span></p></article><article class="story"><a class="thumb" href="https://github.com/humanlayer/12-factor-agents" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://opengraph.githubassets.com/5e71aa0b58055a977f6c592698d3da4501d9770a9986496a03be18f69f0de59c/humanlayer/12-factor-agents" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/humanlayer/12-factor-agents" rel="noopener"><span class="grow-underline">GitHub - humanlayer/12-factor-agents: What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?</span></a></h3><p class="dek">クラウドネイティブの12-Factor Appに着想を得て、ステートレス性、決定論的ツールの分離、コンテキスト境界の制御など、本番環境で確実に動くエージェントソフトウェアを構築するための12原則を体系化している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>原典の12-Factor Appほどの決定的な洗練には達していないものの、エージェントを無限ループやブラックボックスに陥らせないためのアーキテクチャ上のチェックリストとして参照する価値はある。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 9.20</span><span class="tag">AI</span><span class="tag">Agent</span></p></article><article class="story"><a class="thumb" href="https://zenn.dev/coji/articles/artifact-share-release" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://res.cloudinary.com/zenn/image/upload/s--YrK3o_cs--/c_fit%2Cg_north_west%2Cl_text:notosansjp-medium.otf_55:AI%25E3%2581%258C%25E4%25BD%259C%25E3%2581%25A3%25E3%2581%259FHTML%25E3%2581%25AE%25E7%25A4%25BE%25E5%2586%2585%25E5%2585%25B1%25E6%259C%2589%25E3%2580%2581%25E3%2581%25BF%25E3%2582%2593%25E3%2581%25AA%25E4%25B8%2580%25E5%259B%259E%25E8%2587%25AA%25E4%25BD%259C%25E3%2581%2599%25E3%2582%258B%25E3%2582%2584%25E3%2581%25A4%25E3%2582%2592%25E3%2581%25A1%25E3%2582%2583%25E3%2582%2593%25E3%2581%25A8%25E4%25BD%259C%25E3%2581%25A3%25E3%2581%259F%2Cw_1010%2Cx_90%2Cy_100/g_south_west%2Cl_text:notosansjp-medium.otf_37:Coji%2520Mizoguchi%2Cx_203%2Cy_121/g_south_west%2Ch_90%2Cl_fetch:aHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2pWY2RrNjcwV2NIdGs0anBHa2FGTDAxcERVUVlIX0JYdWE5aDRVNVE9czI1MC1j%2Cr_max%2Cw_90%2Cx_87%2Cy_95/v1627283836/default/og-base-w1200-v2.png?_a=BACMTiAE" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://zenn.dev/coji/articles/artifact-share-release" rel="noopener"><span class="grow-underline">AIが作ったHTMLの社内共有、みんな一回自作するやつをちゃんと作った</span></a></h3><p class="dek">AIが生成したHTML成果物のURL分散や版管理の混乱を解決するサービスArtifact Shareの設計を解説し、CLIやMCPを通じて閲覧者のレビューコメントをエージェントが自律的に回収・修正する仕組みを提示している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントが生成したドキュメントやUIモックを人間がレビューし、そのフィードバックを再びエージェントが取得して同一URL上で版を重ねるサイクルは、AI時代の組織コミュニケーションの一つの原型を示している。</p></div><p class="meta"><span>zenn.dev</span><span class="dot">/</span><span>PROMO 9.22</span><span class="tag">AI</span><span class="tag">Knowledge</span><span class="tag">Organization</span></p></article></div></section>
+<section class="section" id="sec3"><div class="section-head"><h2>組織とシステムの境界を定める</h2><span class="count">4 本</span></div><p class="section-intro">技術的リーダーシップの責任分担から、分散データベースが要求する物理的な整合性保証、アプリケーションへのエージェント組み込みまで、構造の境界線を巡る論点。</p><div class="stories"><article class="story"><a class="thumb" href="https://mtx2s.hatenablog.com/entry/2026/09/21/182658" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://cdn.image.st-hatena.com/image/scale/8322400f27c4146d1a9aa2ed259e64d1b241f126/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fm%2Fmtx2s%2F20260921%2F20260921094612.png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://mtx2s.hatenablog.com/entry/2026/09/21/182658" rel="noopener"><span class="grow-underline">テックリードとアーキテクトの違い、テックリードとEMの違い - mtx2s’s blog</span></a></h3><p class="dek">チームのコードと技術判断を担うテックリード、評価と組織成長を担うエンジニアリングマネージャー、システム全体の構造と品質を担うアーキテクトの3者の責務とキャリアパスの相違点を体系的に整理している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>それぞれの役割が「何に対してリーダーシップを発揮するのか」を明確に切り分けることで、役割の兼務に伴う過負荷や期待値の不一致を防ぎ、組織の健全な技術的意思決定を支える土台となる。</p></div><p class="meta"><span>mtx2s.hatenablog.com</span><span class="dot">/</span><span>PROMO 9.23</span></p></article><article class="story"><a class="thumb" href="https://docs.cloud.google.com/spanner/docs/true-time-external-consistency?hl=ja" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png?hl=ja" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://docs.cloud.google.com/spanner/docs/true-time-external-consistency?hl=ja" rel="noopener"><span class="grow-underline">Spanner: TrueTime と外部整合性  |  Google Cloud Documentation</span></a></h3><p class="dek">Google Cloud Spannerが専用クロックTrueTimeとMVCCを組み合わせ、グローバル分散環境でありながら単一マシン上の逐次実行と同等の一貫性を担保する「外部整合性」の技術的メカニズムと分離レベルを解説している。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>原子時計とGPSに裏打ちされたTrueTimeによって物理時間を厳密に同期させることで、分散環境におけるトランザクションの正しさを保証している。</p></div><p class="meta"><span>docs.cloud.google.com</span><span class="dot">/</span><span>PROMO 9.20</span></p></article><article class="story"><a class="thumb" href="https://github.com/github/copilot-sdk" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://repository-images.githubusercontent.com/1133883850/75e3d158-e5cf-4bd2-8acc-c8cc937f39ed" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/github/copilot-sdk" rel="noopener"><span class="grow-underline">GitHub - github/copilot-sdk: Multi-platform SDK for integrating GitHub Copilot Agent into apps and services</span></a></h3><p class="dek">GitHub Copilotのエージェント機能を外部アプリケーションや自社サービスに組み込むための公式SDKであり、JSON-RPCを介してCopilot CLIランタイムを複数言語から直接制御できるインターフェースを提供する。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>エージェントをIDEの中だけで閉じるのではなく、自社の業務システムやワークフローへ直接埋め込むためのAPIレイヤーが標準SDKとして整えられている。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 9.22</span><span class="tag">AI</span><span class="tag">Agent</span></p></article><article class="story"><a class="thumb" href="https://github.com/github/awesome-copilot" rel="noopener" aria-hidden="true" tabindex="-1"><img src="https://opengraph.githubassets.com/4626ec41c49b7185685ed57d0d0fecdddd8092b98c614f1a78221f71534308c1/github/awesome-copilot" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></a><h3><a href="https://github.com/github/awesome-copilot" rel="noopener"><span class="grow-underline">GitHub - github/awesome-copilot: Community-contributed instructions, prompts, and configurations to help you make the most of GitHub Copilot.</span></a></h3><p class="dek">GitHub Copilot向けのカスタムインストラクション、プロンプト、設定ファイル、拡張プラグインなどを体系的に集約した公式キュレーションリポジトリである。</p><div class="note"><span class="byline">Editor&rsquo;s Note</span><p>チームや個人の暗黙知になりがちなエージェントへの指示や振る舞い定義を、再利用可能なコード資産として共有・再利用するエコシステムの広がりを示している。</p></div><p class="meta"><span>github.com</span><span class="dot">/</span><span>PROMO 9.22</span><span class="tag">AI</span><span class="tag">Setup</span></p></article></div></section>
+<section class="colophon"><span class="section-label">編集メモ</span><p>エージェントがコードを書き、監視し、直す閉ループが回り始めたとき、人間の役割は「暗黙の意図や事業目標を、機械が解釈可能な評価指標へと厳密に翻訳すること」に集約されていく。高速な判定モデルと重厚な生成モデルの使い分けや、本番性能監視からの自動フィードバックなど、現場で直面するであろう無数の境界線をどのように実運用へ落とし込んでいくか、引き続き検証を重ねていきたい。</p></section>
+<nav class="index"><h2>収録記事の出典一覧</h2><ol><li><a href="https://x.com/iwashi86/status/2100342938429686057" rel="noopener">iwashi / Yoshimasa Iwase on X: &quot;この図がめちゃくちゃ良い。現代のAI開発 + CI/CDの到達点の1つだと思う。&quot;</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://x.com/GergelyOrosz/status/2099945497377091902" rel="noopener">Gergely Orosz on X: &quot;Here&#x27;s what OpenAI&#x27;s agentic software factory looks like, today&quot;</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://x.com/iwashi86/status/2102533404717904308" rel="noopener">iwashi / Yoshimasa Iwase on X: &quot;Will Larson氏の新しいポストから。Imprint社でのソフトウェアファクトリー実験&quot;</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://note.com/npaka/n/n6f8dd30a5fa4" rel="noopener">高速な判断に特化したAI - TypeSafe「Jev」 と System One Model｜npaka</a> <span class="meta" style="display:inline">note.com</span></li><li><a href="https://zenn.dev/mizchi/articles/jev-is-gpu-for-llms" rel="noopener">既存の LLM が CPU なら、 Jev はその GPU 版みたいなやつ</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://openjev.com/" rel="noopener">SemIf — local decisions in your browser</a> <span class="meta" style="display:inline">openjev.com</span></li><li><a href="https://x.com/kenn/status/2093701458445439033" rel="noopener">AIエージェント開発におけるテスト実行ログのトークン消費削減手法（@kenn）</a> <span class="meta" style="display:inline">x.com</span></li><li><a href="https://claude-code-best-practices.pages.dev/" rel="noopener">Claude Code Best Practices - 効果的なプロンプト・セッション管理・自動化ガイド</a> <span class="meta" style="display:inline">claude-code-best-practices.pages.dev</span></li><li><a href="https://github.com/humanlayer/12-factor-agents" rel="noopener">GitHub - humanlayer/12-factor-agents: What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://zenn.dev/coji/articles/artifact-share-release" rel="noopener">AIが作ったHTMLの社内共有、みんな一回自作するやつをちゃんと作った</a> <span class="meta" style="display:inline">zenn.dev</span></li><li><a href="https://mtx2s.hatenablog.com/entry/2026/09/21/182658" rel="noopener">テックリードとアーキテクトの違い、テックリードとEMの違い - mtx2s’s blog</a> <span class="meta" style="display:inline">mtx2s.hatenablog.com</span></li><li><a href="https://docs.cloud.google.com/spanner/docs/true-time-external-consistency?hl=ja" rel="noopener">Spanner: TrueTime と外部整合性  |  Google Cloud Documentation</a> <span class="meta" style="display:inline">docs.cloud.google.com</span></li><li><a href="https://github.com/github/copilot-sdk" rel="noopener">GitHub - github/copilot-sdk: Multi-platform SDK for integrating GitHub Copilot Agent into apps and services</a> <span class="meta" style="display:inline">github.com</span></li><li><a href="https://github.com/github/awesome-copilot" rel="noopener">GitHub - github/awesome-copilot: Community-contributed instructions, prompts, and configurations to help you make the most of GitHub Copilot.</a> <span class="meta" style="display:inline">github.com</span></li></ol></nav>
+<footer class="foot"><p>生成: 2026-09-27 05:01 JST — <code>weekly-news-digest</code> (MEMOs)</p><p>個人のナレッジベースから自動編集した記録であり、報道機関の発行物ではありません。各記事の見出しとリンクは出典元に帰属します。検索エンジンには登録していません（noindex）。</p></footer>
+</div>
+</body>
+</html>
