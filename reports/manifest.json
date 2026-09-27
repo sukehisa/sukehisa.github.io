@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T07:04:48+09:00",
+  "generated_at": "2026-09-28T07:04:07+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -213,6 +213,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-28_market_research_report.html",
+          "title": "2026-09-28: 引退する標準と消えるオーケストレータ — Ingress-NGINX アノテーション断層・AWS Proton 退役・Azure Anomaly Detector 停止における穴場市場の特定",
+          "date": "2026-09-28",
+          "bytes": 67562
+        },
         {
           "file": "2026-09-27_market_research_report.html",
           "title": "2026-09-27: 分裂するクラウドと消えるオーケストレーション — Amazon Pinpoint 終了・Docker Content Trust 閉鎖・Entra PIM beta 退役における穴場市場の特定",
