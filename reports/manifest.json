@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T06:14:18+09:00",
+  "generated_at": "2026-09-30T07:05:41+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -225,6 +225,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-09-30_market_research_report.html",
+          "title": "2026-09-30: 遮断される推薦ループとエッジ・WAFの断絶 — Azure Personalizer 完全退役・AWS IoT Greengrass V1 終了・AWS WAF Classic 閉鎖における穴場市場の特定",
+          "date": "2026-09-30",
+          "bytes": 67550
+        },
         {
           "file": "2026-09-29_market_research_report.html",
           "title": "2026-09-29: 閉ざされるレガシー文書と量子暗号の断片化 — Microsoft Publisher 退役・耐量子暗号 ClientHello 断片化・AWS FinSpace 終了における穴場市場の特定",
