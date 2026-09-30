@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-01T06:13:51+09:00",
+  "generated_at": "2026-10-01T07:05:45+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -231,6 +231,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-01_market_research_report.html",
+          "title": "2026-10-01: 遮断されるRAGパラメータとCI証跡の消滅 — Azure OpenAI On Your Data 完全退役・GitHub Actions 保持ポリシー短縮・Multi-Agent 組織空転における穴場市場の特定",
+          "date": "2026-10-01",
+          "bytes": 69433
+        },
         {
           "file": "2026-09-30_market_research_report.html",
           "title": "2026-09-30: 遮断される推薦ループとエッジ・WAFの断絶 — Azure Personalizer 完全退役・AWS IoT Greengrass V1 終了・AWS WAF Classic 閉鎖における穴場市場の特定",
