@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T06:14:45+09:00",
+  "generated_at": "2026-10-02T07:06:39+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -237,6 +237,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-02_market_research_report.html",
+          "title": "2026-10-02: 巨大ペイロードによるコンテキスト崩壊とDBサポート断崖 — MCP Context Overflow・Dynamics 365 Data Lake 終了・RDS PostgreSQL 14 マイナー大量EOLにおける穴場市場の特定",
+          "date": "2026-10-02",
+          "bytes": 71538
+        },
         {
           "file": "2026-10-01_market_research_report.html",
           "title": "2026-10-01: 遮断されるRAGパラメータとCI証跡の消滅 — Azure OpenAI On Your Data 完全退役・GitHub Actions 保持ポリシー短縮・Multi-Agent 組織空転における穴場市場の特定",
