@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T06:14:39+09:00",
+  "generated_at": "2026-10-03T07:07:16+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -243,6 +243,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-03_market_research_report.html",
+          "title": "2026-10-03: 廃止されるFunctionsインプロセスとDBU急騰の余波 — Azure Functions In-Process EOL・Databricks Standard 廃止・Google SecOps v1 コネクタ終了における穴場市場の特定",
+          "date": "2026-10-03",
+          "bytes": 70585
+        },
         {
           "file": "2026-10-02_market_research_report.html",
           "title": "2026-10-02: 巨大ペイロードによるコンテキスト崩壊とDBサポート断崖 — MCP Context Overflow・Dynamics 365 Data Lake 終了・RDS PostgreSQL 14 マイナー大量EOLにおける穴場市場の特定",
