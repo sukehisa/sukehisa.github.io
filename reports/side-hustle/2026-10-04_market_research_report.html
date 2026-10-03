@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="2026年10月13日に完全退役しトランザクション課金急増をもたらすAzure GPv1ストレージ、Kubernetes 1.35でのcgroup v1完全撤去に伴うKubelet起動拒絶、およびAIコーディングエージェントの自律ループによるトークン二乗爆発という3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-04: 迫るGPv1退役の請求爆発とK8sノード起動断崖 — Azure Storage GPv1 終了・K8s 1.35 cgroup v1 撤去・自律エージェントトークン二乗消費における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-04</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / azure-storage / gpv1 / gpv2</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価スクリーニング-ポジショニング" title="3. 5軸評価スクリーニング &amp; ポジショニング">3. 5軸評価スクリーニング</a><a href="#4-最有力アイデアの深掘りと検証計画-mvp-gpv1-bill-shield" title="4. 最有力アイデアの深掘りと検証計画 (MVP: gpv1-bill-shield)">4. 最有力アイデアの深掘りと検証計画</a><a href="#5-結論と次の一手" title="5. 結論と次の一手">5. 結論と次の一手</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-04">市場リサーチ &amp; 5軸評価レポート (2026-10-04)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">gpv1-bill-shield</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 3 件（うち一次ソース 3 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">gpv1-bill-shield</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">k8s-cgroup-gate</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">agent-budget-sentinel</div><div class="val">20<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="3 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 3点"><i style="height:60%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-mvp-gpv1-bill-shield">4. 最有力アイデアの深掘りと検証計画 (MVP: gpv1-bill-shield)</a></li><li><a href="#5-結論と次の一手">5. 結論と次の一手</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-03）は、2026年11月10日にセキュリティ更新が完全停止するAzure Functions In-Processモデル（.NET 8 LTS EOL）、2026年10月1日の廃止に伴いDBU単価が35%以上跳ね上がったAzure Databricks Standard Tier、および2026年11月1日にサポート終了を迎えるGoogle Security Operations v1コネクタを検証しました。</p><p>今回は、2026年10月上旬に直面する「クラウドストレージ基盤の強制退役に伴う不可逆な請求爆発（Bill Shock）」、「コンテナ基盤におけるOSカーネルレベルの破壊的変更に伴うノード起動障害」、および「AI自律コーディングエージェントの爆発的普及に伴うトークン二乗消費インシデント」という3つの変曲点を検証します。</p><p>クラウド事業者やオープンソース基盤が古いプロトコルや課金体系を廃止する際、公式アナウンスは「新しい仕様へ手動で切り替えよ」という通達にとどまります。 しかし、現場のコードベースや運用ワークフローが追従できないまま期日を迎えると、深夜の自動アップグレードによって本番障害や予期せぬ請求急増が直撃します。</p><p>2026年10月4日現在、開発現場では以下の3つの断絶が表面化しています。</p><ul><li><strong>Azure General-Purpose v1 (GPv1) ストレージアカウントの強制退役</strong>（2026年10月13日、残り9日でGPv1およびレガシーBlobストレージが完全退役となる。未移行のアカウントはMicrosoftによりGPv2へ強制自動移行されるが、GPv1と異なりGPv2はトランザクション単価が大幅に引き上げられるため、高頻度なログ収集やキュー処理を行うワークロードで10月の請求が急増するリスクが高まっている）</li><li><strong>Kubernetes 1.35 における cgroup v1 の完全撤去と Kubelet 起動拒絶</strong>（Kubernetes 1.35にてcgroup v1のサポートが完全廃止され、cgroup v1が動作するノード上ではKubeletがデフォルトで起動に失敗する。Amazon Linux 2やレガシーディストリビューションをベースにしたワーカーノードAMIを使い続けている企業で、クラスタ更新時のノード全滅事故が懸念されている）</li><li><strong>AIコーディングエージェントにおける永続セッションと自律ループによるトークン二乗爆発</strong>（Claude CodeやCursor等の自律エージェントツールにおいて、コンテキストの肥大化と未解決タスクへの無限リトライが重なり、1セッションで数百ドルから千ドル超のトークンを一気に消費する事故がHacker News等で多数報告されている）</li></ul><p>公式が提供する汎用ツールやマニュアル手順では救えない「実運用上の隙間」を、軽量CLIやプロキシによって埋めるソリューションが急務となっています。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-gpv1-bill-shield-azure-gpv1-2026年10月13日退役対応・トランザクション課金急増防止-アクセス層最適化cli">アイデア 1: <code>gpv1-bill-shield</code> (Azure GPv1 2026年10月13日退役対応・トランザクション課金急増防止＆アクセス層最適化CLI)</h3><p>対象は、<strong>Azure Storage（Blob/Queue/Table/File）のGPv1アカウントを長期運用しており、2026年10月13日のMicrosoft強制自動移行（残り9日）に直面しているクラウドインフラエンジニア、FinOps担当者、情シス部門</strong>です。</p><p>入力は2つです。 1. <strong>Azureサブスクリプションの読み取り権限（またはAzure CLI認証）</strong> 2. <strong>過去30日間のAzure Monitorメトリクス（Read/Write/Listトランザクション数および保存容量）</strong></p><p>出力は次の3点です。 1. <strong>テナント内の全GPv1アカウントを走査し、GPv2へ移行した際の月額請求差分（ストレージ容量削減額 vs トランザクション費用急増額）をアカウント単位で試算する「Bill Shock」事前診断レポート</strong> 2. <strong>高頻度なListBlob呼び出しやキューポーリングを行っているボトルネックリソースを特定し、既定アクセス層（Hot vs Cool）の適切な選択およびライフサイクル管理ルールを自動設計したTerraform / Bicep差分PR</strong> 3. <strong>Microsoftによる無防備な自動移行を防ぎ、安全なパラメータで手動昇格を一括実行するワンクリック昇格スクリプト</strong></p><p>本体は1番目と2番目です。 単にアカウントの種類をGPv2に変更するだけであれば、Azureポータルでボタンを押すだけで完了します。 <strong>本質的な価値は、一度GPv2へ移行するとGPv1へは二度とダウングレードできない不可逆性の中で、高頻度トランザクションによる想定外の請求爆発を事前に可視化・回避できる点にあります。</strong></p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Microsoft公式ドキュメント自身が10月13日の退役と「自動移行による請求額急増」を明記している事実です。</p><blockquote class="voice"><p>Important: Microsoft will retire general-purpose v1 storage accounts on October 13, 2026, with new account creation blocked in Q1 2026. All general-purpose v1 (GPv1) accounts must be upgraded to general-purpose v2 (GPv2) by this date to avoid service disruption. If you don't migrate your general-purpose v1 storage account to GPv2 by October 2026, Microsoft will automatically migrate all existing general-purpose v1 accounts to a GPv2 account, which might result in higher billing costs. Your decision not to migrate an existing general-purpose v1 account will be construed as consent for Microsoft to migrate the account on your behalf.</p><p>Billing impact of upgrading: Upgrading from GPv1 to GPv2 might result in higher transactional costs, especially for workloads with high numbers of read and write operations. While GPv2 offers lower storage costs and tiering flexibility, transactional pricing is more granular and can significantly affect billing. Review your current usage patterns and estimate costs before upgrading. — <a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-account-upgrade" target="_blank" rel="noopener noreferrer">Upgrade to a general-purpose v2 storage account | Microsoft Learn</a></p></blockquote><p>「Microsoft will automatically migrate... which might result in higher billing costs. Your decision not to migrate... will be construed as consent for Microsoft to migrate the account on your behalf」という文言は、未対応企業に対する事実上の最後通告です。 GPv1はトランザクション単価が均一で安価でしたが、GPv2はWriteやListの操作単価が跳ね上がります。 現場では「何も設定を変えていないのに、自動移行された途端にストレージ請求が3倍になった」という悲鳴が確実に見込まれます。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>価格破壊・ローカルファースト型</strong>および<strong>規制・プラットフォーム変更対応型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月13日の退役期限（残り9日）</strong>です。 現在まさにMicrosoftによる自動移行の波が迫っており、10月中に手を打たなければ不可逆な高額請求を受け入れることになります。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Azureポータルによる手動のインプレースアップグレード操作、およびAzure Pricing Calculatorによる手動計算。</li><li><strong>未解決</strong>: <strong>実稼働中のAzure Monitorトランザクション履歴を直接引き当ててGPv2昇格後の請求額をシミュレーションし、アクセス層とライフサイクルポリシーを最適化するIaC差分を自動生成する専用FinOpsツール。</strong></li></ul><hr><h3 id="アイデア-2-k8s-cgroup-gate-kubernetes-1-35-cgroup-v1-完全撤去対応・ノード起動障害防止-カーネル・ランタイム適合性監査cli">アイデア 2: <code>k8s-cgroup-gate</code> (Kubernetes 1.35 cgroup v1 完全撤去対応・ノード起動障害防止＆カーネル・ランタイム適合性監査CLI)</h3><p>対象は、<strong>Kubernetesクラスタを自己ホスト・ベアメタル・EC2混在で運用し、クラスタバージョン1.35への更新を控えているインフラエンジニア、SRE、プラットフォームチーム</strong>です。</p><p>入力は2つです。 1. <strong>クラスタのkubeconfig（またはノードSSH接続情報）</strong> 2. <strong>ノードグループのAMI/OS定義およびカーネル起動パラメータ</strong></p><p>出力は次の3点です。 1. <strong>クラスタ内の全ノードを走査し、<code>/sys/fs/cgroup/</code> のファイルシステム種別（<code>cgroup2fs</code> vs <code>tmpfs</code>）、Linuxカーネルバージョン、systemdドライバー設定を一覧化する適合性マトリクス</strong> 2. <strong>1.35へのアップグレード時にKubeletが起動拒絶（<code>failCgroupV1</code>）を起こすノードを赤枠警告し、影響を受けるPod一覧を可視化する事前リスクレポート</strong> 3. <strong>対象ノードのOSアップグレード（Amazon Linux 2023、Ubuntu 22.04+等への置換）または一時的なカーネル引数（<code>systemd.unified_cgroup_hierarchy=1</code>）注入を自動化するTerraform / Ansibleプレイブック</strong></p><p>本体は1番目と2番目です。 単にノードに入ってコマンドを叩くだけなら手作業でも可能です。 <strong>本質的な価値は、大規模クラスタに混在するレガシーAMIノードを事前検知し、バージョンアップ実行時にノードがNotReadyとなってクラスタ全体のPodが退避不能に陥る事故を未然に防ぐことです。</strong></p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Kubernetes公式ドキュメントがcgroup v1の完全撤去とKubeletの起動拒絶を宣告している事実です。</p><blockquote class="voice"><p>Deprecation of cgroup v1: Feature state: Deprecated since Kubernetes v1.35. Kubernetes has deprecated cgroup v1. Removal will follow Kubernetes deprecation policy. Kubelet will no longer start on a cgroup v1 node by default. To disable this setting a cluster admin should set failCgroupV1 to false in the kubelet configuration file.</p><p>To check which cgroup version your distribution uses, run the <code>stat -fc %T /sys/fs/cgroup/</code> command on the node: For cgroup v2, the output is <code>cgroup2fs</code>. For cgroup v1, the output is <code>tmpfs</code>. — <a href="https://kubernetes.io/docs/concepts/architecture/cgroups/" target="_blank" rel="noopener noreferrer">About cgroup v2 | Kubernetes Documentation</a></p></blockquote><p>「Kubelet will no longer start on a cgroup v1 node by default」という仕様変更は、ノードレベルのハードブレイクです。 古いOSイメージ（Amazon Linux 2等）を維持したままKubernetes 1.35へアップグレードすると、ノード起動時にKubeletが即座にクラッシュします。 事前監査なしのアップグレードは本番ダウンタイムに直結します。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>規制・プラットフォーム変更対応型</strong>の複合です。</p><p>Why Now は、<strong>Kubernetes 1.35におけるcgroup v1デフォルト起動拒絶の適用</strong>です。 1.31でのメンテナンスモード入りを経て、1.35でついに強制執行フェーズに入りました。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: 個別ノードでの <code>stat -fc %T /sys/fs/cgroup/</code> 手動実行、および新ノードイメージでのcgroup v2標準サポート。</li><li><strong>未解決</strong>: <strong>クラスタ全体を横断して未対応ノードのAMIとワークロードを事前特定し、ノード切り替えの安全手順を自動出力する統合検査ツール。</strong></li></ul><hr><h3 id="アイデア-3-agent-budget-sentinel-aiコーディングエージェント自律ループ暴走防止・入力トークン二乗消費抑制-動的モデルルータープロキシ">アイデア 3: <code>agent-budget-sentinel</code> (AIコーディングエージェント自律ループ暴走防止・入力トークン二乗消費抑制＆動的モデルルータープロキシ)</h3><p>対象は、<strong>Claude Code、Cursor、Windsurf等の自律コーディングエージェントを現場導入し、月数十万〜数百万円規模に膨らむAPIトークン請求・クレジット浪費に直面しているテックリード、エンジニアリングマネージャー、個人開発者</strong>です。</p><p>入力は2つです。 1. <strong>AIエージェントクライアント（CLI / エディタ）から送信されるAPIリクエストストリーム</strong> 2. <strong>タスク別・セッション別のコスト上限設定（例: <code>max_cost_per_task: $5.00</code>）</strong></p><p>出力は次の3点です。 1. <strong>ローカルプロキシとして動作し、タスクの性質（コードベース探索・テスト実行・静的解析 vs 複雑な設計思考・多段階計画）に応じて安価な小型モデル（Haiku/Sonnet/DeepSeek）とフロンティアモデル（Opus/GPT-5）を動的に切り替えるスマートルーター</strong> 2. <strong>エージェントが同一エラーに対してリトライを繰り返す「暴走ループ（Runaway Loop）」や、巨大な会話履歴によるキャッシュ失効を検知し、自動で介入・停止して人間に確認を求めるセーフティスロットル</strong> 3. <strong>セッションごとのトークン消費ペースと累積金額をリアルタイムでターミナル右下またはメニューバーに表示するコストメーター</strong></p><p>本体は1番目と2番目です。 単に月ごとの請求額を見るだけなら、プロバイダのダッシュボードでも可能です。 <strong>本質的な価値は、エージェントがランチの間に数千ドルのトークンを溶かす事故をリアルタイムで防ぎ、作業品質を落とさずにAIインフラ費用を30〜50%削減することです。</strong></p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Hacker Newsにおいて企業のAI予算がClaude Code等の自律ループによって短期間で消し飛ぶ実態が激しく議論されている事実です。</p><blockquote class="voice"><p>I take a peak every month or so at spend for my company and notice more and more are consumed $1k in tokens a month and it is bewildering to me how. I use llms daily, and see anywhere from $200-$400 tops. This is using the most expensive models, in deep thinking mode... I just can't figure how how to burn that much money a month responsibly.</p><p>From my experience, this happens essentially by three means: - Level 0 (beginner users) long lived conversations: If you dont get in the habit of compressing, or otherwise manually forcing the model to summarize/checkpoint its work, you will often find people perpetually reusing the same conversation... - Level 1 (intermediate users) heavy explicit use of subagents: Once you discover the prompt pattern of "spawn 5 subagents to analyze your solution, each analyzing a different angle, summarize their findings", it can become addictive... drastically overspend your credits. - Level 3 (expert users) extreme multitasking. Just genuinely having 10 worktrees perpetually in parallel and cycling between them in between agent responses...</p><p>Give your agent a perfectly working code, insist that the output is not what it should be. Go to lunch. By the time you come back, the poor thing will evaporate a small lake trying to figure it out. — <a href="https://news.ycombinator.com/item?id=47976415" target="_blank" rel="noopener noreferrer">Uber torches 2026 AI budget on Claude Code in four months | Hacker News</a></p></blockquote><p>「Give your agent a perfectly working code... Go to lunch. By the time you come back, the poor thing will evaporate a small lake trying to figure it out」というコメントは、エージェントの自律ループが引き起こす破壊的な金銭的損失を端的に表しています。 未圧縮の巨大コンテキストを毎ターン送信し続けることによる二乗的な課金増加（Tokenmaxxing）は、もはやエンジニア個人の注意力では防げない構造的ペインです。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>ワークフロー糊付け・連携型</strong>の複合です。</p><p>Why Now は、<strong>2026年後半におけるコーディングエージェントの日常業務定着と、従量課金モデルへの移行</strong>です。 定額制からクレジットプール制や従量課金制へと各社がシフトしたことで、暴走ループのコストが直接企業の財務を直撃するようになりました。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: 各プロバイダのハードリミット（上限到達で強制全停止）や、手動の <code>/compact</code> コマンド。</li><li><strong>未解決</strong>: <strong>クライアントとモデルの間に透過的に介在し、タスクに応じた動的モデルルーティングと、ループ検知による自動スロットリングをゼロ設定で提供するローカルプロキシ。</strong></li></ul><hr><h2 id="3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</h2><h3 id="5軸スコア表">5軸スコア表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>gpv1-bill-shield</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>k8s-cgroup-gate</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>agent-budget-sentinel</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">10月13日の退役まで残り9日と切迫度が最大。世界中のエンタープライズで稼働する無数のAzure GPv1ストレージが対象であり、Microsoft自身が強制移行による請求増を公式に警告している。ただしAWS/GCP専業の企業には関係しない点が微減要素</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Kubernetes 1.35のリリースに伴い直面するノード起動拒絶の課題。オンプレミスやEC2で自前クラスタを組む企業に切実な需要があるが、フルマネージドEKS/GKEで最新ノードイメージを自動追従している企業には影響しない点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">Claude CodeやCursorが普及する2026年秋、エンジニア1人あたり月$1k超のトークン浪費が経営・経理で最もホットな問題として顕在化。ターゲット母数は急増中。ただしホビー利用の開発者には課金動機が薄い点が微減要素</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Azure Resource GraphとAzure Monitor REST APIからアカウント一覧と過去メトリクスを取得し、GPv2単価テーブルと照合して試算するCLI。Go/Pythonで1〜2週間でコア機能開発可能。ただしリージョン別・通貨別の価格差分テーブルの追従に一定の工数を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">kubectlプラグインまたはDaemonSetとして実装。各ノードで stat コマンドとsystemd設定を収集して集約表示するツール。2週間でMVP完成可能。ただし多様なLinuxディストリビューションごとのsystemd設定差分の網羅テストに時間を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカルHTTPプロキシとして動作し、AIクライアントとAPIの間のストリーム通信をインターセプト。タスクプロンプトやツール呼び出しの種別をルールベース＋軽量モデルで分類してルーティングする。2週間でMVP開発可能。ただし多様なCLIツールのプロキシ設定透過処理に工数を要する点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">単一アカウント診断はOSS提供し、テナント横断一括監査・Terraform差分PR自動生成・CI/CDガードを月額 $49〜$149 または買い切り $199 で提供。月数十万円の請求爆発を未然に防ぐためROIが極めて明確。ただし一度移行が完了した企業での利用頻度が落ちる一回性リスクがある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">オープンソースCLIとして配布し、CI/CDクラスタ検証パイプライン連携を月額 $39 または買い切り $99 で提供。技術的には極めて有用だが、インフラエンジニアは自作スクリプトで代用しようとする傾向があり課金ハードルがやや高い点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">個人利用は無料、チーム向けのトークン予算枠管理・部署別コストダッシュボード・暴走アラート通知をシートあたり月額 $15〜$29 で提供。月数十万円のAI費用を30〜50%削減できるためROIが極めて明確。ただしモデル提供元が将来的に同様の機能を標準内蔵するリスクがある点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Azure公式のPricing Calculatorは手動入力前提で過去メトリクスと連動しておらず、Azure Advisorも一律のアップグレード推奨しか出さない。実ログに基づくトランザクション単価差分シミュレーションとIaC修正は競合不在。ただし将来的に公式がポータルで類似試算を提供するリスクがゼロではない点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">一般的なK8sリンターはマニフェスト定義しか見ず、ノードのOS/カーネル/cgroupの物理環境を見るツールは存在しない。明確なニッチの空白。ただし1.35への移行が一巡した後は需要が落ち着く寿命リスクがある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OpenRouter等は単純なフォールバックにとどまり、エージェントのファイル探索ループや同一エラー連続発生を検知して小型モデルへダウングレード・スロットルする制御は競合不在。ただし大手AIツールが独自に最適化を内蔵していく中長期リスクがある点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル実行のCLI。顧客テナントの認証情報を使ってローカルで完結するため、サーバーインフラ費ゼロ、個人情報保持リスクゼロ。ただしAzure Storage APIの仕様変更や価格改定のメンテナンスが一定発生する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">読み取り専用の軽量Goバイナリ。クラスタへの永続的な書き込みや外部サーバー不要でサポート負荷が極めて低い。ただしKubernetesのバージョンアップに伴うAPI追従が必要な点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">プロキシ経由でLLM APIを叩くため、プロバイダ側のAPI仕様変更（ストリーミング構文、SSEフォーマット、ヘッダ仕様）に頻繁に追従する必要があり、個人開発者にとってメンテナンス頻度がやや高くなる点が減点</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">20<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><p>横軸に「導入の即効性・軽量さ（インフラ不要度）」、縦軸に「切迫度・課題の深刻度」を取ったポジショニングです。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ"><title>アイデア候補のポジショニングマップ</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;即効高・緊急高（最優先市場）&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;即効低・緊急高（SI/大企業向け）&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;即効低・緊急低（参入見送り）&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;即効高・緊急低（自律成長型ツール）&quot;</text><text x="118" y="338" class="qlabel">← &quot;重厚な設定・組織導入が必要&quot;</text><text x="686" y="338" text-anchor="end" class="qlabel">&quot;ワンコマンド・ゼロインフラ&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;潜在的なリスク・予防&quot;</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">&quot;期日到来・直接的な本番障害&quot; →</text><g><circle cx="640.6" cy="41.4" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="628.6" y="45.4" text-anchor="end" class="qpt-label">1</text><circle cx="640.6" cy="41.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: gpv1-bill-shield 総合 21 / 25（Tier 1）" data-tv="Idea 1: gpv1-bill-shield" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="617.8" cy="81.1" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="629.8" y="85.1" text-anchor="start" class="qpt-label">2</text><circle cx="617.8" cy="81.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: k8s-cgroup-gate 総合 19 / 25（Tier 2）" data-tv="Idea 2: k8s-cgroup-gate" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="600.8" cy="61.2" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="612.8" y="65.2" text-anchor="start" class="qpt-label">3</text><circle cx="600.8" cy="61.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: agent-budget-sentinel 総合 20 / 25（Tier 2）" data-tv="Idea 3: agent-budget-sentinel" data-td="総合 20 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: gpv1-bill-shield</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: k8s-cgroup-gate</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: agent-budget-sentinel</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-mvp-gpv1-bill-shield">4. 最有力アイデアの深掘りと検証計画 (MVP: <code>gpv1-bill-shield</code>)</h2><h3 id="アイデア概要">アイデア概要</h3><p><code>gpv1-bill-shield</code> は、2026年10月13日に迫るAzure Storage GPv1アカウントの完全退役およびMicrosoftによる強制自動移行に直面したエンジニアのための、FinOps事前診断＆アクセス層最適化CLIです。</p><p>利用者はAzure CLIログイン済みの環境で <code>gpv1-bill-shield audit</code> を実行するだけで、以下の処理が自動で行われます。 1. サブスクリプション内の全ストレージアカウントをスキャンし、残存するGPv1アカウントおよびクラシックBlobストレージアカウントを特定。 2. Azure Monitorから直近30日間のトランザクション実績（Read, Write, List, Other operations）とデータ容量（GB）を抽出。 3. GPv1のフラット課金体系とGPv2の詳細トランザクション課金体系（Hot / Cool / Cold / Archive）を照合し、「もしGPv2へ移行した場合の想定請求額」をアカウント別・アクセス層別にシミュレーション。 4. 高頻度なListBlobやキューポーリングによって請求急増（Bill Shock）を引き起こすアカウントを赤枠警告し、適切なアクセス層の選択やライフサイクルルールを反映したTerraform / Bicep差分コードを自動出力。</p><h3 id="リスク・反証分析">リスク・反証分析</h3><p>最大の前提崩壊リスクは、<strong>「残存するGPv1ストレージの多くが単なるバックアップ等の低頻度アクセス用途であり、GPv2への移行によって容量単価が下がるメリットの方が大きく、トランザクション費用の急増で困る企業が実際には少数派であること」</strong>です。</p><p>この反証に対する検証と対策は以下のとおりです。</p><ul><li><strong>反証検証</strong>: 多くの企業において、GPv1アカウントは古いシステム（オンプレミスからの移行初期や古いWebアプリ）で作成されたまま放置されています。これらのシステムは「ログの常時追記」「高頻度なBlob存在確認ポーリング」「キュー代わりのBlob作成」など、現代のベストプラクティスから外れた高頻度トランザクション処理を平然と行っています。これらはGPv1の安価なフラットトランザクション単価に依存して成立していたため、GPv2のHot/Cool層へ切り替わった瞬間にトランザクション費用が容量費用を圧倒して請求爆発を引き起こします。</li><li><strong>対策</strong>: ツールの出力において、単なる「警告」だけでなく、<strong>「具体的にどのAPIオペレーション（例: <code>ListBlobs</code> が月間1,200万回）が請求額の80%を占めているか」という内訳を即座に特定</strong>します。さらに、その操作を軽減するための「Event Grid連携への切り替え推奨」や「アクセス層をHotに据え置くべき理由」を具体的な改善ガイダンスとして提示することで、インフラ担当者が社内関係者を説得できる資料として機能させます。</li></ul><h3 id="参考ロードマップ-14日間mvp">参考ロードマップ（14日間MVP）</h3><p>ロードマップの初日には、前提の「事前検証」を必ず配置します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>主な作業内容と検証ゲート</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提事前検証 (Gate)</strong></td><td><strong>【最重要】</strong> 自身の検証用Azure環境および協力先企業の環境で、実際に稼働中のGPv1アカウントのAzure Monitorメトリクス（トランザクション種別ごとの件数）を取得。GPv2単価（Hot/Cool）を適用した際の請求増減をスプレッドシートで手動試算し、3アカウント中1件以上で「GPv2移行により請求が30%以上増加するワークロード」が存在することを確認する。存在しない場合は即座にアプローチを見直す。</td></tr><tr><td class="tk"><strong>Day 2-3</strong></td><td><strong>Azureスキャナ実装</strong></td><td>Go言語によるAzure Resource Graph / ARM REST APIクライアントの実装。サブスクリプション内の全ストレージアカウントのSKU（<code>Standard_LRS</code>等）とKind（<code>Storage</code>, <code>BlobStorage</code>, <code>StorageV2</code>）の抽出。</td></tr><tr><td class="tk"><strong>Day 4-5</strong></td><td><strong>メトリクス集計エンジン</strong></td><td>Azure Monitor Metrics APIから直近30日間のトランザクション内訳（<code>Transactions</code> メトリクスの <code>ResponseType</code> / <code>ApiName</code> ディメンション）を並列取得する集計ロジックの実装。</td></tr><tr><td class="tk"><strong>Day 6-7</strong></td><td><strong>FinOps試算アルゴリズム</strong></td><td>リージョン別のGPv1 / GPv2（Hot, Cool, Cold）価格テーブルを内蔵し、ストレージ容量費用とトランザクション費用の差分シミュレーションエンジンを作成。</td></tr><tr><td class="tk"><strong>Day 8-9</strong></td><td><strong>レポート出力 &amp; 警告エンジン</strong></td><td>ターミナル上のリッチテーブル表示、Markdownレポート出力、および「Bill Shockリスク（高/中/低）」を判定する警告フラグの実装。</td></tr><tr><td class="tk"><strong>Day 10-11</strong></td><td><strong>IaCコードジェネレータ</strong></td><td>既存のTerraform / Bicepリソース定義を読み込み、推奨アクセス層（<code>access_tier = "Hot"</code>等）と安全なアップグレード設定を注入したPR差分生成機能の実装。</td></tr><tr><td class="tk"><strong>Day 12-13</strong></td><td><strong>ドキュメント &amp; ドッグフーディング</strong></td><td>実際の移行シナリオに基づくドキュメント作成。Zenn / Qiita記事「Azure GPv1が10月13日に強制移行！請求爆発を防ぐ事前チェックリスト」の執筆。</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>パブリックベータ公開</strong></td><td>GitHubリポジトリ公開、HomebrewおよびGoバイナリ配布開始、Reddit（r/azure, r/devops）へのリリース告知と初期ユーザー獲得。</td></tr></tbody></table></div><hr><h2 id="5-結論と次の一手">5. 結論と次の一手</h2><p>本リサーチでは、2026年10月上旬に直面する3つの大きなインフラ・開発変曲点を検証しました。</p><p>選定MVPである <strong><code>gpv1-bill-shield</code></strong> は、総合スコア <strong>21 / 25点 (Tier 1: GO)</strong> を獲得し、直ちに開発と検証を推進すべき最有力候補となりました。 2026年10月13日という目前に迫ったタイムリミット（残り9日）が存在し、Microsoftによる自動強制移行と不可逆なアップグレードという切実なペインを、ローカルCLIによるゼロインフラ・高ROIツールとして解決できる極めて優れた機会です。</p><p>次の一手として、Day 1 の事前検証（実稼働GPv1アカウントのAzure Monitorメトリクスに基づくGPv2請求増減試算の成立性確認）を速やかに実行することを推奨します。</p><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-account-upgrade" target="_blank" rel="noopener noreferrer">Upgrade to a general-purpose v2 storage account | Microsoft Learn</a><span class="u">https://learn.microsoft.com/en-us/azure/storage/common/storage-account-upgrade</span></li><li><a href="https://kubernetes.io/docs/concepts/architecture/cgroups/" target="_blank" rel="noopener noreferrer">About cgroup v2 | Kubernetes Documentation</a><span class="u">https://kubernetes.io/docs/concepts/architecture/cgroups/</span></li><li><a href="https://news.ycombinator.com/item?id=47976415" target="_blank" rel="noopener noreferrer">Uber torches 2026 AI budget on Claude Code in four months | Hacker News</a><span class="u">https://news.ycombinator.com/item?id=47976415</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-04_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
