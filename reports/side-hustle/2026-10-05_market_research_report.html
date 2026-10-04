@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="2026年11月26日に完全閉鎖されるGoogle Cloud Vertex AI Extensions、2026年10月1日に新規デプロイが強制拒絶されたVercel Node.js 20（および10月21日EOLのNext.js 15）、2026年10月16日に退役を迎えるVertex AI Gemini 2.5シリーズという3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-05: 閉鎖されるVertex拡張とNode20遮断の余波 — Vertex AI Extensions 終了・Vercel Node 20 停止・Gemini 2.5 退役における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-05</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / vertex-ai / google-cloud / extensions</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価スクリーニング-ポジショニング" title="3. 5軸評価スクリーニング &amp; ポジショニング">3. 5軸評価スクリーニング</a><a href="#4-最有力アイデアの深掘りと検証計画-mvp-vertex-ext-bridge" title="4. 最有力アイデアの深掘りと検証計画 (MVP: vertex-ext-bridge)">4. 最有力アイデアの深掘りと検証計画</a><a href="#5-結論と次の一手" title="5. 結論と次の一手">5. 結論と次の一手</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-05">市場リサーチ &amp; 5軸評価レポート (2026-10-05)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">vertex-ext-bridge</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 5 件（うち一次ソース 4 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">vertex-ext-bridge</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">vercel-runtime-shifter</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">gemini-migration-gate</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-mvp-vertex-ext-bridge">4. 最有力アイデアの深掘りと検証計画 (MVP: vertex-ext-bridge)</a></li><li><a href="#5-結論と次の一手">5. 結論と次の一手</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-04）は、2026年10月13日に完全退役しトランザクション課金急増をもたらすAzure GPv1ストレージ、Kubernetes 1.35でのcgroup v1完全撤去に伴うKubelet起動拒絶、および自律コーディングエージェントのトークン二乗消費インシデントを検証しました。</p><p>今回は、2026年10月上旬から11月にかけて集中して到来する「生成AIプラットフォームのレガシーツール実行基盤の完全閉鎖」、「クラウドホスティングにおけるランタイム強制遮断とフレームワークEOL」、および「初期基盤モデルの退役に伴うAPIインターフェース断絶」という3つの変曲点を検証します。</p><p>クラウド事業者やホスティングプラットフォームが仕様を刷新する際、公式アナウンスは「新しいフレームワークへ移行せよ」「手動でコードを書き直せ」という原則的な案内にとどまります。 しかし、現場のコードベースや運用ワークフローが追従できないまま期日を迎えると、ビルド失敗によるデプロイ停止や、APIエラーによる本番障害が直撃します。</p><p>2026年10月5日現在、開発現場では以下の3つの断絶が表面化しています。</p><ul><li><strong>Google Cloud Vertex AI Extensions の完全閉鎖</strong>（2026年11月26日にVertex AI Extensionsが完全シャットダウンされ、<code>projects.locations.extensions</code> エンドポイントが消滅する。OpenAPI仕様を登録してPaLM/Geminiから外部APIを自律実行していた企業は、公式から「ソースコード内で手動でFunction Calling関数を定義し直せ」と突き放されており、社内API連携の再実装工数が急増している）</li><li><strong>Vercel による Node.js 20 の新規デプロイ強制無効化と Next.js 15 の EOL 到来</strong>（2026年10月1日をもってVercelのプロジェクト設定でNode.js 20が無効化され、新規デプロイがエラーで停止する事故が多発している。さらに2026年10月21日にはNext.js 15.xが公式サポート終了を迎えるが、Next.js 16 / React 19への移行には非同期propsやServer Actionsの破壊的変更が伴い、安易なバージョンアップでビルドが爆死する）</li><li><strong>Vertex AI における Gemini 2.5 シリーズ（Pro / Flash / Flash-Lite）の退役</strong>（2026年10月16日、残り11日でGemini 2.5シリーズの退役が発効する。最新のGemini 3.xやClaudeへ移行する際、思考（Thinking）トークンの出力パース崩壊や、JSON Schemaの追加プロパティ制約厳格化によって本番アプリが400エラーを起こすリスクが顕在化している）</li></ul><p>公式ドキュメントが指示する「手動での書き直し」を代行し、安全な移行コードや代替コンテナをワンコマンドで生成する軽量ツールの需要が急速に高まっています。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-vertex-ext-bridge-vertex-ai-extensions-2026年11月26日完全閉鎖対応・openapi定義からgemini-tool-calling-mcpサーバー自動トランスパイラcli">アイデア 1: <code>vertex-ext-bridge</code> (Vertex AI Extensions 2026年11月26日完全閉鎖対応・OpenAPI定義からGemini Tool Calling＆MCPサーバー自動トランスパイラCLI)</h3><p>対象は、<strong>Google CloudのVertex AI Extensionsを導入して社内マイクロサービスやSaaS連携エージェントを運用しており、2026年11月26日の完全閉鎖（残り52日）に直面しているAIエンジニア、クラウドアーキテクト、受託開発企業</strong>です。</p><p>入力は2つです。 1. <strong>Google Cloudプロジェクト内のVertex AI Extensionsリソース（またはエクスポートされたOpenAPI YAML/JSONおよび認証マニフェスト）</strong> 2. <strong>移行先の出力ターゲット指定（Google GenAI SDK Function Calling Pythonコード、またはスタンドアロンMCPサーバー定義）</strong></p><p>出力は次の3点です。 1. <strong>登録済みのOpenAPI仕様からエンドポイント・パラメータ定義・docstringを解析し、Google GenAI SDK（<code>google-genai</code>）対応のPython型付き関数群（<code>GenerateContentConfig(tools=[...])</code>用）を自動生成したコード一式</strong> 2. <strong>社内ツールをモデル非依存で再利用可能にするため、標準仕様であるModel Context Protocol（MCP）準拠のDockerコンテナ／FastAPIサーバー実装を自動スキャフォールディングするコードジェネレータ</strong> 3. <strong>Vertex AI Extensionsがクラウド側で代行していた認証（サービスアカウントJWT、OAuth 2.0、APIキーヘッダー注入）をローカルやCloud Run側で安全に補完する環境変数テンプレートおよびSecret Manager連携コード</strong></p><p>本体は1番目と2番目です。 単にOpenAPIから関数の雛形を作るだけなら一般的なジェネレータでも可能です。 <strong>本質的な価値は、Vertex AI Extensionsの仕様（OperationIdやGoogle拡張属性）と認証注入機構を正確に解釈し、Googleが推奨するFunction Calling構文やオープンなMCPサーバーへ数分で無損失移行できる点にあります。</strong></p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Google Cloud公式ドキュメント自身が2026年11月26日の完全シャットダウンを明記し、手動でのFunction Calling再実装を求めている事実です。</p><blockquote class="voice"><p>Vertex AI Extensions has been deprecated as of May 26, 2026. After November 26, 2026, Vertex AI Extensions will be shut down and no longer function. For equivalent functionality, see the Extensions migration guide.</p><p>Migrate custom extensions that you configured with OpenAPI specifications to Function Calling. Function calling lets you to define external platform APIs within your source files and forward their interface abstractions to models. — <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/overview" target="_blank" rel="noopener noreferrer">Vertex AI Extensions overview</a> / <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/migrate" target="_blank" rel="noopener noreferrer">Migrate from Vertex AI Extensions to Agent Platform</a></p></blockquote><p>「After November 26, 2026, Vertex AI Extensions will be shut down and no longer function」という宣告は、期日を過ぎるとAPIエンドポイントが完全に消滅することを意味します。 さらに移行ガイドでは、かつてOpenAPIマニフェストを登録するだけで動いていたカスタム拡張に対し、「ソースファイル内に外部プラットフォームAPIをPython関数として自前定義せよ」というサンプルコードが提示されています。 何十本ものREST APIエンドポイントをExtensionsに預けていた企業にとって、関数の手動再コーディングとHTTPリクエスト実装、例外処理、認証処理の構築は膨大な改修負担です。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>規制・プラットフォーム変更対応型</strong>および<strong>ワークフロー糊付け・連携型</strong>の複合です。</p><p>Why Now は、<strong>2026年11月26日の完全閉鎖期限（残り52日）</strong>です。 11月26日を迎えると、Vertex AI Extensionsを呼ぶ既存のプロンプトチェーンやエージェント実行が即座に例外で停止します。 10月から11月中旬にかけて移行を完了させなければ、本番ワークフローが破綻します。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Google公式ドキュメントによる単一エンドポイントの手動Python関数書き換えサンプルの提示。</li><li><strong>未解決</strong>: <strong>プロジェクト内のExtensionsから登録済みOpenAPI仕様と認証設定を一括取得し、Google GenAI SDK Function Callingコードおよび標準MCPサーバーへ自動トランスパイルする専用マイグレーションツール。</strong></li></ul><hr><h3 id="アイデア-2-vercel-runtime-shifter-vercel-node-js-20-2026年10月1日強制停止-next-js-15-10月21日eol対応・dockerfile-vercel自動注入-非同期propsトランスパイラcli">アイデア 2: <code>vercel-runtime-shifter</code> (Vercel Node.js 20 2026年10月1日強制停止＆Next.js 15 10月21日EOL対応・Dockerfile.vercel自動注入＆非同期PropsトランスパイラCLI)</h3><p>対象は、<strong>Vercel上でNext.jsやNode.js製Webアプリケーションを運用しており、10月1日のNode 20無効化に伴うデプロイ停止、および10月21日のNext.js 15 EOLに直面しているフロントエンドエンジニア、Web開発受託企業</strong>です。</p><p>入力は2つです。 1. <strong>対象リポジトリのルートディレクトリ（<code>package.json</code>、<code>next.config.js</code>、<code>app/</code> ディレクトリ）</strong> 2. <strong>Vercel CLI認証情報（<code>vercel project ls --update-required</code> の解析用）</strong></p><p>出力は次の3点です。 1. <strong>停止した本番・プレビューデプロイを即座に復旧させるため、Node.js 20 Alpineベースの <code>Dockerfile.vercel</code> をプロジェクトルートへ自動生成・最適配置する即時回避スクリプト</strong> 2. <strong>Next.js 15からNext.js 16 / React 19への正式移行において、同期アクセスが禁止された <code>props.params</code> および <code>props.searchParams</code> を <code>await</code> 構文へ自動書き換えるASTコードモッド</strong> 3. <strong>サードパーティ製npmパッケージのReact 19 / Node 24互換性を事前検査し、非推奨API（<code>defaultProps</code>、レガシーコンテキスト）に起因するランタイムクラッシュ箇所を一覧化する診断レポート</strong></p><p>本体は1番目と2番目です。 単に <code>package.json</code> のNodeバージョン番号を書き換えるだけなら手作業で1秒です。 <strong>本質的な価値は、不用意なバージョンアップでReact 19の非同期破壊的変更を踏んでビルドが爆死するのを防ぎ、まずはコンテナデプロイで即座にデプロイを通した上で、安全にコードベースをNext 16互換へ自動リファクタリングできる2段構えの救済手順を提供することです。</strong></p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Vercel公式チェンジログが2026年10月1日の強制停止とコンテナ回避策を明記している事実です。</p><blockquote class="voice"><p>Following the Node.js 20 end of life on April 30, 2026, we are deprecating Node.js 20 for Builds and Functions on October 1, 2026. On October 1, 2026, Node.js 20 will be disabled in Project Settings. Existing projects using 20 as the version for Functions will display an error when a new deployment is created.</p><p>What if I can't upgrade before October 1? If you can't complete the upgrade in time without disrupting your app, deploy it as a container image instead. Add a Dockerfile.vercel at your project root and the image is built and deployed on every commit. — <a href="https://vercel.com/changelog/node-js-20-is-being-deprecated" target="_blank" rel="noopener noreferrer">Node.js 20 is being deprecated on October 1, 2026 | Vercel Changelog</a></p></blockquote><p>10月1日の期日を過ぎた現在、Node.js 20をターゲットにしたVercelプロジェクトは、コード修正をプッシュした瞬間にデプロイエラーを吐いて停止します。 さらにGitHub Discussionsでは、Next.js 15 / 16への移行の困難さが強く訴えられています。</p><blockquote class="voice"><p>Many developers have reported that upgrading to Next.js 15 is not a "drop-in" update for large-scale enterprise applications due to the React 19 peer dependency and the aforementioned asynchronous API changes. Next.js 15 requires React 19+ to function correctly and avoid errors such as "Minified React error #31". One of the most significant breaking changes in the transition to Next.js 15 is the requirement for params and searchParams to be accessed asynchronously. — <a href="https://github.com/vercel/next.js/discussions" target="_blank" rel="noopener noreferrer">Next.js GitHub Discussions</a></p></blockquote><p>「params and searchParams to be accessed asynchronously」という変更は、すべてのPageやLayoutのシグネチャに影響を与えます。 手作業での修正はヒューマンエラーを誘発し、本番でのレンダリング不具合に直結します。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>規制・プラットフォーム変更対応型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月1日のNode 20無効化（4日前）および10月21日のNext.js 15 EOL（残り16日）</strong>です。 現在進行形でデプロイパイプラインの停止事故が発生しており、10月中に安全な移行を完了させなければセキュリティパッチの提供も止まります。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Vercel CLIによる <code>vercel project ls --update-required</code> での影響プロジェクト一覧表示、およびNext.js公式の基本codemod。</li><li><strong>未解決</strong>: <strong>デプロイ即時復旧用の <code>Dockerfile.vercel</code> 生成と、React 19 / Next 16の非同期props変更を安全に書き換えるASTコードモッドを統合したワンストップ救済ツール。</strong></li></ul><hr><h3 id="アイデア-3-gemini-migration-gate-vertex-ai-gemini-2-5-2026年10月16日退役対応・思考トークン分離-json-schema厳格化互換プロキシcli">アイデア 3: <code>gemini-migration-gate</code> (Vertex AI Gemini 2.5 2026年10月16日退役対応・思考トークン分離＆JSON Schema厳格化互換プロキシCLI)</h3><p>対象は、<strong>Vertex AI経由でGemini 2.5 Pro / Flashを利用しており、2026年10月16日のモデル退役（残り11日）に直面しているAIアプリ開発者、バックエンドエンジニア</strong>です。</p><p>入力は2つです。 1. <strong>既存のGemini 2.5 API呼び出しコード（またはプロキシ設定）</strong> 2. <strong>モデル呼び出し時に送信しているプロンプト、スキーマ定義、GenerationConfig</strong></p><p>出力は次の3点です。 1. <strong>リクエスト内のモデル識別子（<code>gemini-2.5-flash-001</code> 等）を自動で最新の推奨モデルへマップし、ヘッダー互換性を維持するローカル・サイドカープロキシ</strong> 2. <strong>Gemini 3.0 / 3.5世代で導入された思考（Thinking）トークンが既存のパーサーを破壊する問題を防ぐため、ストリームレスポンスから思考パートを抽出し、従来のクリーンなテキスト出力のみをクライアントに返す出力サニタイザ</strong> 3. <strong>Structured OutputsにおけるJSON Schemaの厳格化（<code>additionalProperties: false</code> 必須化や再帰的スキーマの拒絶）に適合するよう、既存のPydantic / JSON定義を自動修復するスキーマチェッカー</strong></p><p>本体は1番目と2番目です。 単にモデル名の文字列を変えるだけなら設定変更だけで済みます。 <strong>本質的な価値は、モデル世代交代に伴う思考トークン混入によるパーサー崩壊や、JSONスキーマバリデーションエラーをアプリケーションコードの修正なしに水際で防ぐ点にあります。</strong></p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Google Cloud公式のリリースノートがGemini 2.5シリーズの退役日を明記している事実です。</p><blockquote class="voice"><p>Gemini 2.5 model retirement dates updated: The retirement dates for Gemini 2.5 Pro, Gemini 2.5 Flash-Lite, and Gemini 2.5 Flash have been updated to October 16, 2026. For more information, see Model versions and lifecycle.</p><p>Updated pricing for Gemini 2.5 Flash GA: The price for Gemini 2.5 Flash in GA will be adjusted to reflect its quality and unified output token pricing. This includes lower prices for thinking output, higher prices for non-thinking output. — <a href="https://docs.cloud.google.com/vertex-ai/docs/release-notes" target="_blank" rel="noopener noreferrer">Vertex AI release notes</a></p></blockquote><p>2026年10月16日をもって、Gemini 2.5シリーズは退役期日を迎えます。 また、開発者コミュニティ（Zenn、Qiita）では、モデル更新に伴う思考トークンの混入やAPI仕様変更による <code>400 Invalid Argument</code> の多発が深刻な課題として報告されています。 固定モデル名をコード中にハードコードしているシステムでは、深夜の突然死が発生します。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>新APIラッパー型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月16日のGemini 2.5退役（残り11日）</strong>です。 期日までにモデル参照を切り替えなければ、APIリクエストがエラーを返し始めます。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: 各種LLMライブラリでの手動モデル名変更。</li><li><strong>未解決</strong>: <strong>思考トークン分離と厳格化されたJSON Schemaの自動適合を透過的に代行し、コード改修なしで新モデルへ切り替える互換シムプロキシ。</strong></li></ul><hr><h2 id="3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</h2><h3 id="5軸スコア表">5軸スコア表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>vertex-ext-bridge</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>vercel-runtime-shifter</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>gemini-migration-gate</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">2026年11月26日完全閉鎖まで残り52日と切迫度が極大。Vertex AIを基盤とする世界中のエンタープライズAIエージェントが対象であり、Google公式が手動再実装を明言している。ただしAWSやAzure専業のチームには関係しない点が微減要素</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月1日にNode 20が無効化され、10月21日にNext.js 15がEOL。世界中のWeb開発者・フロントエンド企業が対象で需要は巨大。ただし最初からコンテナデプロイを採用している先進チームには響かない点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月16日の退役まで残り11日と切迫度は高い。ただしLiteLLM等の既存抽象化層を既に導入している企業ではモデル名変更だけで対処できる場合がある点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OpenAPI v3パーサーとJinja2テンプレートを活用し、Google GenAI SDK関数およびMCPサーバー雛形を自動合成するCLI。2週間でMVP開発可能。ただし複雑なOpenAPIの認証方式やネストスキーマの解釈検証に一定の工数を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Babel/TypeScript ASTを活用してNext.js Pageコンポーネントのpropsシグネチャを書き換え、Dockerfile.vercelを配置するCLI。2週間でプロトタイプ作成可能。ただしApp Routerの複雑なネストレイアウトの網羅テストに工数を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカルHTTPプロキシとして動作し、リクエストモデル名を書き換えてストリームから思考ブロックを分離する。2週間でMVP完成可能。ただしSSEストリーミング構文の詳細なエッジケース検証に時間を要する点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">単一OpenAPI変換はOSS提供し、組織内Extension一括スキャン＆MCPコンテナ生成・認証ブリッジ機能を月額 $49〜$149 または買い切り $199 で提供。数人日の手動再実装工数を数分に圧縮するためROIが極めて明確。ただし移行が一巡した後のLTV低下リスクがある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">開発者はフロントエンドの修正に課金するより自前AIエージェントで直そうとする傾向があり、チーム向けの一括修正機能でも月額課金の継続率に課題が残る点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">プロキシ型ツールは無料のLiteLLM等と比較されやすく、単体での課金ハードルが高い点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Google公式は「手動で関数を書け」と突き放しており、Vertex AI Extensionマニフェストから直接MCP/GenAIコードを吐き出す競合は不在。明確なニッチの空白。ただしGoogleが将来的に移行スクリプトを公式提供するリスクがゼロではない点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Vercel公式は警告を出すだけで自動パッチPRまでは作らないため独自の強みがある。ただしコミュニティ製codemodや汎用AIエージェントのプロンプトとの競合がある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">LiteLLM等のオープンソースプロキシが一部モデルマッピングを吸収するため、純粋なプロキシ機能だけでは差別化が難しい点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル実行のCLIバイナリ（Python / Go）。機密API仕様を外部サーバーに送信しないため運用費ゼロ、情報漏洩リスクゼロ。ただしGoogle GenAI SDKやMCP仕様の改定追従が必要な点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行のNode/Go CLI。外部インフラ不要でサポート負荷が極めて低い。ただしNext.js/Reactの急激な破壊的変更に追従するメンテナンス負荷がある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">読み取り専用の軽量プロキシ。個人運用可能だがLLM各社のプロトコル更新に追従するメンテナンス頻度がやや高い点が減点</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><p>横軸に「導入の即効性・軽量さ（インフラ不要度）」、縦軸に「切迫度・課題の深刻度」を取ったポジショニングです。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ"><title>アイデア候補のポジショニングマップ</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;即効高・緊急高（最優先市場）&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;即効低・緊急高（SI/大企業向け）&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;即効低・緊急低（参入見送り）&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;即効高・緊急低（自律成長型ツール）&quot;</text><text x="118" y="338" class="qlabel">← &quot;重厚な設定・組織導入が必要&quot;</text><text x="686" y="338" text-anchor="end" class="qlabel">&quot;ワンコマンド・ゼロインフラ&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;潜在的なリスク・予防&quot;</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">&quot;期日到来・直接的な本番障害&quot; →</text><g><circle cx="634.9" cy="44.2" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="622.9" y="48.2" text-anchor="end" class="qpt-label">1</text><circle cx="634.9" cy="44.2" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: vertex-ext-bridge 総合 21 / 25（Tier 1）" data-tv="Idea 1: vertex-ext-bridge" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="646.2" cy="64.1" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="634.2" y="68.1" text-anchor="end" class="qpt-label">2</text><circle cx="646.2" cy="64.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: vercel-runtime-shifter 総合 19 / 25（Tier 2）" data-tv="Idea 2: vercel-runtime-shifter" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="623.5" cy="81.1" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="635.5" y="85.1" text-anchor="start" class="qpt-label">3</text><circle cx="623.5" cy="81.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: gemini-migration-gate 総合 18 / 25（Tier 2）" data-tv="Idea 3: gemini-migration-gate" data-td="総合 18 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: vertex-ext-bridge</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: vercel-runtime-shifter</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: gemini-migration-gate</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-mvp-vertex-ext-bridge">4. 最有力アイデアの深掘りと検証計画 (MVP: <code>vertex-ext-bridge</code>)</h2><h3 id="アイデア概要">アイデア概要</h3><p><code>vertex-ext-bridge</code> は、2026年11月26日に迫るGoogle Cloud Vertex AI Extensionsの完全閉鎖に直面した開発者のための、OpenAPI仕様解析＆Gemini Function Calling・MCPサーバー自動トランスパイラCLIです。</p><p>利用者はGoogle Cloud認証済みのターミナルで <code>vertex-ext-bridge migrate --project &lt;PROJECT_ID&gt;</code> を実行するだけで、以下の処理が自動で行われます。 1. 指定プロジェクト内のVertex AI Extensions（<code>projects.locations.extensions</code>）を走査し、登録されているカスタム拡張のManifest（OpenAPI YAML/JSONおよび認証設定）を一括エクスポート。 2. 各OpenAPI仕様からAPIエンドポイント、HTTPメソッド、リクエストスキーマ、パラメータ説明文（docstring）を自動抽出。 3. Google GenAI SDK（<code>google-genai</code>）にそのまま渡せる型付きPythonツール関数群（<code>def tool_name(...) -&gt; dict: ...</code>）を自動生成。 4. 将来のベンダーロックインを防ぎたいチーム向けに、Model Context Protocol（MCP）準拠のサーバーコード（Python/FastAPIまたはTypeScript）およびDocker起動設定を自動出力。 5. Extensionsが自動代行していた認証（API Key、Bearer Token、サービスアカウント認証）を、Secret Managerから取得してリクエストヘッダーに注入するミドルウェアコードを自動合成。</p><h3 id="リスク・反証分析">リスク・反証分析</h3><p>最大の前提崩壊リスクは、<strong>「Vertex AI Extensionsを利用していた企業の多くが、すでにLangChainやLlamaIndexなどのサードパーティ製オーケストレーションフレームワークへ移行しており、Google純正のExtensionsに残っているワークロードが実際には少なく、市場規模が限定的であること」</strong>です。</p><p>この反証に対する検証と対策は以下のとおりです。</p><ul><li><strong>反証検証</strong>: 金融、医療、公共などセキュリティ要件の厳しいエンタープライズ企業において、外部OSSライブラリの脆弱性審査を避けるため、Google Cloudがフルマネージドで認証とAPI呼び出しを保証する「Vertex AI Extensions」を標準採用した事例が多数存在します。これらの企業はコンプライアンス上の理由から勝手なOSS移行ができず、11月26日のシャットダウンを前に重大な改修危機に直面しています。</li><li><strong>対策</strong>: 単なる個人開発者向けのスクリプトにとどまらず、<strong>「社内セキュリティ基準を満たすMCPサーバーへの変換」</strong>および<strong>「Google Cloud Secret ManagerやWorkload Identityとシームレスに結合するセキュアなコード出力」</strong>を前面に押し出します。エンタープライズの情シスやクラウドアーキテクトがそのまま自社基盤にデプロイできる高信頼な生成物を提供することで、強い課金動機を確立します。</li></ul><h3 id="参考ロードマップ-14日間mvp">参考ロードマップ（14日間MVP）</h3><p>ロードマップの初日には、前提の「事前検証」を必ず配置します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>主な作業内容と検証ゲート</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提事前検証 (Gate)</strong></td><td><strong>【最重要】</strong> 自身のGCP環境および協力企業の環境で、実際に稼働中のVertex AI ExtensionからOpenAPI仕様と認証マニフェストを取得。手動でGoogle GenAI SDK用のPythonツール関数およびFastAPIベースのMCPサーバーへ変換し、Gemini 3.0モデルから正常にツール呼び出しが完走するかをプロトタイプ検証する。手動変換に想定外のブロッカーがある場合は即座にアプローチを見直す。</td></tr><tr><td class="tk"><strong>Day 2-3</strong></td><td><strong>GCP拡張エクスプローラ実装</strong></td><td>Google Cloud Discovery API / Vertex AI REST APIクライアントの実装。プロジェクト内のExtensionsリソース一覧およびOpenAPI YAML/JSON定義の一括ダウンロード機能の作成。</td></tr><tr><td class="tk"><strong>Day 4-5</strong></td><td><strong>OpenAPI解析＆中間表現設計</strong></td><td>OpenAPI 3.0 / 3.1仕様パーサーの実装。エンドポイント、スキーマ型（Pydantic互換）、パラメータバリデーションルールの中間表現への正規化。</td></tr><tr><td class="tk"><strong>Day 6-7</strong></td><td><strong>Google GenAI SDKコードジェネレータ</strong></td><td>最新の <code>google-genai</code> SDK（<code>GenerateContentConfig</code>）に適合するPython関数定義コード（型ヒント、docstring、requests/httpx実行ロジック）の自動合成エンジンの実装。</td></tr><tr><td class="tk"><strong>Day 8-9</strong></td><td><strong>MCPサーバー自動生成エンジン</strong></td><td>Model Context Protocol（MCP）準拠のツール登録コード、FastAPIサーバー、およびローカル・Cloud Runデプロイ用の <code>Dockerfile</code> 自動生成機能の実装。</td></tr><tr><td class="tk"><strong>Day 10-11</strong></td><td><strong>認証インジェクタ＆Secret連携</strong></td><td>API Key、OAuth 2.0、Google Cloud IAM認証を透過的にヘッダーへ付与するクライアントラッパーの実装。ローカル <code>.env</code> および Secret Manager 参照コードの自動出力。</td></tr><tr><td class="tk"><strong>Day 12-13</strong></td><td><strong>ドキュメント＆実戦ドッグフーディング</strong></td><td>複数の実在OpenAPI仕様（Swagger Petstore、GitHub API、社内モックAPI）を用いたエンドツーエンド変換テスト。移行ガイド（Zenn / Qiita記事）およびREADMEの作成。</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>パブリックベータ公開</strong></td><td>PyPIパッケージ（<code>pip install vertex-ext-bridge</code>）およびGitHubリポジトリの公開。Reddit（r/googlecloud, r/MachineLearning）やXでのリリース告知と初期ユーザー獲得。</td></tr></tbody></table></div><hr><h2 id="5-結論と次の一手">5. 結論と次の一手</h2><p>本リサーチでは、2026年10月から11月にかけて集中するプラットフォームの強制終了と基盤変更に伴う3つの大きな断絶を検証しました。</p><p>選定MVPである <strong><code>vertex-ext-bridge</code></strong> は、総合スコア <strong>21 / 25点 (Tier 1: GO)</strong> を獲得し、直ちに開発と検証を推進すべき最有力候補となりました。 2026年11月26日という目前に迫った完全閉鎖期限（残り52日）が存在し、Google公式が手動再実装を突き放している切実なペインを、ローカルCLIによるゼロインフラ・高ROIツールとして解決できる極めて優れた機会です。</p><p>次の一手として、Day 1 の事前検証（Vertex AI ExtensionマニフェストからGenAI SDK Tool関数およびMCPサーバーへの変換プロトタイプの成立性確認）を速やかに実行することを推奨します。</p><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/overview" target="_blank" rel="noopener noreferrer">Vertex AI Extensions overview | Google Cloud Documentation</a><span class="u">https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/overview</span></li><li><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/migrate" target="_blank" rel="noopener noreferrer">Migrate from Vertex AI Extensions to Agent Platform | Google Cloud Documentation</a><span class="u">https://cloud.google.com/vertex-ai/generative-ai/docs/extensions/migrate</span></li><li><a href="https://vercel.com/changelog/node-js-20-is-being-deprecated" target="_blank" rel="noopener noreferrer">Node.js 20 is being deprecated on October 1, 2026 | Vercel Changelog</a><span class="u">https://vercel.com/changelog/node-js-20-is-being-deprecated</span></li><li><a href="https://docs.cloud.google.com/vertex-ai/docs/release-notes" target="_blank" rel="noopener noreferrer">Vertex AI release notes | Google Cloud Documentation</a><span class="u">https://docs.cloud.google.com/vertex-ai/docs/release-notes</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-05_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

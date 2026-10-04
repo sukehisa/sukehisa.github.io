@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T07:05:58+09:00",
+  "generated_at": "2026-10-05T07:05:16+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -243,6 +243,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-05_market_research_report.html",
+          "title": "2026-10-05: 閉鎖されるVertex拡張とNode20遮断の余波 — Vertex AI Extensions 終了・Vercel Node 20 停止・Gemini 2.5 退役における穴場市場の特定",
+          "date": "2026-10-05",
+          "bytes": 69786
+        },
         {
           "file": "2026-10-04_market_research_report.html",
           "title": "2026-10-04: 迫るGPv1退役の請求爆発とK8sノード起動断崖 — Azure Storage GPv1 終了・K8s 1.35 cgroup v1 撤去・自律エージェントトークン二乗消費における穴場市場の特定",
