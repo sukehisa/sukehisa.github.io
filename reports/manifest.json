@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T06:15:14+09:00",
+  "generated_at": "2026-10-07T07:09:01+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -255,6 +255,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-07_market_research_report.html",
+          "title": "2026-10-07: 拒絶されるサンプリングとPython3.10サポート断崖 — Claude Strict Mode・Python 3.10 EOL・Microsoft Graph Recent 停止における穴場市場の特定",
+          "date": "2026-10-07",
+          "bytes": 68732
+        },
         {
           "file": "2026-10-06_market_research_report.html",
           "title": "2026-10-06: EOL迫るPG14と決済失敗の静かな解約 — PostgreSQL 14 サポート終了・Stripe Ghost Churn・Lookout for Equipment 閉鎖における穴場市場の特定",
