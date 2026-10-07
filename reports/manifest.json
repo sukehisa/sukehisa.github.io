@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T06:15:45+09:00",
+  "generated_at": "2026-10-08T07:08:15+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -261,6 +261,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-08_market_research_report.html",
+          "title": "2026-10-08: 10倍速の決定とオフィス2021断崖 — OpenAI Decisions API・Office 2021 EOL・Chime PSTN メンテナンス移行における穴場市場の特定",
+          "date": "2026-10-08",
+          "bytes": 70695
+        },
         {
           "file": "2026-10-07_market_research_report.html",
           "title": "2026-10-07: 拒絶されるサンプリングとPython3.10サポート断崖 — Claude Strict Mode・Python 3.10 EOL・Microsoft Graph Recent 停止における穴場市場の特定",

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="2026年10月6日リリースのOpenAI Decisions APIが引き起こすキャッシュ不在・過信キャリブレーション問題、2026年10月13日に完全EOLを迎えるOffice 2021のVBA/MOTWブロック断崖、10月29日に新規受付を停止するAmazon Chime SDK SIP Media ApplicationのAmazon Connect移行断絶という3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-08: 10倍速の決定とオフィス2021断崖 — OpenAI Decisions API・Office 2021 EOL・Chime PSTN メンテナンス移行における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-08</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / openai / decisions-api / office2021</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価スクリーニング-ポジショニング" title="3. 5軸評価スクリーニング &amp; ポジショニング">3. 5軸評価スクリーニング</a><a href="#4-最有力アイデアの深掘りと検証計画-mvp-decisions-fast-router" title="4. 最有力アイデアの深掘りと検証計画 (MVP: decisions-fast-router)">4. 最有力アイデアの深掘りと検証計画</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-08">市場リサーチ &amp; 5軸評価レポート (2026-10-08)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">decisions-fast-router</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 6 件（うち一次ソース 5 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">decisions-fast-router</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">office2021-cliff-audit</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">chime-to-connect-bridge</div><div class="val">18<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-mvp-decisions-fast-router">4. 最有力アイデアの深掘りと検証計画 (MVP: decisions-fast-router)</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-07）は、最新モデルで温度パラメータ等を強制拒絶するClaude API Strict Mode、2026年10月1日に公式EOLを迎えたPython 3.10のPEP 632/594移行断崖、および2026年11月に完全データ停止となるMicrosoft Graph Recent APIを検証しました。</p><p>今回は、2026年10月上旬から下旬にかけて表面化している「基盤モデルベンダーによる高速分類特化APIの投入と既存プロンプトの移行摩擦」、「世界中で稼働するデスクトップオフィスの完全サポート終了とマクロセキュリティ断崖」、および「大手クラウドによる音声通話制御基盤のメンテナンス移行とアーキテクチャ強制変換」という3つの変曲点を検証します。</p><p>クラウド事業者やモデルベンダーが新仕様を投入したりレガシー基盤の退役を進めたりする際、公式アナウンスは「新しいAPIへ書き直せ」「最新サービスへ移行せよ」という原則的な案内に終始します。 しかし、現場のコードベースや運用ワークフローが追従できないまま期日を迎えると、深夜のバッチ処理や電話窓口、社内マクロ業務が例外や仕様差分で突然停止します。</p><p>2026年10月8日現在、開発・IT現場では以下の3つの断絶が表面化しています。</p><ul><li><strong>OpenAI Decisions API のパブリックベータ開始（2026年10月6日）と既存ルーティング基盤の移行摩擦</strong>（OpenAI DevDayで発表された <code>POST /v1/decisions</code> が一昨日に公開された。GPT-6 Lunaをバックエンドに約10倍高速かつ入力トークン $0.10/1Mという低価格を実現した一方、プロンプトキャッシュ非対応による長文ルール課金増や、<code>choice</code> 形式における最上位選択肢への過信・確率の歪みが露見している。既存のChat CompletionsやResponses APIで構築されたルーティング・分類パイプラインを書き換えるための互換層が不足している）</li><li><strong>Office 2021 の完全サポート終了（EOL: 2026年10月13日、残り5日！）とVBA/MOTWブロック断崖</strong>（Office LTSC 2021および一般向けOffice 2021が5日後に公式サポート終了を迎える。従来のOfficeと異なり「延長サポート（Extended Support）なし」「有償ESUプログラムなし」であり、しかもOffice 2024やMicrosoft 365へのインプレース上書きアップグレードができない。完全アンインストールして入れ替える際、現場のVBAマクロやAccessツールがMark of the Web（MOTW）のセキュリティブロックやCOM非互換で一斉に動作停止する危機に直面している）</li><li><strong>Amazon Chime SDK SIP Media Application（PSTN Audio）の新規受付停止（2026年10月29日）とAmazon Connect移行の断絶</strong>（AWSは2026年10月29日をもってSIP Media Applicationをメンテナンスモードへ移行し、新規受付を停止する。既存顧客に対してもAmazon Connectへの移行を推奨しているが、Lambdaによるコード駆動制御からConnectのビジュアルコンタクトフローへの移行には「アプリあたり約20時間」の工数が公式に見積もられており、電話ルーティングの再構築が難航している）</li></ul><p>これらの断絶を埋める、既存資産を活かしつつ即効性高く移行・保護するツールの需要が急増しています。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-decisions-fast-router-openai-decisions-api透過移行プロキシ-キャッシュレス過信補正・軽量ルータゲートウェイ">アイデア 1: <code>decisions-fast-router</code> (OpenAI Decisions API透過移行プロキシ &amp; キャッシュレス過信補正・軽量ルータゲートウェイ)</h3><p>対象は、<strong>OpenAI APIのChat Completions (<code>/v1/chat/completions</code>) やResponses APIを使い、プロンプトやStructured Outputsで「問い合わせ分類」「意図判定」「モデルルーティング」「チケット優先度付け」を行っており、2026年10月6日に登場したDecisions APIへの移行でレイテンシ改善とコスト削減を狙うAIエンジニア、SaaS事業者</strong>です。</p><p>入力は2つです。 1. <strong>既存クライアントのリクエスト先URL（環境変数 <code>OPENAI_BASE_URL</code> を本プロキシのエンドポイントへ向けるだけ）</strong> 2. <strong>（任意）ルーティング定義マニフェスト（どのシステムプロンプトやモデル呼び出しを <code>POST /v1/decisions</code> の <code>predicate</code> / <code>choice</code> / <code>score</code> へ変換するかを宣言するYAML）</strong></p><p>出力は次の3点です。 1. <strong>従来のチャット形式の分類リクエストをインターセプトし、Decisions APIの <code>questions</code> 構造へ動的トランスパイルして実行する透過プロキシレイヤー</strong> 2. <strong>Decisions APIで未対応のプロンプトキャッシュ（Prompt Caching）を補うため、長大な分類ルールやFew-shotをクライアント側でローカル埋め込み化し、関連ルールのみを差分注入して入力トークン消費を最小化するクライアントキャッシュシム</strong> 3. <strong><code>choice</code> 形式で発生しやすい最上位選択肢への過信（Overconfidence）を補正するPlattスケーリング（温度校正）フィルタ、および <code>gpt-6-luna</code> のレート制限時にClaude 3.5 HaikuやGemini 2.0 Flashへ瞬時にフォールバックする耐障害ルーティング</strong></p><p>本体は1番目と3番目です。 単にコードを手動で書き直すだけならSDKのドキュメントを読めば済みます。 本質的な価値は、自社SaaSやエージェント基盤のコードを1行も改修することなく、環境変数の向き先を変えるだけで既存の分類処理が10倍高速化（約150ms）かつトークンコスト90%削減され、過信による誤ルーティングを自動防御できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、OpenAI公式ドキュメント自身がDecisions APIの圧倒的レイテンシと価格、および制約（モデル固定、出力課金ゼロ、キャッシュ課金なし）を明記している事実です。</p><blockquote class="voice"><p>The Decisions API evaluates text, images, or both and returns typed answers about 10x faster than the Responses API. Get the probability that a condition is true, a choice from a fixed set, or a score against a rubric. Use those answers to classify content, route requests, and prioritize work in your application.</p><p>With gpt-6-luna, input costs $0.10 per 1M tokens. You pay only for input tokens: there are no cache-read, cache-write, or output-token charges. <code>gpt-6-luna</code> is the only model currently available. Use the dedicated <code>POST /v1/decisions</code> endpoint. — <a href="https://developers.openai.com/api/docs/guides/decisions" target="_blank" rel="noopener noreferrer">Decisions | OpenAI API Documentation</a></p></blockquote><p>「10x faster」「You pay only for input tokens」という記述の通り、ルーティングや分類タスクにおいてDecisions APIを採用する経済的・性能的インセンティブは極めて強力です。 しかし「there are no cache-read, cache-write... charges」「gpt-6-luna is the only model currently available」とあるように、キャッシュによる入力トークン割引が効かず、モデルの単一障害点リスクを抱えています。 さらに既存のコミュニティでは、<code>choice</code> 形式が最上位候補に確率を集中させすぎる過信傾向が報告されており、安全に導入するためのゲートウェイ層が切望されています。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>新APIラッパー型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月6日（一昨日）のOpenAI Decisions API パブリックベータ開始</strong>です。 DevDay 2026での発表を経て一般開発者が触れる状態になった今、すべてのAIエージェント開発者やSaaS基盤が「分類・ルーティングのDecisions API移行」を検討し始めています。 先行して互換ゲートウェイを提供することで、移行需要を一網打尽にできます。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: OpenAI公式SDK（Python 3.26.0+, JS 7.30.0+）による <code>client.decisions.create</code> の直接呼び出し。</li><li><strong>未解決</strong>: <strong>既存のChat Completions / Responses APIコードを変更せずにDecisions APIへ透過変換し、過信キャリブレーション補正・トークン最適化・他社フォールバックを自動提供する専用ゲートウェイ。</strong></li></ul><hr><h3 id="アイデア-2-office2021-cliff-audit-office-2021-2026年10月13日eol直前対応・端末内vbaマクロ-comアドイン非互換事前監査-office-2024-m365安全移行cli">アイデア 2: <code>office2021-cliff-audit</code> (Office 2021 2026年10月13日EOL直前対応・端末内VBAマクロ／COMアドイン非互換事前監査＆Office 2024/M365安全移行CLI)</h3><p>対象は、<strong>社内PCや基幹連携端末で Office 2021（Office LTSC 2021、Office Home &amp; Business 2021）を運用しており、2026年10月13日（残り5日！）の公式サポート終了に直面している社内SE、情報システム部、中小企業IT担当者</strong>です。</p><p>入力は2つです。 1. <strong>社内Windows端末への配布用PowerShell実行環境（Active Directory GPO、Microsoft Intune、または管理者手動実行）</strong> 2. <strong>移行先Office種別の指定（<code>Office 2024 LTSC</code> または <code>Microsoft 365 Apps</code>）</strong></p><p>出力は次の3点です。 1. <strong>端末内のOffice 2021ライセンスおよびインストール状況を検出し、ローカルドライブや共有フォルダに散在するVBAマクロ（<code>PtrSafe</code> 宣言の有無、非推奨COM/ActiveX参照、MOTWフラグ）を抽出・採点する非互換リスク監査レポート</strong> 2. <strong>旧Office 2021のレジストリ・設定（IME辞書、ユーザー定義テンプレート、Outlookプロファイル設定）を保全したままクリーンアンインストールし、新Officeをサイレントインストールする自動化PowerShellスクリプト</strong> 3. <strong>新Officeで強化されたマクロ遮断を回避するため、業務マクロの保存先を自動的に「信頼できる場所（Trusted Locations）」へ安全に登録するグループポリシー設定テンプレート（<code>.reg</code> / <code>.admx</code>）</strong></p><p>本体は1番目と3番目です。 単にインストーラーを叩くだけなら手動でも可能です。 本質的な価値は、Office 2021アンインストール後に新Officeへ移行した瞬間、長年動いていた業務Excelマクロが「セキュリティリスクのためブロックされました（Mark of the Web）」と表示されて現場業務が麻痺する事故を、事前に洗い出して信頼ポリシーとともに自動修復できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Microsoft Learn公式のライフサイクル仕様において、2026年10月13日（PT）の完全サポート終了と延長サポートの不在が明記されている事実です。</p><blockquote class="voice"><p>Office LTSC 2021 follows the Fixed Lifecycle Policy. Support Dates: Listing: Office LTSC 2021 | Start Date: 9/16/2021 | Mainstream End Date: 10/14/2026 6:59:59 AM (Redmond PT: 10/13/2026) — <a href="https://learn.microsoft.com/en-us/lifecycle/products/office-ltsc-2021" target="_blank" rel="noopener noreferrer">Office LTSC 2021 - Microsoft Lifecycle | Microsoft Learn</a></p></blockquote><blockquote class="voice"><p>Office 2021 follows the Modern Lifecycle Policy. Listing: Office 2021 | Start Date: 10/5/2021 | Retirement Date: 10/14/2026 6:59:59 AM (Redmond PT: 10/13/2026) — <a href="https://learn.microsoft.com/en-us/lifecycle/products/office-2021" target="_blank" rel="noopener noreferrer">Office 2021 - Microsoft Lifecycle | Microsoft Learn</a></p></blockquote><p>従来のOffice 2016や2019に存在していた5年間の「延長サポート（Extended Support）」はOffice 2021には存在せず、Mainstream終了と同時にすべてのセキュリティパッチが停止します。 さらに有償のExtended Security Updates（ESU）も提供されません。 上書きインストールができないため、アンインストールを伴う一括移行手順と、VBA資産の動作保証が焦眉の課題となっています。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>規制・プラットフォーム変更対応型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月13日のOffice 2021公式EOL（残り5日！）</strong>です。 期日を過ぎると脆弱性修正が完全に断たれ、セキュリティ監査や取引先コンプライアンスで即座に不適合となります。 10月中の緊急移行案件が全国の中小企業・情シスで発生しています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Microsoft Deployment ToolkitやOffice Deployment Tool (ODT) による新規インストール設定。</li><li><strong>未解決</strong>: <strong>端末内のVBAマクロ資産（MOTW、64bit API宣言、COM参照）の非互換リスクをワンクリックで監査し、設定保全アンインストール＆信頼ポリシー設定を一体化して自動実行する専用CLI/スクリプト。</strong></li></ul><hr><h3 id="アイデア-3-chime-to-connect-bridge-amazon-chime-sdk-sip-media-application-メンテナンス移行対応・lambda電話ルーティングのamazon-connect-contact-flow-json自動トランスパイラ">アイデア 3: <code>chime-to-connect-bridge</code> (Amazon Chime SDK SIP Media Application メンテナンス移行対応・Lambda電話ルーティングのAmazon Connect Contact Flow JSON自動トランスパイラ)</h3><p>対象は、<strong>Amazon Chime SDK SIP Media Applications（PSTN Audio）を用いてIVR（自動音声応答）や動的電話転送、通話録音パイプラインを構築しており、2026年10月29日の新規受付停止・メンテナンス移行に伴い、Amazon Connectへの移行を迫られているAWSクラウドエンジニア、VoIP開発者</strong>です。</p><p>入力は2つです。 1. <strong>既存のChime SIP Media Application用Lambda関数コード（Node.js / Python）</strong> 2. <strong>既存のSIP Media Application設定情報（電話番号、S3音源バケット、SIPルール）</strong></p><p>出力は次の3点です。 1. <strong>Lambdaコード内のChime SMAアクション（<code>Speak</code>, <code>PlayAudio</code>, <code>GetDigits</code>, <code>CallAndBridge</code>, <code>RecordAudio</code> 等）を解析し、Amazon ConnectのContact Flow JSON（<code>Play prompt</code>, <code>Get customer input</code>, <code>Transfer to phone number</code> ブロック）へ自動変換するASTトランスパイラ</strong> 2. <strong>Connectのフロー内から外部DB検索や動的ルーティングなどの高度なビジネスロジックのみを安全に呼び出すための、Amazon Connect連携用Lambdaシム関数</strong> 3. <strong>既存の電話番号移行リクエスト用Boto3スクリプト、およびAmazon Connectテスト番号を用いた通話シナリオ自動検証CLI</strong></p><p>本体は1番目と2番目です。 単にAmazon Connectのコンソールでフローを手動作成するだけならAWSの移行ガイドを読めば可能です。 本質的な価値は、AWS公式が「アプリあたり約20時間の移行工数」と試算する大規模なコードからフローへの再設計作業を、AST解析によって自動トランスパイルし、数時間で移行を完了させられる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、AWS公式ドキュメント自身が2026年10月29日の新規受付停止と、Amazon Connectへの移行に要する多大な工数（20時間/アプリ）を明記している事実です。</p><blockquote class="voice"><p>Amazon Chime SDK SIP media applications will no longer be open to new customers starting October 29, 2026. Existing customers can continue to use the service as usual, but AWS recommends migrating existing PSTN Audio workloads to Amazon Connect and building new telephony workloads there.</p><p>Migrating Amazon Chime SDK PSTN Audio to Amazon Connect is a process for which AWS recommends planning approximately 20 hours of migration effort per application, though the actual time required may vary based on complexity. — <a href="https://docs.aws.amazon.com/chime-sdk/latest/ag/sip-media-apps.html" target="_blank" rel="noopener noreferrer">Managing SIP media applications</a> / <a href="https://docs.aws.amazon.com/chime-sdk/latest/ag/pstn-audio-connect-migration.html" target="_blank" rel="noopener noreferrer">Migrating Amazon Chime SDK PSTN Audio to Amazon Connect</a></p></blockquote><p>AWS自身が「20 hours of migration effort per application」「vary based on complexity」と認めている通り、Lambdaコードで書かれた電話制御ロジックをConnectのフローモデルへ移し替える作業は、インフラ担当者にとって重い負担となっています。 特に電話番号の移行には数週間かかるため、10月29日の節目を前に迅速な移行設計が求められています。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>ワークフロー糊付け・連携型</strong>および<strong>規制・プラットフォーム変更対応型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月29日のChime SIP Media Application新規受付終了・メンテナンス移行（残り3週間）</strong>です。 新規アプリケーションの追加ができなくなるため、今後の改修や拡張を予定している企業はConnectへの全面移行を急いでいます。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: AWS公式移行ガイドによる手動アーキテクチャマッピング手順。</li><li><strong>未解決</strong>: <strong>LambdaのChime SMAアクション構文を解析し、Amazon Connect Contact Flow JSONへと自動変換して移行工数を90%削減する専用トランスパイラ。</strong></li></ul><hr><h2 id="3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</h2><h3 id="5軸スコア表">5軸スコア表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>decisions-fast-router</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>office2021-cliff-audit</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>chime-to-connect-bridge</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">2026年10月6日にOpenAI Decisions APIがパブリックベータ開始された直後。10倍高速かつコスト90%減という圧倒的経済合理性により、世界中のAIエージェント・SaaS開発者が移行を検討中。ただしOpenAI以外のLLM専業プロジェクトには無関係な点が微減要素</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年10月13日のEOLまで残り5日。世界中に膨大な稼働端末が存在し切迫度は極めて高い。ただしEOL通過後は駆け込み需要が徐々に減衰する一過性市場である点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年10月29日の新規受付停止まで残り3週間。AWSで電話基盤を組む企業が対象。ただしVoIP・CTI領域のエンジニアに限定されるニッチ市場である点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">Cloudflare Workers または FastAPI によるリバースプロキシ。リクエストJSONのスキーマ変換とPlattスケーリング。1〜2週間でMVP作成可能。ただし過信補正の校正データ収集と検証に一定の工数を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">PowerShell / C# による静的VBA解析とレジストリ監査スクリプト。2週間でプロトタイプ作成可能。ただしパスワード保護されたVBAマクロの内部解析が制限される技術的制約が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">AST解析によるLambdaアクションからConnect Contact Flow JSONへの構文変換。2週間で作成可能。ただし並列コール等の複雑な通話制御ロジックの完全再現に限界がある点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカルCLI/プロキシはOSS公開し、チーム向け高速ゲートウェイ（過信防止・キャッシュシム・フォールバック付き）を月額 $29〜$99 でSaaS提供。APIコスト削減分で即座にペイするため課金動機が明確。ただし個人開発者は自前コード修正で離脱しやすい点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">情シス・中小企業向けに端末あたりライセンスまたは企業一括 $149〜$499 で販売可能。深夜の障害防止に対するROIが高い。ただし企業の購買稟議プロセスに時間がかかり個人開発の即時セルフサーブ課金がやや鈍い点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">移行プロジェクト単位での買い切り $199〜$399。一度移行が完了すれば利用が終了する一回限りのツールであり、継続的なサブスクリプション収益（MRR）を作りにくい点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OpenAI公式はChatとDecisionsの透過アダプタを提供しない。LiteLLM等もDecisions専用の過信補正やプロンプト自動変換までは未着手。ただし将来OpenAI SDKが直接ヘルパーを内包するリスクがある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">Microsoft公式にUpgrade Readinessガイドが存在し、大手資産管理ソフト（SkySea等）も一定のインベントリ機能を持つ。VBAのMOTWブロックやアンインストール時の設定保全に特化して差別化する必要がある点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">AWS公式が移行ガイドを公開しており、体力のある開発会社は手動で書き換える選択肢を取りやすい。Connect専業SIerの受託案件と競合しやすい点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ステートレスプロキシとしてCloudflare Workersで稼働可能。サーバーレスで運用費ゼロ、サポート負荷低。ただしDecisions APIのベータ期間中の仕様変更に追従するメンテナンスが必要な点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行のCLI/スクリプト。外部サーバー不要で運用費ゼロ。ただしWindows OSやOfficeのバージョン組み合わせによる環境依存トラブルの問い合わせ対応負荷が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル実行トランスパイラCLI。運用費ゼロ。ただしAmazon ConnectのAPI制限やクォータ問題などインフラ固有のトラブルシューティング対応負荷がある点が減点</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">18<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><p>横軸に「導入の即効性・軽量さ（インフラ不要度）」、縦軸に「切迫度・課題の深刻度」を取ったポジショニングです。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ"><title>アイデア候補のポジショニングマップ</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;即効高・緊急高（最優先市場）&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;即効低・緊急高（SI/大企業向け）&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;即効低・緊急低（参入見送り）&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;即効高・緊急低（自律成長型ツール）&quot;</text><text x="118" y="338" class="qlabel">← &quot;重厚な設定・組織導入が必要&quot;</text><text x="686" y="338" text-anchor="end" class="qlabel">&quot;ワンコマンド・ゼロインフラ&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;潜在的なリスク・予防&quot;</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">&quot;期日到来・直接的な本番障害&quot; →</text><g><circle cx="651.9" cy="41.4" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="639.9" y="45.4" text-anchor="end" class="qpt-label">1</text><circle cx="651.9" cy="41.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: decisions-fast-router 総合 21 / 25（Tier 1）" data-tv="Idea 1: decisions-fast-router" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="634.9" cy="49.9" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="622.9" y="53.9" text-anchor="end" class="qpt-label">2</text><circle cx="634.9" cy="49.9" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: office2021-cliff-audit 総合 19 / 25（Tier 2）" data-tv="Idea 2: office2021-cliff-audit" data-td="総合 19 / 25（Tier 2）"/></g><g><circle cx="606.5" cy="58.4" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="618.5" y="62.4" text-anchor="start" class="qpt-label">3</text><circle cx="606.5" cy="58.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: chime-to-connect-bridge 総合 18 / 25（Tier 2）" data-tv="Idea 3: chime-to-connect-bridge" data-td="総合 18 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: decisions-fast-router</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: office2021-cliff-audit</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: chime-to-connect-bridge</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-mvp-decisions-fast-router">4. 最有力アイデアの深掘りと検証計画 (MVP: <code>decisions-fast-router</code>)</h2><h3 id="アイデア概要">アイデア概要</h3><p><code>decisions-fast-router</code> は、2026年10月6日にリリースされた OpenAI Decisions API（<code>POST /v1/decisions</code>、モデル: <code>gpt-6-luna</code>）を既存のAIシステムへ1行の変更もなく導入し、10倍の高速化と90%のコスト削減を享受しつつ、キャッシュ不在による課金増と過信誤判定を未然に防ぐ、軽量プロキシ＆インテリジェントゲートウェイです。</p><p>利用者は、既存のアプリケーション環境変数 <code>OPENAI_BASE_URL</code> を本プロキシ（ローカルまたはCloudflare Workers）に向けるだけで、以下の処理が自動実行されます。</p><p>1. <strong>プロンプトの自動分類・トランスパイル</strong>: 送信された <code>/v1/chat/completions</code> や Responses API リクエストを検査。システムプロンプトやFunction Calling定義から「カテゴリ分類」「意図判定」「ルーティング」タスクを自動抽出し、<code>POST /v1/decisions</code> の <code>choice</code> / <code>predicate</code> / <code>score</code> 形式へ透過変換して高速発行。 2. <strong>クライントサイド・ルールキャッシュ</strong>: Decisions APIがサポートしていないPrompt Cachingを補うため、長文の分類定義やFew-shotをプロキシ層でローカル埋め込み化。ユーザー入力に最も関連する分類肢・基準のみを差分注入することで、入力トークン消費を最小化。 3. <strong>過信キャリブレーション補正</strong>: <code>choice</code> 形式特有の過信（最上位候補への極端な確率集中）をPlattスケーリング（温度パラメータによる確率分布平滑化）で補正し、信頼度スコアを正規化。確信度が閾値を下回る場合は、従来の推論モデル（GPT-5 / Claude 3.5 Sonnet）へ自動エスカレーション。 4. <strong>耐障害マルチモデルフォールバック</strong>: <code>gpt-6-luna</code> のレート制限やAPI障害を検知した場合、即座にClaude 3.5 HaikuやGemini 2.0 FlashのStructured Outputsへリクエストを振り替え、ダウンタイムをゼロ化。</p><h3 id="リスク・反証分析">リスク・反証分析</h3><p>最大の前提崩壊リスクは、<strong>「開発者はプロキシを挟む手間を嫌い、コード内のAPI呼び出し箇所をOpenAI SDKの <code>client.decisions.create</code> に手動で書き直すだけで済ませてしまうのではないか」</strong>という疑念です。</p><p>この反証に対する検証と対策は以下のとおりです。</p><ul><li><strong>反証検証</strong>: 単一スクリプトの単純な分類であれば手動書き換えで十分です。しかし、LangChain、LlamaIndex、Dify、Flowise等のフレームワークを用いている場合や、複数のマイクロサービスが共通のOpenAIクライアントを利用している場合、フレームワーク側の対応を待つか自前で大幅なモンキーパッチを当てる必要があります。さらに、Decisions API単体ではプロンプトキャッシュが効かず、過信問題への対処も自前実装が必要となります。</li><li><strong>対策</strong>: 初期MVPでは2つの導入形態を提供します。 1. <strong>ゼロコードURL差し替え</strong>: <code>OPENAI_BASE_URL=https://router.yourdomain.com/v1</code> を設定するだけのCloudflare Workers型ゲートウェイ。 2. <strong>Python/TypeScript用軽量SDKシム</strong>: <code>from decisions_router import patch_openai; patch_openai()</code> の1行で、既存コードのままDecisions APIの恩恵を受けられるライブラリ版をOSS公開し、コミュニティでの初期トラクションを獲得します。</li></ul><h3 id="参考ロードマップ-14日間mvp">参考ロードマップ（14日間MVP）</h3><p>ロードマップの初日には、前提の「事前検証」を配置します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>主な作業内容と検証ゲート</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提事前検証 (Gate)</strong></td><td><strong>【最重要】</strong> OpenAI Python SDK 3.26.0+ を用い、自身のAPIキーで実際の <code>POST /v1/decisions</code>（<code>gpt-6-luna</code>）に対して <code>choice</code>, <code>predicate</code>, <code>score</code> リクエストを送信。レイテンシ（目標150ms前後）と入力トークン課金を計測する。同時に、既存のChat Completions分類プロンプトと同一入力を与えて出力の一致度と確率過信の度合いを半日で比較検証する。</td></tr><tr><td class="tk"><strong>Day 2-3</strong></td><td><strong>プロキシコア変換エンジン実装</strong></td><td>FastAPI / Cloudflare Workers によるリバースプロキシの実装。Chat Completionsのペイロードから分類質問・選択肢を抽出し、Decisions APIの <code>questions</code> 構造へマッピングするトランスパイラの実装。</td></tr><tr><td class="tk"><strong>Day 4-5</strong></td><td><strong>過信補正＆Plattスケーリング</strong></td><td>返却された <code>confidence</code> および <code>probabilities</code> に対する温度スケーリング補正ロジックの実装。極端な確率の歪みを補正し、真の信頼度スコアを再計算するフィルタの作成。</td></tr><tr><td class="tk"><strong>Day 6-7</strong></td><td><strong>クライントサイド・ルール最適化</strong></td><td>長文プロンプトから不要な共通インストラクションを刈り込み、差分コンテキストのみを <code>input</code> に渡すトークン削減ロジックのプロトタイプ実装。</td></tr><tr><td class="tk"><strong>Day 8-9</strong></td><td><strong>マルチモデルフォールバック</strong></td><td><code>gpt-6-luna</code> が429/500エラーを返した際に、Claude 3.5 HaikuやGemini 2.0 Flashへ瞬時に透過フォールバックするサーキットブレーカーの実装。</td></tr><tr><td class="tk"><strong>Day 10-11</strong></td><td><strong>SDKシム（モンキーパッチ）開発</strong></td><td>Python / TypeScript向けに、<code>patch_openai()</code> で既存の <code>client.chat.completions.create</code> を透過的にDecisions APIへ振り替えるOSSライブラリの作成。</td></tr><tr><td class="tk"><strong>Day 12-13</strong></td><td><strong>ベンチマーク＆ドキュメント整備</strong></td><td>レイテンシ比較（1500ms -&gt; 150ms）とコスト削減率（90%削減）の実測ベンチマークレポート作成、GitHubリポジトリおよびデモサイトの公開。</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>ローンチ &amp; コミュニティ発信</strong></td><td>Product Hunt, Reddit (r/OpenAI, r/SaaS), X, Zennでの公開発信と初期ユーザーフィードバック収集。</td></tr></tbody></table></div><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://developers.openai.com/api/docs/guides/decisions" target="_blank" rel="noopener noreferrer">Decisions | OpenAI API Documentation</a><span class="u">https://developers.openai.com/api/docs/guides/decisions</span></li><li><a href="https://learn.microsoft.com/en-us/lifecycle/products/office-ltsc-2021" target="_blank" rel="noopener noreferrer">Office LTSC 2021 - Microsoft Lifecycle | Microsoft Learn</a><span class="u">https://learn.microsoft.com/en-us/lifecycle/products/office-ltsc-2021</span></li><li><a href="https://learn.microsoft.com/en-us/lifecycle/products/office-2021" target="_blank" rel="noopener noreferrer">Office 2021 - Microsoft Lifecycle | Microsoft Learn</a><span class="u">https://learn.microsoft.com/en-us/lifecycle/products/office-2021</span></li><li><a href="https://docs.aws.amazon.com/chime-sdk/latest/ag/sip-media-apps.html" target="_blank" rel="noopener noreferrer">Managing SIP media applications - Amazon Chime SDK Administration Guide | AWS Documentation</a><span class="u">https://docs.aws.amazon.com/chime-sdk/latest/ag/sip-media-apps.html</span></li><li><a href="https://docs.aws.amazon.com/chime-sdk/latest/ag/pstn-audio-connect-migration.html" target="_blank" rel="noopener noreferrer">Migrating Amazon Chime SDK PSTN Audio to Amazon Connect | AWS Documentation</a><span class="u">https://docs.aws.amazon.com/chime-sdk/latest/ag/pstn-audio-connect-migration.html</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-08_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
