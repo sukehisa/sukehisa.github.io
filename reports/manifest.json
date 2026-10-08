@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T06:15:22+09:00",
+  "generated_at": "2026-10-09T07:08:34+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -267,6 +267,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-09_market_research_report.html",
+          "title": "2026-10-09: 迫るルート鍵断崖と検索蒸発の罠 — ICANN KSK-2024・Cloudflare AI 3分割・OpenAI Evals 終了における穴場市場の特定",
+          "date": "2026-10-09",
+          "bytes": 69749
+        },
         {
           "file": "2026-10-08_market_research_report.html",
           "title": "2026-10-08: 10倍速の決定とオフィス2021断崖 — OpenAI Decisions API・Office 2021 EOL・Chime PSTN メンテナンス移行における穴場市場の特定",

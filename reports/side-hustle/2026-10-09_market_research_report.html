@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="2026年10月11日に8年ぶりの本番切り替えを迎えるICANN DNSSEC Root KSK-2024ロールオーバー断崖、2026年10月に本格展開されたCloudflare AI Crawler 3分割制御に伴う検索流入蒸発トラップ、10月31日にRead-Only化するOpenAI Hosted Evalsの閉鎖という3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-09: 迫るルート鍵断崖と検索蒸発の罠 — ICANN KSK-2024・Cloudflare AI 3分割・OpenAI Evals 終了における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-09</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / dnssec / icann / ksk-2024</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価スクリーニング-ポジショニング" title="3. 5軸評価スクリーニング &amp; ポジショニング">3. 5軸評価スクリーニング</a><a href="#4-最有力アイデアの深掘りと検証計画-mvp-ksk-cliff-sentinel" title="4. 最有力アイデアの深掘りと検証計画 (MVP: ksk-cliff-sentinel)">4. 最有力アイデアの深掘りと検証計画</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-09">市場リサーチ &amp; 5軸評価レポート (2026-10-09)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">ksk-cliff-sentinel</div><div class="meta">アイデア 3 件 ・ Tier 1 2 件 ・ エビデンスURL 3 件（うち一次ソース 3 件）</div></div><div class="fig">21<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">ksk-cliff-sentinel</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="5 / 5 点" aria-label="4. 競合優位性 / ギャップ 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">cloudflare-ai-shield-audit</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">eval-promptfoo-bridge</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</a></li><li><a href="#4-最有力アイデアの深掘りと検証計画-mvp-ksk-cliff-sentinel">4. 最有力アイデアの深掘りと検証計画 (MVP: ksk-cliff-sentinel)</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-08）は、OpenAI Decisions APIが引き起こすキャッシュ不在・過信キャリブレーション問題、2026年10月13日に完全EOLを迎えるOffice 2021のVBA/MOTWブロック断崖、およびAmazon Chime SDK SIP Media ApplicationのAmazon Connect移行断絶を検証しました。</p><p>今回は、2026年10月9日現在、インターネットの基幹通信からWeb集客、AI開発環境に至るまで直面している3つの決定的な断絶と仕様変更を検証します。 インフラ事業者や大手プラットフォームがセキュリティ向上や機能刷新のために規約・鍵・制御ルールを改定する際、公式アナウンスは「新しい設定を有効化せよ」「自動更新されているか確認せよ」という通知を出します。 しかし、現場の稼働中サーバーや運用設定が旧仕様の前提を引きずったまま期日を迎えると、通信の全面途絶や検索流入の急減、蓄積した評価データの喪失という致命的な障害が発生します。</p><p>2026年10月9日現在、開発・IT現場では以下の3つの断絶が表面化しています。</p><ul><li><strong>ICANN DNSSEC ルートゾーン KSK-2024 ロールオーバー（2026年10月11日、残り2日！）とリゾルバ全滅断崖</strong>（2018年以来8年ぶりとなるルートゾーン鍵署名鍵の切り替えが明後日に迫っている。新鍵KSK-2024［Key Tag 38696］が本番運用されるが、自前でDNSSEC検証を行うBIND 9、Unbound、Knot、PowerDNS、Kubernetes内CoreDNS等において、RFC 5011による自動更新が権限不足やネットワーク制限でサイレントに失敗していた場合、10月11日を迎えた瞬間に世界中の全ドメインで名前解決が <code>SERVFAIL</code> となりインターネット通信が全滅する危機に直面している）</li><li><strong>Cloudflare AI Crawler 3分割制御（Search / Training / Agent）強制移行と検索流入蒸発トラップ</strong>（Cloudflareは2026年9月15日に「Disallow AI Training」を導入し、従来の「Block AI bots」トグルを廃止して3分割制御へ移行した。最大の落とし穴は、従来の「Block」設定は混合利用クローラー［Applebot, Googlebot, Bingbot等］を通過させていたのに対し、新仕様では「Block」のままだと混合クローラーごと完全に遮断される点にある。AI学習を防ごうとBlockを維持したサイトで検索エンジンのインデックスが消滅し、オーガニック流入が急減する事故が多発している）</li><li><strong>OpenAI Hosted Evals の Read-Only 化（2026年10月31日）と完全閉鎖（11月30日）</strong>（OpenAIは公式のEvalsプラットフォームを今月末で新規作成不可のRead-Onlyにし、11月末でAPI・ダッシュボードを完全閉鎖する。OpenAI公式はオープンなPromptfooへの移行を推奨しているが、ダッシュボード上に蓄積されたカスタムグレーダー、テストケース定義、過去のRun正答率ベースラインを手動で移し替える作業が膨大な負担となっており、移行トランスパイラが切望されている）</li></ul><p>これらの断絶を埋め、既存インフラやWebサイト、評価資産を即座に保護・救済するツールの需要を検証します。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-ksk-cliff-sentinel-icann-dnssec-root-ksk-2024-ロールオーバー直前監査-bind-unbound-coredns-トラストアンカー自動検証・修復cli">アイデア 1: <code>ksk-cliff-sentinel</code> (ICANN DNSSEC Root KSK-2024 ロールオーバー直前監査 &amp; BIND/Unbound/CoreDNS トラストアンカー自動検証・修復CLI)</h3><p>対象は、<strong>自社内サーバー、閉域網、Dockerホスト、Kubernetesクラスタで DNSSEC 検証を有効にしたキャッシュリゾルバ（BIND 9, Unbound, PowerDNS Recursor, Knot Resolver, CoreDNS, Windows Server DNS）を運用しており、2026年10月11日（残り2日！）のルートゾーン鍵切り替えによる <code>SERVFAIL</code> 全滅を回避したいSRE、インフラエンジニア、情シス担当者</strong>です。</p><p>入力は2つです。 1. <strong>リゾルバホストまたはKubernetesクラスタへの実行コマンド（単一バイナリCLIまたはDaemonSetマニフェスト）</strong> 2. <strong>（任意）外部からのDNSクエリ対象リゾルバIPアドレス</strong></p><p>出力は次の3点です。 1. <strong>稼働中リゾルバの設定ファイル（<code>bind.keys</code>, <code>root.key</code>, <code>root-anchors.xml</code>）およびメモリ上のトラストアンカー状態を直接検査し、新鍵 KSK-2024（Key Tag 38696）の登録状態（Valid / AddPending / Missing）を瞬時に判定する監査レポート</strong> 2. <strong>RFC 5011 の自動更新が滞っている原因（ファイル書き込み権限の欠落、アウトバウンドTCP 53番ポート制限、キャッシュ破壊）を特定し、公式IANAトラストアンカーから最新鍵を安全に注入・ホットリロードする自動修復スクリプト</strong> 3. <strong>ロールオーバー当日の署名切り替えをシミュレートし、テスト用ゾーンに対するDNSSECクエリ応答（ADフラグ正常返却かSERVFAILか）を事前確認する検証プローブ</strong></p><p>本体は1番目と2番目です。 単に <code>dig</code> コマンドを叩くだけでは、ローカルディスク上の永続化トラストアンカーが次回再起動時に古い鍵へ巻き戻るリスクを検出できません。 本質的な価値は、8年ぶりのルート鍵切り替えという稀代のインフラ変曲点において、社内・クラスタ内の全DNSリゾルバを1分で総点検し、明後日の障害発生を100%未然に防げる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、ICANN公式が直前の注意喚起において「自動更新が成功したと思い込むな（Do not assume automatic trust-anchor updates succeeded）」と極めて異例の強い警告を明記している事実です。</p><blockquote class="voice"><p>Operators of DNSSEC-validating resolvers should verify that KSK-2024 (Key Tag 38696) is present in their trust anchor configuration. Do not assume automatic trust-anchor updates succeeded. If the key is missing, confirm that automatic updates are enabled and follow your resolver vendor's guidance to update the trust anchors. — <a href="https://www.icann.org/resources/pages/ksk-rollover-en" target="_blank" rel="noopener noreferrer">Root Zone KSK Rollover | ICANN</a></p></blockquote><p>ICANN自身が「Do not assume automatic trust-anchor updates succeeded」と警告している通り、RFC 5011は仕様上自動化されているはずですが、現場のサーバーでは再起動時に古い設定ファイルで上書きされたり、ディスク書き込みパーミッション不足でキー追加が拒絶されていたりするトラブルが頻発します。 2018年の前回ロールオーバー時にも世界中で多数の社内リゾルバが脱落した前例があり、残り2日となった現場では「自社のリゾルバが本当に38696を持っているか」を即座に確認するツールが求められています。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>規制・プラットフォーム変更対応型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月11日（明後日！）のICANN Root KSK-2024 本番切り替え</strong>です。 鍵の交代は8年に一度しか発生せず、10月11日を跨いだ瞬間に旧鍵のみを保持するリゾルバは世界中の全ドメインで検証エラーを起こします。 今この瞬間が、最も緊急度と需要が高まる絶対的なタイムウィンドウです。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: ICANN公式サイトのテキストガイドや各リゾルバベンダーの個別マニュアル。</li><li><strong>未解決</strong>: <strong>複数種のリゾルバ（BIND/Unbound/Knot/CoreDNS）を同一構文で自動スキャンし、Key Tag 38696 の存在・実効状態を即座に判定して安全にワンクリック修復する統合CLI。</strong></li></ul><hr><h3 id="アイデア-2-cloudflare-ai-shield-audit-cloudflare-ai-crawler-3分割制御移行対応・検索流入毀損回避-search-training-agent-wafルール整合性テスター-robots-txt同期cli">アイデア 2: <code>cloudflare-ai-shield-audit</code> (Cloudflare AI Crawler 3分割制御移行対応・検索流入毀損回避「Search/Training/Agent」WAFルール整合性テスター &amp; robots.txt同期CLI)</h3><p>対象は、<strong>Cloudflare をリバースプロキシとして導入しているWebメディア、オウンドメディア、SaaS、ECサイトのWebマスター、SEOマーケター、インフラエンジニア</strong>です。</p><p>入力は2つです。 1. <strong>調査対象のドメインURL（外部ブラックボックススキャン）</strong> 2. <strong>（任意）Cloudflare API トークン（WAFルールおよびボットポリシーのホワイトボックス監査用）</strong></p><p>出力は次の3点です。 1. <strong>主要AIクローラー（Applebot, Google-Extended, Bingbot等のAccountable混合クローラー、およびGPTBot, ClaudeBot等の純粋学習ボット、Perplexity等のエージェント）の挙動を模倣し、サイトが「検索インデックスを保ったまま学習のみ拒否できているか」「検索エンジンごと遮断してしまっているか」を判定するマトリクス診断レポート</strong> 2. <strong>Cloudflareダッシュボード上の新設定「Disallow AI Training」と、オリジンサーバーの既存 <code>robots.txt</code>、カスタムWAFルール間の競合・矛盾（コンフリクト）を検出し、SEO毀損リスクを警告する差分チェッカー</strong> 3. <strong>混合利用クローラーの検索流入を100%保護しつつAI学習を遮断するための、最適化された <code>robots.txt</code> 定義およびCloudflare API設定変更コマンド（Terraform / Wrangler / cf CLI用スニペット）</strong></p><p>本体は1番目と2番目です。 単にCloudflareの画面でトグルを眺めるだけでは、オリジンの <code>robots.txt</code> との二重適用や、過去に書いたカスタムWAFルールが混合クローラーを巻き添えブロックしている事実に気付けません。 本質的な価値は、外部からのHTTPエミュレーションによって「SEO流入が現在進行形で死んでいないか」を客観的に可視化し、安全な3分割設定へ即座に補正できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Cloudflare公式ブログにおいて「従来のBlock設定の意味が根本から変わり、混合クローラーを巻き添えにするようになった」と明記されている事実です。</p><blockquote class="voice"><p>Without proper controls, website owners have long faced a difficult tradeoff: allow your content to be used for AI training, or risk losing discoverability in search. That tradeoff exists because some of the largest organizations on the Internet use mixed-use crawlers: a single crawler serving both search and AI training. Refuse one, and you refuse the other.</p><p>Block and “Block on pages with ads” previously did not apply to mixed-use crawlers because blocking them could also affect search discoverability. Now that we have the new Disallow AI Training setting, Block and “Block on pages with ads” apply to all training crawlers, including mixed-use crawlers. — <a href="https://blog.cloudflare.com/accountable-mixed-use-ai-crawlers/" target="_blank" rel="noopener noreferrer">Have it both ways: stay discoverable in search while disallowing AI training | Cloudflare Blog</a></p></blockquote><p>「Block previously did not apply to mixed-use crawlers... Now that we have the new Disallow AI Training setting, Block applies to all training crawlers, including mixed-use crawlers」という記述の通り、従来のCloudflareはサイトオーナーの検索流入を守るためにBlock設定時でも混合クローラーを特別扱いして通していました。 しかし新機能導入に伴い、Block設定を放置しているサイトは「検索クローラーごと一律遮断」される仕様へ反転しました。 この破壊的仕様変更に気付かず、意図せず検索順位が急降下しているサイトが続出しており、整合性監査のニーズが爆発しています。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>プラットフォーム変更対応型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年9月15日のDisallow AI Training導入と10月における旧設定の強制仕様変更</strong>です。 従来の安全策（Cloudflare側での混合クローラー特別保護）が撤廃されたため、サイトオーナー自身が新しい3分割設定へ移行しなければ、検索流入の毀損が不可避となっています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Cloudflareダッシュボード上のトグルUIの提供。</li><li><strong>未解決</strong>: <strong>外部からの多角的なクローラーシミュレーションを行い、自社サイトが混合クローラーを巻き添えブロックしていないかを客観検証し、オリジンrobots.txtとの齟齬を解消する専用テスター。</strong></li></ul><hr><h3 id="アイデア-3-eval-promptfoo-bridge-openai-evals-2026年10月31日read-only化対応・hosted-evals定義-グレーダー-実行履歴のpromptfoo自動エクスポート-移行トランスパイラ">アイデア 3: <code>eval-promptfoo-bridge</code> (OpenAI Evals 2026年10月31日Read-Only化対応・Hosted Evals定義/グレーダー/実行履歴のPromptfoo自動エクスポート＆移行トランスパイラ)</h3><p>対象は、<strong>OpenAIのHosted Evals（ダッシュボードおよび <code>v1/evals</code> API）を利用してプロンプトやモデル出力の品質テスト（LLM-as-a-judge, ラベル分類, 正規表現照合）を運用しており、2026年10月31日のRead-Only化・11月30日のサービス閉鎖に伴い、Promptfooや自社CI/CDへテスト資産を移管したいAIエンジニア、プロンプト開発者</strong>です。</p><p>入力は2つです。 1. <strong>OpenAI API キー（組織内の全Eval定義および実行履歴取得用）</strong> 2. <strong>出力先ディレクトリパス（Gitリポジトリルート）</strong></p><p>出力は次の3点です。 1. <strong>OpenAI Hosted Evals上の全テストケース（JSONLデータセット）、プロンプト定義、評価基準（カスタムグレーダー）を一括ダウンロードして保全する完全アーカイブ</strong> 2. <strong>OpenAIのグレーダー定義を、OSSデファクトであるPromptfooの構成ファイル（<code>promptfooconfig.yaml</code> + カスタムアサーションスクリプト）およびpytestテストコードへ自動変換するASTトランスパイラ</strong> 3. <strong>過去のEval実行履歴から正答率ベースラインを抽出し、GitHub Actions上でモデル更新時の精度退行をローカル検知可能にするCI/CDワークフロー定義（<code>.github/workflows/evals.yml</code>）</strong></p><p>本体は2番目と3番目です。 単にダッシュボードからJSONLを1ファイルずつ手動ダウンロードするだけなら手間をかければ可能です。 本質的な価値は、OpenAI独自のグレーダー構文やLLM判定ロジックをPromptfooの宣言的アサーションへ自動トランスパイルし、クラウド依存のないローカル実行・CI完結型のテストパイプラインへ即日移行できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、OpenAI公式ドキュメントにおいて2026年10月31日のRead-Only化と11月30日の完全終了が明記されている事実です。</p><blockquote class="voice"><p>Evaluations (often called evals) test model outputs to ensure they meet style and content criteria that you specify. Writing evals to understand how your LLM applications are performing against your expectations, especially when upgrading or trying new models, is an essential component to building reliable applications.</p><p>OpenAI is deprecating the Evals platform. Existing evals content remains available during the transition window. Evals will become read-only for existing users on October 31, 2026, and the platform is scheduled to shut down on November 30, 2026. See the deprecations page for the current timeline. — <a href="https://developers.openai.com/api/docs/guides/evals" target="_blank" rel="noopener noreferrer">Evaluations | OpenAI Documentation</a></p></blockquote><p>「Evals will become read-only for existing users on October 31, 2026, and the platform is scheduled to shut down on November 30, 2026」とあるように、今月末を過ぎると新しいテストの追加やプロンプト改善の検証がOpenAI上で一切できなくなります。 さらに11月末には画面もAPIも消滅するため、それまでに既存の評価ロジックを外部環境へ救出しなければ、過去の品質ベースラインが永遠に失われます。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>新APIラッパー型</strong>および<strong>ワークフロー糊付け・連携型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月31日のRead-Only化（残り22日）および11月30日の完全閉鎖</strong>です。 移行期限が目前に迫っており、評価パイプラインを止めたくないAIチームが代替環境の構築を急いでいます。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: OpenAIダッシュボードの手動JSONLダウンロード機能、Promptfooの標準機能。</li><li><strong>未解決</strong>: <strong>OpenAIのカスタムグレーダー構文を解析し、Promptfooのアサーション設定およびGitHub Actions連携コードへと自動変換して移行を完結させる専用マイグレータ。</strong></li></ul><hr><h2 id="3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</h2><h3 id="5軸スコア表">5軸スコア表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: <code>ksk-cliff-sentinel</code></span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: <code>cloudflare-ai-shield-audit</code></span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: <code>eval-promptfoo-bridge</code></span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">2026年10月11日の本番ロールオーバーまで残り2日。8年に一度の歴史的イベントであり、失敗時の通信全滅という深刻度は最大。ただし自前DNSSECリゾルバ運用企業にターゲットが限定される点が微減要素</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">2026年10月にBlock AIトグル廃止と新仕様が本格適用された直後。世界中のCloudflare利用サイトが対象であり、SEO検索流入の蒸発というビジネス直撃の痛点が存在。市場規模大</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">2026年10月31日Read-Only化まで残り22日。締め切りは明確だが、Hosted Evalsを本格利用していたチームはAIエンジニア層の一部に限られるため、DNSやSEOに比べ母数は限定的である点が減点</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GoまたはPythonによるDNSSEC設定ファイル解析とクエリ検証。1〜2週間で完成可能。ただしBIND, Unbound, Knot, Windows DNSなど複数ソフトウェアの設定構文と権限仕様を網羅するテスト工数を要する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">主要クローラーのUser-Agent/IPを模倣した外部HTTPテスターおよびrobots.txt差分解析。1〜2週間でMVP作成可能。ただしCloudflareのBot Management API仕様変更に追従するメンテナンスが必要な点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OpenAI Evals APIからのデータ抽出とPromptfoo YAML/JSONL生成。1週間で作成可能。ただしLLM-as-a-judgeの複雑な独自プロンプトグレーダーをPromptfooアサーションへ完全再現する際の例外処理が減点</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">単発の監査CLIはOSS公開が適しており、緊急修復バイナリやMSP/情シス向け一括診断レポートで単発 $49〜$199 の課金モデル。減点: 10月11日を過ぎると緊急需要が急減するため、継続的なMRR形成にはDNSSEC運用監視SaaSへの拡張が必須</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ドメイン単位の定期クローラー監査SaaSとして月額 $19〜$49、または即時修復レポート買い切り $29 の設計が成立。SEO流入維持は売上に直結するため課金意欲が極めて高い。減点: 無料の単発チェッカーに流れる層も一定数存在する点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">一括移行CLIとしての買い切り $49〜$99。減点: 11月末で移行が完了すると新規顧客が急減する「一過性の移行特需」であり、以後は汎用Evalパイプライン管理ツールへのピボットが不可欠な点</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">ICANN公式ガイドや各ベンダーのマニュアル手順はあるが、複数リゾルバやK8sクラスタ内を一括スキャン・修復する専用ツールは不在。ニッチかつ決定的なギャップ</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">一般的なSEOツールはCloudflare特有の「Accountable vs Non-Accountable」とWAFルールの競合まで即座に診断できない。減点: 将来的にCloudflare自身がダッシュボード上で警告アラートを強化した場合に一部優位性が薄れる点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OpenAI公式は手動JSONLエクスポートとPromptfoo推奨をアナウンスしているのみで、一括変換スクリプトは未提供。先行すればデファクトになれる。減点: Promptfoo公式が自前マイグレーション機能を後発投入するリスクがある点</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル実行CLI。インフラ費用ゼロで運用可能。ただしロールオーバー当日の障害対応や特殊なリゾルバ環境依存トラブルの問い合わせ対応負荷が一時的に集中する点が減点</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">スキャナ＋レポート生成エンジンは軽量なサーバーレスで稼働可能。減点: 外部サイトへのクローラー偽装リクエストがWAFのIPレピュテーションで遮断されないよう、分散プロキシの保守が必要な点</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル実行CLI。インフラコストゼロ。減点: 11月末のAPI完全停止後はツール自体の寿命が終わるため、以後は汎用Evalパイプライン管理ツールへのピボットが必要な点</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><p>横軸に「導入の即効性・軽量さ（インフラ不要度）」、縦軸に「切迫度・課題の深刻度」を取ったポジショニングです。</p><figure class="quad"><figcaption>アイデア候補のポジショニングマップ</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="アイデア候補のポジショニングマップ"><title>アイデア候補のポジショニングマップ</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;即効高・緊急高（最優先市場）&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;即効低・緊急高（SI/大企業向け）&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;即効低・緊急低（参入見送り）&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;即効高・緊急低（自律成長型ツール）&quot;</text><text x="118" y="338" class="qlabel">← &quot;重厚な設定・組織導入が必要&quot;</text><text x="686" y="338" text-anchor="end" class="qlabel">&quot;ワンコマンド・ゼロインフラ&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;潜在的なリスク・予防&quot;</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">&quot;期日到来・直接的な本番障害&quot; →</text><g><circle cx="657.6" cy="35.7" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="645.6" y="39.7" text-anchor="end" class="qpt-label">1</text><circle cx="657.6" cy="35.7" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: ksk-cliff-sentinel 総合 21 / 25（Tier 1）" data-tv="Idea 1: ksk-cliff-sentinel" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="646.2" cy="47.0" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="634.2" y="51.0" text-anchor="end" class="qpt-label">2</text><circle cx="646.2" cy="47.0" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: cloudflare-ai-shield-audit 総合 21 / 25（Tier 1）" data-tv="Idea 2: cloudflare-ai-shield-audit" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="634.9" cy="64.1" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="622.9" y="68.1" text-anchor="end" class="qpt-label">3</text><circle cx="634.9" cy="64.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: eval-promptfoo-bridge 総合 19 / 25（Tier 2）" data-tv="Idea 3: eval-promptfoo-bridge" data-td="総合 19 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: ksk-cliff-sentinel</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: cloudflare-ai-shield-audit</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: eval-promptfoo-bridge</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力アイデアの深掘りと検証計画-mvp-ksk-cliff-sentinel">4. 最有力アイデアの深掘りと検証計画 (MVP: <code>ksk-cliff-sentinel</code>)</h2><h3 id="アイデア概要">アイデア概要</h3><p><code>ksk-cliff-sentinel</code> は、2026年10月11日（明後日！）に迫ったICANN DNSSEC Root KSK-2024ロールオーバーにおいて、社内・クラスタ内の全DNSリゾルバが新鍵（Key Tag 38696）を正常に保持しているかを1分で自動監査し、自動更新の失敗を検知して安全にワンクリック修復する軽量CLI &amp; 診断プローブです。</p><p>利用者は、ローカルサーバーやKubernetesクラスタで本バイナリを実行するだけで、以下の処理が自動実行されます。</p><p>1. <strong>マルチリゾルバ自動検出 &amp; トラストアンカー監査</strong>: ホスト上で稼働している BIND 9, Unbound, Knot Resolver, PowerDNS Recursor, CoreDNS を自動検出。設定ファイル（<code>root.key</code>, <code>bind.keys</code> 等）および <code>rndc secroots</code> / <code>unbound-control list_ta</code> を実行して、Key Tag 38696 の存在・状態（<code>VALID</code> / <code>MISSING</code>）を即座に判定。 2. <strong>RFC 5011 自動更新スタック原因分析</strong>: 新鍵が存在しない場合、権限エラー（設定ディレクトリが書き込み不可）、ネットワーク制限（TCP 53番ポート遮断による巨大DNSKEYレスポンス受信失敗）、過去のクラッシュによるロックファイル残留などの根本原因を特定。 3. <strong>安全なトラストアンカー注入 &amp; ホットリロード</strong>: IANA公式の検証済みトラストアンカー（XML/DS/DNSKEY）を用いて最新キーを安全に追記し、リゾルバデーモンを無停止（ホットリロード）で再読み込み。 4. <strong>ロールオーバー事前シミュレーションプローブ</strong>: テスト用ドメインに対して、KSK-2024のみで署名されたRRsetを問い合わせるシミュレーションクエリを発行し、リゾルバが <code>SERVFAIL</code> を出さずに <code>AD</code>（Authenticated Data）フラグを正しく返却できるかを本番直前に確認。</p><h3 id="リスク・反証分析">リスク・反証分析</h3><p>最大の前提崩壊リスクは、<strong>「RFC 5011は標準機能であり、ほとんどのリゾルバは人間の介入なしに勝手に更新されているため、実際の障害発生率は極めて低いのではないか」</strong>という疑念です。</p><p>この反証に対する検証と対策は以下のとおりです。</p><ul><li><strong>反証検証</strong>: 2018年のKSK-2017ロールオーバー時、APNICおよびICANNの調査では、世界中のバリデーションリゾルバの約6〜8%が新鍵の自動取得に失敗し、ロールオーバー直後にSERVFAILを多発させました。特にコンテナ環境（Docker/Kubernetes）で動かしているリゾルバは、コンテナ再起動のたびに初期イメージ内の古いトラストアンカーファイルにリセットされるため、RFC 5011の自動更新が永続化されないという特有の落とし穴が存在します。</li><li><strong>対策</strong>: 初期MVPでは、単体Linuxサーバーだけでなく、<strong>「Kubernetesクラスタ内のCoreDNS / キャッシュポッド一括スキャンDaemonSet」</strong>を提供します。インフラがコンテナ化されている現代のクラウド環境に特化することで、他社マニュアルがカバーしていない「再起動で鍵が巻き戻る」盲点を確実に塞ぎます。</li></ul><h3 id="参考ロードマップ-14日間mvp">参考ロードマップ（14日間MVP）</h3><p>期日が2日後に迫っているため、ロードマップは初日の緊急リリースと、その後の恒久的なDNSSEC健全性監視への展開を設計します。</p><div class="tw"><table><thead><tr><th>日程</th><th>フェーズ</th><th>主な作業内容と検証ゲート</th></tr></thead><tbody><tr><td class="tk"><strong>Day 1</strong></td><td><strong>前提事前検証 &amp; 緊急CLI公開 (Gate)</strong></td><td><strong>【最重要】</strong> 手元のUnboundおよびBIND環境において、RFC 5011のファイル更新を故意にブロックした状態でクエリを発行し、KSK-2024不在時の挙動とKey Tag 38696のパースロジックを半日で検証。最小限のトラストアンカー検査CLI（Go製単一バイナリ）をビルドし、GitHub / X / Reddit (r/sysadmin, r/networking) で緊急無料公開。</td></tr><tr><td class="tk"><strong>Day 2 (10/10)</strong></td><td><strong>クラスタ一括検査DaemonSetリリース</strong></td><td>Kubernetesクラスタ内の全ノードで動くリゾルバ設定を横断スキャンするワンライナーDaemonSetマニフェスト（<code>kubectl apply -f sentinel.yaml</code>）を公開。</td></tr><tr><td class="tk"><strong>Day 3 (10/11)</strong></td><td><strong>ロールオーバー当日監視 &amp; レポート</strong></td><td>10月11日ロールオーバー本番時のDNSSECクエリ検証状態をリアルタイム監視。SERVFAIL発生時のトラブルシューティングガイドと緊急修復コマンドを発信。</td></tr><tr><td class="tk"><strong>Day 4-5</strong></td><td><strong>Windows Server / PowerDNS対応拡充</strong></td><td>エンタープライズ環境で多く稼働する Windows Server DNS および PowerDNS Recursor のトラストアンカー解析・自動修復ロジックを統合。</td></tr><tr><td class="tk"><strong>Day 6-7</strong></td><td><strong>DNSSEC運用健全性チェッカーへの拡張</strong></td><td>一過性のKSKロールオーバー特需から、ゾーン単位の署名切れ（RRSIG期限切れ）、アルゴリズム非推奨（RSASHA1廃止）、親ゾーンとのDS不整合を常時検知する汎用ヘルスチェックCLIへ機能を拡充。</td></tr><tr><td class="tk"><strong>Day 8-9</strong></td><td><strong>Web版無料監査プローブ開発</strong></td><td>ドメインを入力するだけで、自社ドメインのDNSSEC設定および主要パブリックDNS（Google, Cloudflare, Quad9）からの解決健全性を視覚化するWebツールをNext.js / Cloudflare Workersで構築。</td></tr><tr><td class="tk"><strong>Day 10-11</strong></td><td><strong>SaaSアラート連携（Slack / Webhook）</strong></td><td>定期cronまたはKubernetes CronJobから結果をSlackやPagerDutyへ通知する監視連携機能の実装。チーム向け有償プラン（月額 $29）の課金基盤（Stripe）を接続。</td></tr><tr><td class="tk"><strong>Day 12-13</strong></td><td><strong>技術解説記事 &amp; ドキュメント整備</strong></td><td>「なぜRFC 5011は失敗するのか：コンテナ環境におけるDNSSECトラストアンカーの落とし穴」をZenn / Dev.toに公開し、オーガニック流入を獲得。</td></tr><tr><td class="tk"><strong>Day 14</strong></td><td><strong>正式ローンチ &amp; コミュニティ展開</strong></td><td>Product Hunt および Hacker News (Show HN) での正式ローンチ。インフラ運用監視ツールとしての継続的MRR獲得を開始。</td></tr></tbody></table></div><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://www.icann.org/resources/pages/ksk-rollover-en" target="_blank" rel="noopener noreferrer">Root Zone KSK Rollover | ICANN</a><span class="u">https://www.icann.org/resources/pages/ksk-rollover-en</span></li><li><a href="https://blog.cloudflare.com/accountable-mixed-use-ai-crawlers/" target="_blank" rel="noopener noreferrer">Have it both ways: stay discoverable in search while disallowing AI training | Cloudflare Blog</a><span class="u">https://blog.cloudflare.com/accountable-mixed-use-ai-crawlers/</span></li><li><a href="https://developers.openai.com/api/docs/guides/evals" target="_blank" rel="noopener noreferrer">Evaluations | OpenAI Documentation</a><span class="u">https://developers.openai.com/api/docs/guides/evals</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-09_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
