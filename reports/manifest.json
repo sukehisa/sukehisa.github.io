@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T07:08:16+09:00",
+  "generated_at": "2026-10-11T07:07:47+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -273,6 +273,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-11_market_research_report.html",
+          "title": "2026-10-11: 迫るtmpfs容量死とエージェント乗っ取り — GitHub Actions Ubuntu 26.04移行・Comment and Control・Windows 2012最終ESUにおける穴場市場の特定",
+          "date": "2026-10-11",
+          "bytes": 73191
+        },
         {
           "file": "2026-10-10_market_research_report.html",
           "title": "2026-10-10: 迫るmacOSランナー停止とイベント駆動エージェント — GitHub Actions macos-14 ブラウンアウト・OpenAI MCP Events・Salesforce インスタンス名遮断における穴場市場の特定",
