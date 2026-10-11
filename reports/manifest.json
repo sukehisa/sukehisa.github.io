@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-11T07:07:47+09:00",
+  "generated_at": "2026-10-12T07:07:33+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -273,6 +273,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-12_market_research_report.html",
+          "title": "2026-10-12: 新規格サンドボックスと消えゆくレガシー — Docker Sandbox Kit v3・K8s Dashboard 退役・Azure DevOps Global PAT 終了における穴場市場の特定",
+          "date": "2026-10-12",
+          "bytes": 64816
+        },
         {
           "file": "2026-10-11_market_research_report.html",
           "title": "2026-10-11: 迫るtmpfs容量死とエージェント乗っ取り — GitHub Actions Ubuntu 26.04移行・Comment and Control・Windows 2012最終ESUにおける穴場市場の特定",
