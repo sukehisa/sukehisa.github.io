@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T06:15:23+09:00",
+  "generated_at": "2026-10-13T07:07:46+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -279,6 +279,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-13_market_research_report.html",
+          "title": "2026-10-13: 肥大化するコンテキストと消えゆくレガシーAPI — MCP 64文字上限クラッシュ・HubSpot Pipelines V1 終了・Google Cloud BNE 閉鎖における穴場市場の特定",
+          "date": "2026-10-13",
+          "bytes": 68015
+        },
         {
           "file": "2026-10-12_market_research_report.html",
           "title": "2026-10-12: 新規格サンドボックスと消えゆくレガシー — Docker Sandbox Kit v3・K8s Dashboard 退役・Azure DevOps Global PAT 終了における穴場市場の特定",
