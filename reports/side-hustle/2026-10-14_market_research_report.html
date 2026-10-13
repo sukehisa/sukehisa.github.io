@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="Claude Code の Extended Thinking が残す不透明な暗号化署名によるセッション再開時のトークン爆食い（約25%〜40%の不可視浪費）、2026年10月16日に完全失効する Shopify API 2025-10 と PriceRule 削除・税額不整合、10月19日に一斉退役を迎える GitHub Copilot 6大モデルという3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-14: 不可視シグネチャのコンテキスト圧迫と迫るAPI退役断崖 — Claude Thinking Signatures・Shopify 2025-10 失効・Copilot 6大モデル退役における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-14</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / claude-code / anthropic / thinking-tokens</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸評価スクリーニング-ポジショニング" title="3. 5軸評価スクリーニング &amp; ポジショニング">3. 5軸評価スクリーニング</a><a href="#4-最有力候補-tier-1-の詳細分析と-mvp-計画" title="4. 最有力候補（Tier 1）の詳細分析と MVP 計画">4. 最有力候補（Tier 1）の詳細分析と MVP 計画</a><a href="#5-まとめとネクストアクション" title="5. まとめとネクストアクション">5. まとめとネクストアクション</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-14">市場リサーチ &amp; 5軸評価レポート (2026-10-14)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">claude-resume-trimmer</div><div class="meta">アイデア 3 件 ・ Tier 1 1 件 ・ エビデンスURL 3 件（うち一次ソース 3 件）</div></div><div class="fig">22<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">claude-resume-trimmer</div><div class="val">22<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="5 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 5点"><i style="height:100%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">shopify-2026-audit</div><div class="val">20<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">copilot-model-sentinel</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="3 / 5 点" aria-label="4. 競合優位性 / ギャップ 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</a></li><li><a href="#4-最有力候補-tier-1-の詳細分析と-mvp-計画">4. 最有力候補（Tier 1）の詳細分析と MVP 計画</a></li><li><a href="#5-まとめとネクストアクション">5. まとめとネクストアクション</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-13）は、Claude Code / Cursor における MCP ツール定義肥大化と 64 文字上限 400 エラー、2026年12月4日に完全停止する HubSpot Pipelines API V1、および 12月15日に完全閉鎖される Google Cloud Blockchain Node Engine を検証しました。</p><p>今回は、2026年10月中旬に集中している「AI コーディングエージェントの内部セッション構造の歪み」「EC 基盤 API の四半期サンセット断崖」、および「主要開発者プラットフォームにおける基盤モデルの一斉世代交代」という 3 つの喫緊の断絶を検証します。 現在、AI コーディング支援ツールが日々の開発に深く定着したことで、単純なモデル精度の比較を超えて、長時間セッションの維持コストや内部データ構造の非効率性が実務上の深刻なボトルネックとして表面化しています。 また、世界中の EC 事業を支える Shopify や、全世界数百万の開発者が利用する GitHub Copilot において、事前の周知期間を経て設定された完全失効・退役の期日（2026年10月16日、10月19日）が直前に迫っています。 既存のリポジトリや CI/CD、組織ポリシーが旧仕様のまま放置されている場合、今週後半から週明けにかけて突然のリクエスト拒絶や挙動不審に直面するリスクが急速に高まっています。</p><p>2026年10月14日現在、現場では以下の 3 つの断絶が表面化しています。</p><ul><li><strong>Claude Code / Extended Thinking における不透明な暗号化 Thinking Signatures によるセッション再開時のトークン爆食い</strong>（Claude Code で Extended Thinking を有効にして長時間ブレインストーミングやデバッグを行うと、各ターンで生成された推論の暗号化検証署名 <code>{"type": "thinking", "thinking": "", "signature": "..."}</code> が JSONL に蓄積される。セッション再開（resume）時、ユーザーには見えないこの base64 署名文字列だけで最大 20 万文字・約 38,800 トークン［全ペイロードの約 25%〜40%］を占有し、ユーザーがプロンプトを 1 文字も入力する前に 15 万超の入力トークン課金とレートリミット消費が発生する問題が GitHub 公式 Issue #42260 で報告されている）</li><li><strong>Shopify API 2025-10 の完全失効（2026年10月16日、あと2日！）と <code>2026-10</code> での <code>PriceRule</code> スキーマ消滅・未発送注文税金自動再計算断崖</strong>（Shopify は四半期ライフサイクルに基づき、2025-10 バージョンへのアクセスを 2026年10月16日に完全終了する。未移行リクエストは自動的に古い安定版へフォールフォワードされるが、最新の 2026-10 では <code>DraftOrderDiscountNotAppliedWarning</code> から <code>priceRule</code> が完全撤去され GraphQL スキーマから型ごと消滅した。さらに <code>orderUpdate</code> での配送先住所変更時に自動で税額が再計算される仕様変更が入り、アプリ側で税額・合計残高の再同期を怠ると金額不整合が発生する）</li><li><strong>GitHub Copilot における 6 大 AI モデルの一斉退役（2026年10月19日、あと5日！）とワークフロー・組織ポリシー乖離</strong>（GitHub は 2026年10月19日をもって、Copilot Chat、インライン編集、エージェントモード等で提供してきた 6 つの主要モデル［Gemini 3.7 Flash, GPT-5.5, GPT-5.4, GPT-5.4 mini, GPT-5 mini, Grok 4.5］を一斉に退役させる。Copilot Enterprise / Business のグローバル既定をオフにしている組織や、VS Code 設定・カスタム拡張・API 連携でモデル名を明示固定している環境では、週明けに突然モデル選択肢が消滅するか 404/フォールバックエラーが発生する）</li></ul><p>これらの課題を解決し、AI 開発環境のセッション効率化と直前に迫る API / モデル退役からの安全な移行を支援するツールの需要を検証します。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-claude-resume-trimmer-claude-code-セッション再開前-thinking-signature-剪定-トークン圧縮-cli">アイデア 1: <code>claude-resume-trimmer</code> (Claude Code セッション再開前 Thinking Signature 剪定＆トークン圧縮 CLI)</h3><p>対象は、<strong>Claude Code や Claude CLI で長時間の開発・リファクタリングセッションを行っており、セッション再開（<code>--resume</code>）時のトークン爆食い（全体の 25%〜40% を占める不可視署名）やレートリミット到達に苦しむエンジニア、開発チーム</strong>です。</p><p>入力は 2 つです。 1. <strong>Claude Code のセッションストレージパス（<code>~/.claude/projects/...</code> 配下のセッション JSONL ファイル）</strong> 2. <strong>（任意）残したい直近のコンテキストターン数（デフォルト: 直近 5 ターン）</strong></p><p>出力は次の 3 点です。 1. <strong>セッション履歴を静的解析し、不可視の <code>signature</code> ブロックが占める文字数・推定トークン数・費用見積もりを可視化する事前診断レポート</strong> 2. <strong>古いターンの thinking block から巨大な base64 <code>signature</code> 文字列を安全に剪定（または要約スタブへ置換）し、セッションペイロードを 25〜40% 削減した軽量化 JSONL</strong> 3. <strong>Claude Code を起動する直前に透過的にシグネチャを剪定して起動する透過ラッパーコマンド（<code>claude-resume-trimmer resume</code>）</strong></p><p>本体は 1 番目と 2 番目です。 公式の <code>/compact</code> コマンドは会話テキストの要約を行うものの、ローカルストレージに保持された暗号化 thinking signature を直接検査・間引く機能は持ちません。 本質的な価値は、セッションの文脈やツール実行結果の整合性を壊すことなく、ユーザーの目に見えない暗号化署名のゴミだけを事前剪定し、再開時のコールドスタート費用とレートリミット消費を劇的に削減できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Anthropic 公式の <code>claude-code</code> リポジトリにおいて、24 時間セッションの JSONL を精査した開発者によって、不可視の thinking signature が全体の約 25%（約 38,800 トークン）を浪費している実態が公式 Issue #42260 として告発されている事実です。</p><blockquote class="voice"><p>When resuming a long conversation, thinking block signatures from prior turns are replayed as input tokens. These signatures are base64-encoded, opaque to the user, and can dominate the context budget — making resume impractical for exactly the kind of long sessions where it's most valuable.</p><p>Token budget breakdown for this session: - User text messages: ~15,500 tokens - Assistant text: ~39,500 tokens - Tool results: ~52,900 tokens - Tool use inputs: ~9,000 tokens - <strong>Thinking signatures: ~38,800 tokens (207,120 chars)</strong> - <strong>Total on resume: ~156,000 tokens</strong></p><p><strong>Thinking signatures account for ~25% of the entire resume payload</strong> despite being invisible to the user... Resuming a long brainstorming/dialog session costs ~156K input tokens before the user types anything. ~39K of those tokens are purely from thinking signatures the user never sees.</p><p class="cite">— <a href="https://github.com/anthropics/claude-code/issues/42260" target="_blank" rel="noopener noreferrer">Issue #42260 · anthropics/claude-code</a></p></blockquote><p>さらに国内コミュニティ（Zenn / Qiita）でも「Claude Code で <code>--resume</code> を使うと起動直後から入力トークンが跳ね上がり、5 時間の利用制限枠が瞬時に溶ける」という報告が相次いでいます。 不可視の暗号化データによる意図しないトークン消費は、ヘビーユーザーの作業継続性を脅かす深刻なペインとなっています。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>価格破壊・ローカルファースト型</strong>の複合です。</p><p>Why Now は、<strong>2026年秋における Claude Code の Extended Thinking 本格普及と、GitHub 公式 Issue #42260 による内部データ構造の非効率性の判明</strong>です。 Anthropic が公式クライアント側でシグネチャの自動パージ仕様を実装・リリースするまでには一定のタイムラグがあります。 今すぐ手元でセッション肥大化を食い止めたい開発者にとって、即座に効果を発揮するローカル CLI の存在価値は極めて高い状態にあります。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Claude Code のセッション保存・再開機構（<code>--resume</code>）、会話テキストを要約する <code>/compact</code>。</li><li><strong>未解決</strong>: <strong>セッション JSONL 内の不透明な暗号化 thinking signature を直接スキャンし、過去の推論文脈を損なわずに署名トークンのみを安全に剪定・圧縮して再開する外部 CLI。</strong></li></ul><hr><h3 id="アイデア-2-shopify-2026-audit-shopify-api-2025-10-失効直前クエリスキャナ-2026-10-pricerule-破壊・税額自動再計算検証-cli">アイデア 2: <code>shopify-2026-audit</code> (Shopify API 2025-10 失効直前クエリスキャナ＆2026-10 PriceRule 破壊・税額自動再計算検証 CLI)</h3><p>対象は、<strong>Shopify パブリック/カスタムアプリ、基幹 ERP/WMS 連携、独自チェックアウト拡張を開発・保守しており、2026年10月16日（あと2日後！）の <code>2025-10</code> 完全失効と <code>2026-10</code> 破壊的変更による受発注障害を未然に防ぎたい EC エンジニア、制作会社</strong>です。</p><p>入力は 2 つです。 1. <strong>アプリケーションのソースコードリポジトリ（GraphQL クエリ / ミューテーション定義）</strong> 2. <strong>（任意）Shopify Partner / App クレデンシャル（対象ストアの API 呼び出しヘッダー検証用）</strong></p><p>出力は次の 3 点です。 1. <strong>コード内の GraphQL 定義を AST 解析し、削除された <code>priceRule</code>、非推奨の旧 <code>barcode</code> 単一フィールド、削除された <code>Customer.lastIncompleteCheckout</code> 参照を抽出するリスク監査レポート</strong> 2. <strong><code>DraftOrderDiscountNotAppliedWarning</code> を <code>discountTitle</code> / <code>discountCode</code> へ、<code>barcode</code> を新 <code>barcodes</code> コネクションへ自動で書き換える AST マイグレーションパッチ</strong> 3. <strong>未発送注文の配送先住所更新（<code>orderUpdate</code>）時に税金自動再計算がトリガーされる新挙動をシミュレートし、税額・注文合計の再取得漏れによる金額不整合を検知するドライランテストスイート</strong></p><p>本体は 1 番目と 3 番目です。 単なる非推奨フィールドの警告であれば実行時にエラーが出ない場合もありますが、<code>2026-10</code> では GraphQL スキーマから <code>PriceRule</code> 型自体が物理的に削除されており、クエリを投げるだけで即座に GraphQL バリデーションエラー（400 Bad Request）が発生します。 本質的な価値は、失効デッドライン直前にコードベースを全自動で静的走査し、受発注やドラフト注文作成の沈黙障害をゼロダウンタイムで防げる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Shopify 公式開発者チェンジログにおいて、<code>2026-10</code> での <code>PriceRule</code> 完全撤去と、旧バージョンのサポート終了が明記されている事実です。</p><blockquote class="voice"><p>Starting with GraphQL Admin API version 2026-10, the deprecated priceRule field on the DraftOrderDiscountNotAppliedWarning object is removed.</p><p>This is a breaking change for apps that query priceRule on DraftOrderDiscountNotAppliedWarning, which is returned in draft order discount warnings from mutations such as draftOrderCalculate, draftOrderCreate, and draftOrderUpdate. If your app selects priceRule in these responses, you must update those queries before upgrading to 2026-10...</p><p>DraftOrderDiscountNotAppliedWarning was the only place where the legacy PriceRule object was reachable from the public GraphQL Admin API. As a result, removing priceRule also removes the PriceRule object and its related types from the public schema in 2026-10 and later.</p><p class="cite">— <a href="https://shopify.dev/changelog/posts/remove-pricerule-from-draft-order-discount-warning" target="_blank" rel="noopener noreferrer">Remove priceRule from draft order discount warning | Shopify Developer Changelog</a></p></blockquote><p>「removing priceRule also removes the PriceRule object and its related types from the public schema in 2026-10 and later」と記されている通り、スキーマ定義そのものが失われるため、クエリの修正を怠ったアプリは 2026-10 環境で一切動作しなくなります。 さらに 2025-10 が 10月16日にアクセス不能となるため、移行の猶予は数時間単位に迫っています。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>規制・プラットフォーム変更対応型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月16日の Shopify API 2025-10 完全失効デッドライン（あと2日！）</strong>です。 未対応のまま放置されたアプリがフォールフォワードによって予期せぬ破壊的変更を踏み抜く直前であり、受託開発会社やマーチャントの駆け込み需要が最大化しています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: Shopify 公式ドキュメントのリリースノート、GraphQL Admin API Explorer での手動確認。</li><li><strong>未解決</strong>: <strong>リポジトリ内の GraphQL テンプレート文字列を AST レベルで静的走査し、<code>PriceRule</code> 削除と税額自動再計算に伴う不整合箇所をワンコマンドで検出しパッチを当てる専用ツール。</strong></li></ul><hr><h3 id="アイデア-3-copilot-model-sentinel-github-copilot-6大モデル一斉退役直前スキャナ-組織ポリシー・vs-code-ci-連携自動マイグレーション-cli">アイデア 3: <code>copilot-model-sentinel</code> (GitHub Copilot 6大モデル一斉退役直前スキャナ＆組織ポリシー・VS Code/CI 連携自動マイグレーション CLI)</h3><p>対象は、<strong>GitHub Copilot Enterprise または Business を全社導入しており、2026年10月19日（あと5日後！）の 6 大モデル一斉退役に伴う開発者の作業停止やモデルポリシー設定ミスを回避したいテックリード、情シス、DevOps</strong>です。</p><p>入力は 2 つです。 1. <strong>GitHub Organization 管理者トークン（モデルポリシー設定確認用）</strong> 2. <strong>社内リポジトリ群（<code>.vscode/settings.json</code>, <code>.github/copilot-instructions.md</code>, CI ワークフロー定義）</strong></p><p>出力は次の 3 点です。 1. <strong>組織全体の Copilot モデルポリシー設定（有効化フラグ）と、社内コードベース内のハードコードされたモデル名を横断検出する退役リスク監査レポート</strong> 2. <strong>廃止対象モデル（Gemini 3.7 Flash, GPT-5.5, GPT-5.4 等）を推奨後継モデル（GPT-5.6 Sol / Luna, Gemini 3.8 Flash, Grok 4.6）へ一括マッピング置換する Pull Request</strong> 3. <strong>「グローバルデフォルト無効」に設定されている組織において、週明けに新モデルが利用不能となってエージェント機能が全停止する事故を防ぐポリシー自動同期スクリプト</strong></p><p>本体は 1 番目と 3 番目です。 デフォルト設定の組織であれば推奨モデルへの自動昇格が行われますが、セキュリティやコンプライアンスの観点で「モデルのグローバルデフォルトを無効化（Opt-in 運用）」しているエンタープライズ組織では、管理者が明示的に新モデルを許可しない限り、10月19日を境に対象機能が沈黙します。 本質的な価値は、組織ポリシーの落とし穴と社内リポジトリの個別設定の双方を突合し、週明け月曜日の開発現場の混乱をゼロに抑えられる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、GitHub 公式ブログ（Changelog）において、6 つの主要モデルの退役日と、管理者が直面するポリシー設定の注意点が明記されている事実です。</p><blockquote class="voice"><p>We will deprecate the following models across all GitHub Copilot experiences (including Copilot Chat, inline edits, ask and agent modes, and code completions) on October 19th, 2026:</p><p>| Model | Deprecation date | Suggested alternative | |---|---|---| | Gemini 3.7 Flash | 2026-10-19 | Gemini 3.8 Flash | | GPT-5.5 | 2026-10-19 | GPT-5.6 Sol | | GPT-5.4 | 2026-10-19 | GPT-5.6 Sol | | GPT-5.4 mini | 2026-10-19 | GPT-5.6 Luna | | GPT-5 mini | 2026-10-19 | GPT-5.6 Luna | | Grok 4.5 | 2026-10-19 | Grok 4.6 |</p><p>Please update your workflows and integrations to use the supported models before this date. Under default model enablement, the suggested alternatives are automatically enabled for Copilot Enterprise and Copilot Business customers unless an administrator has turned off the global default or explicitly disabled the model. If you’ve turned off the global default, you can enable access to the alternative models through their model policies in Copilot settings.</p><p class="cite">— <a href="https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/" target="_blank" rel="noopener noreferrer">Upcoming deprecation of selected GitHub Copilot models in mid-October | GitHub Changelog</a></p></blockquote><p>「unless an administrator has turned off the global default or explicitly disabled the model. If you’ve turned off the global default, you can enable access to the alternative models through their model policies in Copilot settings」と警告されている通り、厳格に管理された組織ほど意図しない「全モデル無効化」の罠に陥る構造が存在します。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>プラットフォーム変更対応型</strong>および<strong>ワークフロー糊付け型</strong>の複合です。</p><p>Why Now は、<strong>2026年10月19日（あと5日後！）の GitHub Copilot 6大モデル一斉退役デッドライン</strong>です。 週明け直前の平日である今週後半が、組織設定と社内リポジトリを点検する最後の移行ウィンドウとなっています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: GitHub 公式による推奨移行モデル表の提示、デフォルト設定組織での自動昇格。</li><li><strong>未解決</strong>: <strong>グローバルデフォルト無効組織における新モデルポリシーの未設定状態の検知と、社内設定ファイルに散らばる旧モデル名の自動マイグレーション。</strong></li></ul><hr><h2 id="3-5軸評価スクリーニング-ポジショニング">3. 5軸評価スクリーニング &amp; ポジショニング</h2><p>抽出した 3 案に対し、5軸評価フレームワーク に基づいて厳密に採点を行いました。 採点インフレを防ぐため、各軸で減点理由を明確に記録しています。</p><h3 id="5軸スコアリング表">5軸スコアリング表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: claude-resume-trimmer</span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: shopify-2026-audit</span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: copilot-model-sentinel</span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">Extended Thinking の普及と Issue #42260 告発直後で最高潮。減点: Claude ユーザー層に限定</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月16日の失効直前で極めて切実。減点: 駆け込み対応後の新規獲得ペースは鈍化</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">10月19日退役直前。減点: 移行期日を過ぎると自然鎮火する一過性の波</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">JSONL パースと文字列置換。1週間で MVP 完成可能。減点: 将来の内部スキーマ変更追随リスク</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GraphQL AST 解析と差分置換。2週間で可能。減点: 動的クエリ生成箇所の解析が複雑</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub API 連携と設定スキャン。2週間で可能。減点: Enterprise 検証環境の確保コスト</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">個人 OSS 無料、チーム用プロキシ/ログ可視化で月$19。減点: ローカル単体ツールには無料期待が強い</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">制作会社向けスキャン $49/回、月額 $149。減点: 小規模マーチャントへの直接課金は困難</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">情シス向けスポット診断 $99〜$299。減点: 個人開発者向けの日常的サブスク化は困難</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">公式 /compact が触れない暗号化署名を直撃。減点: 将来 Anthropic が公式改善する可能性</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">公式ガイドの手作業を自動化・AST 検証。減点: Shopify CLI が将来静的警告を内包するリスク</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">公式の代替推奨表が存在し手作業でも対応可能。減点: 大半の組織は自動昇格で済む</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">完全ローカル CLI、ゼロインフラ、保守低負荷。減点: Anthropic の CLI 更新時の動作確認が必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル CLI 実行可能。減点: Shopify の四半期ごとの仕様変更追随保守が必要</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">静的スキャン中心でインフラ不要。減点: GitHub API 仕様変更への追随が必要</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">22<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">20<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><figure class="quad"><figcaption>&quot;アイデア候補のポジショニング分析 (2026-10-14)&quot;</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="&quot;アイデア候補のポジショニング分析 (2026-10-14)&quot;"><title>&quot;アイデア候補のポジショニング分析 (2026-10-14)&quot;</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;最優先着手 (High Urgent, High Moat)&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;即効ニッチ (High Urgent, Fast Cash)&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;見送り・要改善 (Low Urgent, Low Moat)&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;中長期戦略 (Strategic Moat)&quot;</text><text x="118" y="338" class="qlabel">← &quot;参入障壁・Moat (低)</text><text x="686" y="338" text-anchor="end" class="qlabel">(高)&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;緊急度・マネタイズ速度 (低)</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">(高)&quot; →</text><g><circle cx="487.2" cy="64.1" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="499.2" y="68.1" text-anchor="start" class="qpt-label">1</text><circle cx="487.2" cy="64.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: claude-resume-trimmer 総合 22 / 25（Tier 1）" data-tv="Idea 1: claude-resume-trimmer" data-td="総合 22 / 25（Tier 1）"/></g><g><circle cx="430.4" cy="81.1" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="442.4" y="85.1" text-anchor="start" class="qpt-label">2</text><circle cx="430.4" cy="81.1" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: shopify-2026-audit 総合 20 / 25（Tier 2）" data-tv="Idea 2: shopify-2026-audit" data-td="総合 20 / 25（Tier 2）"/></g><g><circle cx="356.6" cy="103.8" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="368.6" y="107.8" text-anchor="start" class="qpt-label">3</text><circle cx="356.6" cy="103.8" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: copilot-model-sentinel 総合 19 / 25（Tier 2）" data-tv="Idea 3: copilot-model-sentinel" data-td="総合 19 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: claude-resume-trimmer</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: shopify-2026-audit</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: copilot-model-sentinel</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力候補-tier-1-の詳細分析と-mvp-計画">4. 最有力候補（Tier 1）の詳細分析と MVP 計画</h2><p>最有力候補として、総合スコア <strong>22 / 25点</strong> を獲得した <strong>Idea 1: <code>claude-resume-trimmer</code></strong> を選定します。</p><h3 id="リスク・反証分析-失敗する理由と対策">リスク・反証分析（失敗する理由と対策）</h3><p>1. <strong>最大のリスク: Anthropic による公式修正（タイムウィンドウ消滅リスク）</strong></p><ul><li><em>リスク</em>: Issue #42260 を受けて、Anthropic が <code>claude-code</code> の次回以降のリリースで古い thinking signature を自動的に間引く仕様を導入した場合、本ツールのコア機能の必要性が薄れる。</li><li><em>対策</em>: 単なる「シグネチャ削除」にとどまらず、<strong>セッション全体のトークン消費の内訳可視化（ツール結果、システム指示、プロンプトキャッシュヒット率）</strong>や、<strong>プロジェクト横断での過去セッション検索・文脈再利用マネージャー</strong>へと機能を拡張する。また、Claude だけでなく Cursor や Windsurf、独自ハーネスにおける会話ログ圧縮エンジンとしての汎用性を担保する。</li></ul><p>2. <strong>技術的リスク: 暗号化シグネチャ削除による API 側の検証エラー</strong></p><ul><li><em>リスク</em>: Anthropic Messages API が過去の thinking ブロックの存在を前提としており、<code>signature</code> を欠損させたリクエストを <code>400 invalid_request_error</code> で拒絶する仕様になっている場合、単純なパージが機能しない。</li><li><em>対策</em>: Day 1 の事前検証において、「直前のターンの signature のみ保持し、過去ターンの thinking ブロック全体を削除した場合」および「thinking ブロックを純粋なテキスト要約スタブへ置換した場合」の API 応答挙動を即座に実験検証する。</li></ul><p>3. <strong>運用・課金リスク: オープンソース CLI に対する課金抵抗</strong></p><ul><li><em>リスク</em>: 開発者はローカル CLI に対して金銭を支払う習慣が薄く、スター数は集まるが収益化できない。</li><li><em>対策</em>: CLI 本体は MIT ライセンスで完全無償公開し、認知と GitHub での拡散を獲得する。課金導線は、<strong>チーム向けの中央集権的なセッションログ共有・セキュリティ監査・コスト上限管理を行うダッシュボード機能</strong>（月額 $19〜$49）に設計する。</li></ul><h3 id="14日間-mvp-ロードマップ">14日間 MVP ロードマップ</h3><p>ロードマップの初日には、前提仮説の生死を判定する事前検証を配置します。</p><pre><code>- [ ] Day 1: 【事前検証】Anthropic API における過去ターン thinking signature 除去時のリクエスト挙動検証
+  - 過去ターンから `type: thinking` ブロックを完全に除去した場合、または直前 1 ターンのみ残した場合の API 呼び出しテストを実施する。
+  - 400 エラーが発生せず正常に応答が得られる境界条件を特定する（仮説が棄却された場合は直ちにピボット）。
+- [ ] Day 2: Claude Code のセッションストレージ（JSONL）構造の解析モジュール実装
+  - `~/.claude/projects/` 配下のログファイルを走査し、メッセージ種別ごとのトークン消費（文字数・推定トークン）を集計するパーサーを構築する。
+- [ ] Day 3: 事前診断レポート機能（`claude-resume-trimmer analyze`）の実装
+  - 端末上で不可視シグネチャによる浪費トークン数、推定損失金額、削減可能割合をリッチに出力する CLI UI を作成する。
+- [ ] Day 4: シグネチャ安全剪定エンジン（`prune`）の実装
+  - 指定された世代数（直近 N ターン）を残し、古いターンの thinking signature を安全に除去・バックアップするロジックを実装する。
+- [ ] Day 5: 透過的起動ラッパー（`claude-resume-trimmer resume`）の実装
+  - 軽量化処理をメモリまたは一時ファイル上で行い、そのまま本家 `claude --resume` へ引き渡すシームレスな実行ラッパーを構築する。
+- [ ] Day 6: プロンプトキャッシュ整合性テスト
+  - シグネチャ剪定後もプロンプトキャッシュ（Prompt Caching）のプレフィックスが破壊されず、キャッシュヒットが維持されるかを計測・検証する。
+- [ ] Day 7: エッジケース対応（ツール実行結果や複数ブランチセッションの整合性担保）
+  - ツール実行のペア（tool_use / tool_result）が壊れないよう、メッセージシーケンスの整合性バリデータを追加する。
+- [ ] Day 8: CLI ドキュメント整備と npm / Homebrew 配布パッケージング
+  - `npx claude-resume-trimmer` で 1 秒で試せるインストール構成を作成する。
+- [ ] Day 9: GitHub Issue #42260 コミュニティおよび X / Zenn での初期公開・技術検証記事の投稿
+  - 実測データ（「セッション再開時のトークンを 38,000 トークン削減できた」比較グラフ）を添えて技術解説を公開する。
+- [ ] Day 10: ユーザーフィードバック収集とログ退避・ロールバック安全機能の強化
+  - 誤って必要な文脈を削りすぎた場合に 1 秒で元に戻せる `--undo` コマンドを追加する。
+- [ ] Day 11: 複数プロジェクト対応と自動バックグラウンド監視デーモンの設計
+  - セッション終了時に自動でシグネチャをパージするフック（Post-session hook）を実装する。
+- [ ] Day 12: チーム向けセッション共有・コスト可視化 Web ダッシュボードのモックアップ作成
+  - Pro 版（SaaS 課金導線）としてのチーム管理機能の要件を整理する。
+- [ ] Day 13: パフォーマンス最適化とバイナリ軽量化（起動時間 50ms 未満の達成）
+  - CLI の起動オーバーヘッドを極限まで削減し、本家起動と体感差がないレベルへチューニングする。
+- [ ] Day 14: プロダクトハント（Product Hunt）および Hacker News へのローンチ
+  - 「Stop paying for invisible thinking signatures in Claude Code」として英語圏へ展開する。</code></pre><hr><h2 id="5-まとめとネクストアクション">5. まとめとネクストアクション</h2><p>本リサーチでは、Claude Code の Extended Thinking がもたらす不可視シグネチャのコンテキスト浪費問題、Shopify API 2025-10 の失効直前断崖、および GitHub Copilot の 6 大モデル一斉退役という 3 つの変曲点を検証しました。</p><p>最優先候補である <code>claude-resume-trimmer</code> は、日々の AI コーディング作業で誰もが直面している「セッション再開時のトークン爆食いとレートリミット即死」という痛切な摩擦を、ゼロインフラのローカルツールとして爆速で解消できる極めて優秀な機会です。</p><h3 id="ネクストアクション">ネクストアクション</h3><p>1. <strong>Day 1 事前検証の実施</strong>: Claude API を用いて、過去ターンの thinking block 除去時のリクエスト成功可否を検証するスクリプトを実行する。 2. <strong>Issue #42260 への検証結果還元</strong>: 当事者コミュニティに実測データを提供し、初期テスターの獲得導線を作る。 3. <strong>ユーザー確認</strong>: ユーザーが本レポートを確認し、検証タスクの <code>TODO.md</code> への正式組み入れを判断する。</p><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://github.com/anthropics/claude-code/issues/42260" target="_blank" rel="noopener noreferrer">Resume of long sessions loads disproportionate tokens from opaque thinking signatures · Issue #42260 · anthropics/claude-code · GitHub</a><span class="u">https://github.com/anthropics/claude-code/issues/42260</span></li><li><a href="https://shopify.dev/changelog/posts/remove-pricerule-from-draft-order-discount-warning" target="_blank" rel="noopener noreferrer">Remove priceRule from draft order discount warning | Shopify Developer Changelog</a><span class="u">https://shopify.dev/changelog/posts/remove-pricerule-from-draft-order-discount-warning</span></li><li><a href="https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/" target="_blank" rel="noopener noreferrer">Upcoming deprecation of selected GitHub Copilot models in mid-October | GitHub Changelog</a><span class="u">https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-14_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>

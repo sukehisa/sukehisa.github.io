@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T06:15:33+09:00",
+  "generated_at": "2026-10-14T07:07:05+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -285,6 +285,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-14_market_research_report.html",
+          "title": "2026-10-14: 不可視シグネチャのコンテキスト圧迫と迫るAPI退役断崖 — Claude Thinking Signatures・Shopify 2025-10 失効・Copilot 6大モデル退役における穴場市場の特定",
+          "date": "2026-10-14",
+          "bytes": 70133
+        },
         {
           "file": "2026-10-13_market_research_report.html",
           "title": "2026-10-13: 肥大化するコンテキストと消えゆくレガシーAPI — MCP 64文字上限クラッシュ・HubSpot Pipelines V1 終了・Google Cloud BNE 閉鎖における穴場市場の特定",
