@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T06:14:41+09:00",
+  "generated_at": "2026-10-15T07:07:03+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -291,6 +291,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-15_market_research_report.html",
+          "title": "2026-10-15: 不可視フックのサイレント流出と迫る破壊的変更断崖 — Claude Code Hooks 脆弱性・Stripe Endive payment_method_types 撤去・Deep Research Pro 完全停止における穴場市場の特定",
+          "date": "2026-10-15",
+          "bytes": 70192
+        },
         {
           "file": "2026-10-14_market_research_report.html",
           "title": "2026-10-14: 不可視シグネチャのコンテキスト圧迫と迫るAPI退役断崖 — Claude Thinking Signatures・Shopify 2025-10 失効・Copilot 6大モデル退役における穴場市場の特定",
