@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T06:15:01+09:00",
+  "generated_at": "2026-10-17T07:07:00+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -303,6 +303,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-17_market_research_report.html",
+          "title": "2026-10-17: サブエージェントの不可視キャッシュ揮発と迫るAPI退役断崖 — Claude Code 5分TTL罠・OpenAI 10/23 大量退役・Google Play API 36 猶予切れにおける穴場市場の特定",
+          "date": "2026-10-17",
+          "bytes": 74864
+        },
         {
           "file": "2026-10-16_market_research_report.html",
           "title": "2026-10-16: 非アトミック書き込みのサイレント破損と迫るAPI退役断崖 — Claude Code 設定破損・GCP Artifact Guard 停止・Meta v26.0 一斉強制適用における穴場市場の特定",
