@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T06:14:54+09:00",
+  "generated_at": "2026-10-20T07:07:28+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -309,6 +309,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-20_market_research_report.html",
+          "title": "2026-10-20: ゴーストロックの不可視拘束と迫る権限・ランタイム断崖 — Claude Code index.lock 残留・Supabase 自動権限付与廃止・Kubernetes 1.34 EOL における穴場市場の特定",
+          "date": "2026-10-20",
+          "bytes": 71363
+        },
         {
           "file": "2026-10-19_market_research_report.html",
           "title": "2026-10-19: 巨大出力のコンテキスト崩壊と迫るフレームワーク断崖 — Claude Code ツール出力溢れ・Next.js 15 EOL・Exchange EWSAllowedAppIDs 強制遮断における穴場市場の特定",
