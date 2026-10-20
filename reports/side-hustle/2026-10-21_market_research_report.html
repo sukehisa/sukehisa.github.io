@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="description" content="Claude Code の Windows / VS Code 環境における auto-updater のサイレント EBUSY ロック失敗（Issue #61676）、2026年11月2日に全パブリックリポジトリへ強制適用される GitHub Actions pull_request_target 既定遮断ポリシー、および 2026年11月10日に公式 EOL を迎える AWS Lambda .NET 8 ランタイム非推奨化という3つの変曲点を5軸評価で検証した結果">
+<title>2026-10-21: サイレント更新断絶の不可視幽閉と迫るCI・ランタイム断崖 — Claude Code Windows EBUSY・GitHub Actions pull_request_target 強制遮断・AWS Lambda .NET 8 EOL における穴場市場の特定</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --zebra: rgba(11, 11, 11, 0.022);
+  --hover: rgba(11, 11, 11, 0.045);
+  /* カテゴリ: アイデアの識別。順序固定・循環させない */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-other: #898781;
+  /* 未充填トラック（ピップ・バーの背景） */
+  --track: #f0efec;
+  /* ステータス（Tier 判定専用・テーマ非依存） */
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --zebra: rgba(255, 255, 255, 0.028);
+    --hover: rgba(255, 255, 255, 0.055);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-other: #898781;
+    --track: #383835;
+    --link: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.10);
+  --zebra: rgba(255, 255, 255, 0.028);
+  --hover: rgba(255, 255, 255, 0.055);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-other: #898781;
+  --track: #383835;
+  --link: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 20px 96px;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ---- ヘッダ ---- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  margin: 0 -20px 28px;
+  background: color-mix(in srgb, var(--page) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+}
+.topbar .brand { font-weight: 650; font-size: 14px; letter-spacing: .01em; }
+.topbar .spacer { flex: 1; }
+.topbar .meta { color: var(--text-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.secnav { border-top: 1px solid var(--border); }
+.secnav .row { padding: 0 20px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.secnav .row::-webkit-scrollbar { display: none; }
+.secnav a {
+  flex: none; position: relative;
+  padding: 9px 12px; font-size: 12.5px; line-height: 1.5; white-space: nowrap;
+  color: var(--text-secondary); text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.secnav a:hover { color: var(--text-primary); background: var(--hover); }
+.secnav a[aria-current="true"] {
+  color: var(--text-primary); font-weight: 640;
+  border-bottom-color: var(--series-1);
+}
+@media (max-width: 760px) {
+  .secnav a { padding: 8px 10px; font-size: 12px; }
+}
+
+.theme-toggle {
+  display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+  overflow: hidden; background: var(--surface-1);
+}
+.theme-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--text-secondary); font: inherit; font-size: 12.5px;
+  padding: 4px 12px; line-height: 1.6;
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--hover); color: var(--text-primary); font-weight: 620; }
+
+/* ---- ダッシュボード ---- */
+.dash { margin-bottom: 34px; }
+
+/* ヒーロー数値: 1画面に1つだけ。最有力候補の総合スコアを担う */
+.hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+  border-left: 4px solid var(--k, var(--series-1));
+}
+.hero .id { min-width: 0; flex: 1 1 240px; }
+.hero .lbl { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
+.hero .name { font-size: 20px; font-weight: 680; line-height: 1.4; word-break: break-word; }
+.hero .desc { font-size: 13px; color: var(--text-secondary); }
+.hero .fig {
+  font-size: 52px; font-weight: 660; line-height: 1.05; letter-spacing: -.02em;
+}
+.hero .fig .u { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-left: 4px; }
+.hero .side { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+.hero .meta { font-size: 12.5px; color: var(--text-secondary); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; }
+.tile {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 13px 15px 12px; min-width: 0;
+}
+.tile .lbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.tile .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+.tile .name { font-size: 14.5px; font-weight: 660; line-height: 1.45; margin-top: 1px; word-break: break-word; }
+.tile .val {
+  font-size: 30px; font-weight: 660; line-height: 1.2; margin-top: 4px; letter-spacing: -.015em;
+}
+.tile .val .u { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+.tile .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 5軸プロファイル: 高さ＝点数。色は識別のみで、濃淡に意味を持たせない */
+.axes { display: flex; align-items: flex-end; gap: 2px; height: 40px; margin-top: 10px; }
+.axes .ax {
+  flex: 1 1 0; max-width: 24px; height: 100%;
+  display: flex; align-items: flex-end; background: none; border: 0; padding: 0;
+  cursor: default; font: inherit;
+}
+.axes .ax i {
+  display: block; width: 100%;
+  background: var(--k, var(--series-1));
+  border-radius: 4px 4px 0 0;
+}
+.axes .ax:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.axcap { display: flex; gap: 2px; margin-top: 3px; }
+.axcap span {
+  flex: 1 1 0; max-width: 24px; text-align: center;
+  font-size: 10px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 ---- */
+h1 { font-size: 27px; font-weight: 690; line-height: 1.45; margin: 8px 0 18px; letter-spacing: -.01em; }
+h2 {
+  font-size: 20px; font-weight: 670; line-height: 1.5;
+  margin: 48px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h3 {
+  font-size: 16.5px; font-weight: 660; margin: 32px 0 10px; line-height: 1.6;
+  scroll-margin-top: calc(var(--topbar-h, 96px) + 12px);
+}
+h4 {
+  font-size: 14.5px; font-weight: 660; margin: 24px 0 8px; line-height: 1.6;
+  padding-left: 10px; border-left: 3px solid var(--axis);
+}
+p { margin: 11px 0; }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .89em;
+  background: var(--hover); padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  overflow-x: auto; padding: 13px 15px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border); font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+ul { padding-left: 22px; margin: 10px 0; }
+li { margin: 6px 0; }
+li > ul { margin: 4px 0; }
+strong { font-weight: 660; }
+em { font-style: italic; }
+
+/* ---- 引用（生の声） ---- */
+blockquote.voice {
+  margin: 14px 0; padding: 12px 16px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--axis); border-radius: 0 10px 10px 0;
+  color: var(--text-secondary); font-size: 14px;
+}
+blockquote.voice p { margin: 4px 0; }
+blockquote.voice p:last-child { margin-bottom: 0; }
+blockquote.voice .cite { color: var(--text-muted); font-size: 12.5px; }
+li > blockquote.voice { margin: 8px 0; }
+
+/* ---- コールアウト ---- */
+.callout {
+  margin: 16px 0; padding: 13px 16px; border-radius: 10px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 4px solid var(--st, var(--axis));
+  font-size: 14px;
+}
+.callout .hd {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 660; font-size: 13px; margin-bottom: 5px; color: var(--st, var(--text-primary));
+}
+.callout p { margin: 5px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.c-note { --st: var(--series-1); }
+.c-tip { --st: var(--good); }
+.c-important { --st: var(--series-1); }
+.c-warning { --st: var(--warning); }
+.c-caution { --st: var(--critical); }
+
+/* ---- テーブル ---- */
+.tw { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+thead th {
+  background: var(--surface-1);
+  text-align: left; font-weight: 640; font-size: 12.5px; color: var(--text-secondary);
+  padding: 10px 12px; border-bottom: 1px solid var(--axis); vertical-align: bottom;
+}
+tbody td, tbody th { padding: 10px 12px; border-top: 1px solid var(--grid); vertical-align: top; }
+tbody th { text-align: left; font-weight: 640; }
+td.tk { white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* スコア表 */
+table.score th.idea { min-width: 168px; }
+table.score th.idea .hd { display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 13.5px; }
+table.score th.idea .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--series-1)); flex: none; }
+table.score td.ax { white-space: nowrap; }
+table.score td .why { display: block; white-space: normal; font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 2px; }
+table.score th.axname { min-width: 190px; font-weight: 640; color: var(--text-primary); }
+table.score tr.total td, table.score tr.total th { border-top: 1px solid var(--axis); }
+
+/* ピップ: 個数＝点数。色は列（アイデア）の識別で、濃淡に意味は無い */
+.pips { display: inline-flex; gap: 2px; vertical-align: middle; }
+.pips i { display: block; width: 12px; height: 8px; border-radius: 2px; background: var(--track); }
+.pips i.on { background: var(--k, var(--series-1)); }
+.pipv { font-variant-numeric: tabular-nums; font-weight: 640; margin-left: 8px; font-size: 13px; }
+.pipv .u { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
+.tot { font-size: 20px; font-weight: 670; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tot .u { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+/* 判定チップ: 色だけに意味を持たせず、必ずアイコンとラベルを伴わせる */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 640;
+  border: 1px solid color-mix(in srgb, var(--st, var(--text-muted)) 35%, transparent);
+  background: color-mix(in srgb, var(--st, var(--text-muted)) 12%, transparent);
+  color: var(--st, var(--text-secondary));
+}
+.chip-go { --st: var(--good); }
+.chip-hold { --st: var(--warning); }
+.chip-drop { --st: var(--critical); }
+.chip-none { --st: var(--text-muted); }
+
+/* ---- ポジショニングマップ ---- */
+figure.quad { margin: 22px 0; padding: 16px 18px 12px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; }
+figure.quad figcaption { font-size: 13.5px; font-weight: 640; margin-bottom: 6px; }
+figure.quad .note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+figure.quad svg { display: block; width: 100%; height: auto; overflow: visible; }
+.qgrid { stroke: var(--grid); stroke-width: 1; }
+.qaxis { stroke: var(--axis); stroke-width: 1; }
+.qlabel { fill: var(--text-muted); font-size: 11px; }
+.qquad { fill: var(--text-muted); font-size: 11.5px; letter-spacing: .04em; }
+.qpt-ring { stroke: var(--surface-1); stroke-width: 2; }
+.qpt-label { fill: var(--text-primary); font-size: 12.5px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.qhit { fill: transparent; cursor: default; }
+.qhit:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- 凡例 ---- */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
+  margin: 12px 0 0; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--page);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.legend .k b {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px;
+  background: var(--hover); color: var(--text-primary);
+  font-size: 11px; font-weight: 660; font-variant-numeric: tabular-nums;
+}
+
+/* ---- 一次ソース ---- */
+.sources { margin: 16px 0; padding-left: 0; list-style: none; }
+.sources li {
+  padding: 9px 0 9px 26px; border-top: 1px solid var(--grid); position: relative; font-size: 13.5px;
+}
+.sources li::before { content: "🔗"; position: absolute; left: 0; top: 9px; font-size: 12px; }
+.sources .u { display: block; color: var(--text-muted); font-size: 11.5px; word-break: break-all; }
+
+/* ---- ツールチップ ---- */
+#tip {
+  position: fixed; z-index: 100; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -125%); transition: opacity .1s;
+  background: var(--surface-1); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; line-height: 1.55;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .17); white-space: nowrap; max-width: 280px;
+}
+#tip .tv { font-weight: 680; }
+#tip .td { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+/* ---- 目次 ---- */
+.toc { display: none; }
+.toc ul { margin: 0; padding: 0; list-style: none; font-size: 13.5px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 2px 18px; }
+.toc li { margin: 3px 0; }
+.toc a { color: var(--text-secondary); text-decoration: none; }
+
+footer.disc { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12.5px; }
+
+@media print {
+  :root { color-scheme: light; }
+  body { padding: 0; font-size: 11px; background: #fff; }
+  .topbar, .theme-toggle, #tip { display: none !important; }
+  .toc { display: block; margin: 0 0 12px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; }
+  .tw { overflow: visible; break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  tbody tr, figure.quad, .tile { break-inside: avoid; }
+}
+@media (max-width: 620px) {
+  .hero .fig { font-size: 42px; }
+  .tile .val { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="status" aria-live="polite"></div>
+<div class="topbar">
+  <div class="row">
+    <span class="brand">indie-idea-scout</span>
+    <span class="meta">2026-10-21</span>
+    <span class="spacer"></span>
+    <span class="meta">side-hustle / market-research / claude-code / windows / ebusy</span>
+    <div class="theme-toggle" role="group" aria-label="表示テーマ">
+      <button type="button" data-mode="light" aria-pressed="false">ライト</button>
+      <button type="button" data-mode="auto" aria-pressed="true">自動</button>
+      <button type="button" data-mode="dark" aria-pressed="false">ダーク</button>
+    </div>
+  </div>
+  <nav class="secnav" aria-label="セクション"><div class="row"><a href="#1-調査の背景と市場の変曲点" title="1. 調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a><a href="#2-抽出されたビジネスアイデア候補と-生の声" title="2. 抽出されたビジネスアイデア候補と「生の声」">2. 抽出されたビジネスアイデア候補と「生の声」</a><a href="#3-5軸スコアリング評価-総合判定" title="3. 5軸スコアリング評価 &amp; 総合判定">3. 5軸スコアリング評価</a><a href="#4-最有力候補の深掘り-claude-win-updater" title="4. 最有力候補の深掘り: claude-win-updater">4. 最有力候補の深掘り: claude-win-updater</a><a href="#5-まとめと次のアクション" title="5. まとめと次のアクション">5. まとめと次のアクション</a><a href="#primary-sources" title="一次ソース">一次ソース</a></div></nav>
+</div>
+<main class="wrap">
+<h1 id="市場リサーチ-5軸評価レポート-2026-10-21">市場リサーチ &amp; 5軸評価レポート (2026-10-21)</h1><section class="dash"><div class="hero" style="--k:var(--series-1)"><div class="id"><div class="lbl">最有力候補</div><div class="name">claude-win-updater</div><div class="meta">アイデア 3 件 ・ Tier 1 2 件 ・ エビデンスURL 3 件（うち一次ソース 3 件）</div></div><div class="fig">22<span class="u">/ 25</span></div><div class="side"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span><span class="desc">総合スコア（25点満点）</span></div></div><div class="tiles"><div class="tile" style="--k:var(--series-1)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 1</div><div class="name">claude-win-updater</div><div class="val">22<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-1)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="5 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-2)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 2</div><div class="name">gh-prt-shield</div><div class="val">21<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></div><div class="axes" style="--k:var(--series-2)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="5 / 5 点" aria-label="1. タイミング / 市場規模 5点"><i style="height:100%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="4 / 5 点" aria-label="3. 収益性 / 課金モデル 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><div class="tile" style="--k:var(--series-3)"><div class="lbl"><span class="dot" aria-hidden="true"></span>アイデア 3</div><div class="name">lambda-dotnet10-shifter</div><div class="val">19<span class="u">/ 25</span></div><div class="sub"><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></div><div class="axes" style="--k:var(--series-3)"><button type="button" class="ax" data-tv="1. タイミング / 市場規模" data-td="4 / 5 点" aria-label="1. タイミング / 市場規模 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="2. 技術的実現可能性 / MVP工数" data-td="4 / 5 点" aria-label="2. 技術的実現可能性 / MVP工数 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="3. 収益性 / 課金モデル" data-td="3 / 5 点" aria-label="3. 収益性 / 課金モデル 3点"><i style="height:60%"></i></button><button type="button" class="ax" data-tv="4. 競合優位性 / ギャップ" data-td="4 / 5 点" aria-label="4. 競合優位性 / ギャップ 4点"><i style="height:80%"></i></button><button type="button" class="ax" data-tv="5. 個人開発適性 / 運用持続性" data-td="4 / 5 点" aria-label="5. 個人開発適性 / 運用持続性 4点"><i style="height:80%"></i></button></div><div class="axcap" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div></div></section><nav class="toc" aria-label="目次"><ul><li><a href="#1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</a></li><li><a href="#2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</a></li><li><a href="#3-5軸スコアリング評価-総合判定">3. 5軸スコアリング評価 &amp; 総合判定</a></li><li><a href="#4-最有力候補の深掘り-claude-win-updater">4. 最有力候補の深掘り: claude-win-updater</a></li><li><a href="#5-まとめと次のアクション">5. まとめと次のアクション</a></li><li><a href="#primary-sources">一次ソース</a></li></ul></nav><h2 id="1-調査の背景と市場の変曲点">1. 調査の背景と市場の変曲点</h2><p>前回（2026-10-20）は、Claude Code のバックグラウンド Git ポーリングによる <code>.git/index.lock</code> 競合・残留事故（Issue #11005）、2026年10月30日に全既存プロジェクトへ強制適用される Supabase Data API 自動テーブル権限付与の完全廃止、および 2026年10月27日に公式 Upstream EOL を迎える Kubernetes 1.34 / containerd 1.x 撤去断崖を検証しました。</p><p>今回は、2026年10月下旬から11月上旬にかけて表面化している「AI コーディングエージェントの Windows 環境における自己更新サイレント失敗・旧版幽閉事故」「世界最大の開発プラットフォームにおける CI ワークフロー既定遮断の強制執行断崖」、および「主要クラウドサーバーレス基盤における LTS ランタイム公式退役断崖」という 3 つの構造的断絶を検証します。 AI コーディングエージェントが開発者の日常環境に深く定着した現在、Windows 上で VS Code 拡張機能や統合ターミナルと併用した際に、バックグラウンドの自動更新機能が OS ネイティブのファイルロック競合（<code>EBUSY</code>）を起こし、エラー通知を一切出さないまま旧バージョンに数日〜数週間にわたって閉じ込められる事故が多発しています。 また、世界中のオープンソース開発を支える GitHub Actions において、フォークからの悪意ある PR による CI シークレット強奪（Pwn requests）を防ぐための「パブリックリポジトリにおける <code>pull_request_target</code> イベント既定ブロックポリシー」が、2026年11月2日（あと12日後！）をもって評価モード（Evaluate Mode）から強制執行（Enforcement）へ一斉に切り替わります。 さらに、全世界のエンタープライズサーバーレス基盤を支える AWS Lambda において、Microsoft の .NET 8 LTS サポート満了に伴い、公式管理ランタイム <code>dotnet8</code>（および <code>dotnet9</code>）のサポートが 2026年11月10日（あと20日後！）に終了し、セキュリティ更新の提供が完全に停止します。</p><p>2026年10月21日現在、開発・運用の現場では以下の 3 つの断絶が表面化しています。</p><ul><li><strong>Claude Code の Windows / VS Code 環境における auto-updater サイレント失敗と旧版幽閉事故（Issue #61676）</strong>（Claude Code はバックグラウンドで自己更新を試みるが、Windows 環境において VS Code 拡張機能やアクティブなターミナルが <code>claude.exe</code> を掴んでいる場合、更新処理が <code>EBUSY</code> で失敗する。バージョン 2.1.147 以降、このエラーが画面上に一切通知されず、CLI が古いバージョンに固定されたまま最新機能やバグ修正から孤立する。Anthropic 公式は本 Issue を OS ネイティブのファイルロック挙動として「not planned」でクローズしており、公式による根本改修が望めない空白地帯となっている）</li><li><strong>GitHub Actions による <code>pull_request_target</code> 既定ブロックポリシーの強制執行（2026年11月2日、あと12日！）と OSS CI 突然死断崖</strong>（GitHub はパブリックリポジトリにおけるシークレット漏洩・パイプライン汚染攻撃を防ぐため、明示的なポリシー設定を持たないリポジトリに対し <code>pull_request_target</code> の実行を既定で拒絶するポリシーを 2026年11月2日より強制適用する。これまで警告表示のみで稼働していた OSS のトリアージボット、ラベル付与、外部検証連携が一斉にブロックされ、ビルドが突発死する事故が確実に予測される）</li><li><strong>AWS Lambda における .NET 8（<code>dotnet8</code>）ランタイムの公式サポート終了・非推奨化（2026年11月10日、あと20日！）</strong>（Microsoft の .NET 8 LTS 満了日と同日である 2026年11月10日をもって、AWS Lambda は <code>dotnet8</code> へのセキュリティパッチ提供を停止し、公式テクニカルサポートの対象外とする。後継となる AL2023 ベースの <code>dotnet10</code> への移行には、ランタイム識別子の変更だけでなく、パッケージ互換性の検証や Amazon Linux 2 から AL2023 への OS 仕様差異対応が必要となる）</li></ul><p>これらの課題を解決し、Windows 環境における AI エージェントの確実な自己更新、パブリックリポジトリの CI ワークフロー遮断防止、およびサーバーレスランタイムの安全な移行を支援するツールの需要を検証します。</p><hr><h2 id="2-抽出されたビジネスアイデア候補と-生の声">2. 抽出されたビジネスアイデア候補と「生の声」</h2><h3 id="アイデア-1-claude-win-updater-claude-code-windows-vs-code-環境向け-auto-updater-サイレント-ebusy-ロック自動検知-shadow-copy-アトミック自己更新-cli-proxy">アイデア 1: <code>claude-win-updater</code> (Claude Code Windows/VS Code 環境向け auto-updater サイレント EBUSY ロック自動検知 &amp; Shadow-Copy アトミック自己更新 CLI/Proxy)</h3><p>対象は、<strong>Windows 環境で VS Code 拡張機能や統合ターミナルから Claude Code を日常的に酷使しており、バックグラウンド更新のサイレント失敗によって最新のバグ修正やモデル改善から孤立している Windows エンジニア、開発チーム</strong>です。</p><p>入力は 2 つです。 1. <strong>ローカル環境の Claude Code インストール状態（現在の実行バージョン、npm グローバル/ローカル配置パス、実行ファイル <code>claude.exe</code> のオープンプロセス一覧）</strong> 2. <strong>更新ポリシー（npm レジストリの最新タグ監視間隔、Shadow-copy 更新待機フラグ、更新完了後の自動セッション再起動フラグ）</strong></p><p>出力は次の 3 点です。 1. <strong>現在の CLI バージョンと npm 公式最新バージョンとの乖離をミリ秒単位で検知し、未通知の更新停止（サイレント幽閉）が発生している場合にターミナル上へ明示的に警告を出すヘルスチェック機能</strong> 2. <strong>VS Code 拡張機能が <code>claude.exe</code> をファイルロックしていても、更新バイナリをシャドウディレクトリへ一時退避し、プロセス解放の瞬間にアトミック置換（または Detached spawn スクリプトによる強制置き換え）を完走させる Windows 特化の安全自己更新エンジン</strong> 3. <strong><code>claude</code> コマンドの透過的ラッパーとして常駐し、VS Code 起動中であっても手動でのウィンドウ全終了を一切不要にするワンライナー更新コマンド（<code>cwu update</code>）</strong></p><p>本体は 1 番目と 2 番目です。 Issue #61676 で生々しく告発されている通り、バージョン 2.1.147 以降の Claude Code は、更新失敗時にエラーもダイアログも出さずに沈黙するため、開発者は数週間にわたって自分が古いバージョンを使っていることに気づけません。 本質的な価値は、公式が「not planned」として諦めた Windows ネイティブのファイルロック障壁を、シャドウコピーと遅延アトミック置換によって外部から完全に解消し、Windows ユーザーにストレスゼロの自動更新体験を取り戻す点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、Anthropic 公式の <code>claude-code</code> リポジトリにおいて、Windows + VS Code 環境における自動更新のサイレント失敗が Issue #61676 として詳細に報告され、しかも「Closed as not planned」で打ち切られている事実です。</p><blockquote class="voice"><p>Until ~May 13, 2026 the Claude Code CLI auto-updater worked daily without intervention on my Windows + VS Code setup. Since then, it silently stopped advancing past 2.1.145, skipping 2.1.146, 2.1.147, 2.1.148, 2.1.149 over multiple days. No prompt, no notification, no visible error — the CLI just stayed pinned to 2.1.145 while npm had newer versions available.</p><p>A manual <code>npm install -g @anthropic-ai/claude-code@latest</code> from an external admin cmd succeeds only after closing all VS Code windows. Run from inside VS Code or with the extension still active, it fails with EBUSY because the VS Code extension keeps <code>claude.exe</code> file-locked.</p><p>Suspected cause: the 2.1.147 changelog states "Improved auto-updater: retries transient network failures...". The pre-2.1.147 auto-updater apparently used a binary-replacement strategy (rename + replace, or detached spawn) that bypassed the Windows file lock held by the VS Code extension. The new updater in 2.1.147+ no longer bypasses this lock, so on Windows + VS Code extension active the update fails silently and the user stays on the old version indefinitely with no signal.</p><p class="cite">— [[BUG] Auto-updater silently fails on Windows when VS Code extension is active (regression since 2.1.147) · Issue #61676 · anthropics/claude-code · GitHub](https://github.com/anthropics/claude-code/issues/61676)</p></blockquote><p>さらに Windows 開発者コミュニティでも「なぜか自分の環境だけ新機能のコマンドが使えないと思ったら、2週間前のバージョンで止まっていた」「手動で npm update しようとすると EBUSY で怒られて、いちいち作業中の VS Code を全部閉じなければならないのが苦痛」「公式が not planned で閉じていて絶望した」という不満が頻発しています。 Windows のファイルロック仕様に起因するこの問題は、クロスプラットフォーム開発を行う個人・企業エンジニアにとって極めて日常的かつ深刻なペインです。</p><h4 id="パターン判定-why-now">パターン判定 &amp; Why Now</h4><p>パターンは<strong>マイクロDevExツール型</strong>および<strong>価格破壊・ローカルファースト型</strong>の複合です。</p><p>Why Now は、<strong>Anthropic 公式が Issue #61676 を「Closed as not planned」でクローズしたことによる恒久的空白地帯の確定</strong>です。 公式が OS ネイティブの挙動として対応を見送ったため、コミュニティ側で独立したラッパーや更新ユーティリティを導入しない限り、Windows ユーザーはこのサイレント更新断絶から逃れる術がありません。 AI コーディングエージェントの更新頻度が日単位である現在、数日間のバージョン乖離は致命的な生産性格差に直結します。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: 開発者が異常に気づいた後、作業中のすべての VS Code ウィンドウとターミナルを終了し、管理者権限 cmd を開いて手動で <code>npm install -g</code> を叩くこと。</li><li><strong>未解決</strong>: <strong>VS Code 実行中の安全なバックグラウンド更新、未通知のバージョン乖離アラート、およびファイルロックを回避する Shadow-copy アトミック置換。</strong></li></ul><hr><h3 id="アイデア-2-gh-prt-shield-github-actions-2026年11月2日強制適用-pull_request_target-既定遮断ポリシー事前監査-安全な-pull_request-明示ポリシー自動移行-cli">アイデア 2: <code>gh-prt-shield</code> (GitHub Actions 2026年11月2日強制適用 pull_request_target 既定遮断ポリシー事前監査 &amp; 安全な pull_request / 明示ポリシー自動移行 CLI)</h3><p>対象は、<strong>GitHub 上でパブリックな OSS リポジトリやコミュニティ主導のプロジェクトを運用しており、2026年11月2日の「<code>pull_request_target</code> 既定ブロックポリシーの強制執行」に伴う CI ワークフロー突発死を回避したいリポジトリメンテナ、DevOps / SRE チーム</strong>です。</p><p>入力は 2 つです。 1. **リポジトリ内のワークフロー定義ファイル群（<code>.github/workflows/*.yml</code>）<strong> 2. </strong>リポジトリまたは Organization の GitHub API アクセストークン（Actions Event Policies 読み書き権限）**</p><p>出力は次の 3 点です。 1. <strong>全ワークフローを静的解析し、<code>pull_request_target</code> トリガーを使用しているワークフローと、その内部でフォークのコードを危険にチェックアウト（<code>ref: ${{ github.event.pull_request.head.sha }}</code>）している Pwn request 脆弱性箇所を 100% 洗い出す監査台帳</strong> 2. <strong>シークレットへのアクセスが不要なトリアージ・テスト処理を、安全な標準 <code>pull_request</code> イベントへ自動書き換えする AST YAML Codemod</strong> 3. <strong>どうしても <code>pull_request_target</code> の継続が必要な正当な自動化に対し、11月2日以降もブロックされないよう Organization / Repository レベルで明示的な Actions Policy を設定する自動構成スクリプト</strong></p><p>本体は 1 番目と 2 番目です。 GitHub 公式ドキュメントにある通り、11月2日以降は明示的な許可ポリシーを持たないパブリックリポジトリで <code>pull_request_target</code> をトリガーとするワークフローが自動で遮断されます。 本質的な価値は、多くのメンテナが「警告は出ているが今は動いているから大丈夫」と放置しているワークフローの時限爆弾を事前に可視化し、安全な構文への書き換えとポリシー適用をワンライナーで完了できる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-1">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、GitHub 公式ドキュメントにおいて、2026年11月2日に <code>pull_request_target</code> の既定ブロックポリシーが強制適用される仕様が明記されている事実です。</p><blockquote class="voice"><p>To help protect your workflows from untrusted pull requests, GitHub provides a default event policy that blocks the pull_request_target event in public repositories.</p><p>The default policy: - Does not apply to private or internal repositories. - Does not replace an applicable event policy that you have already configured. - Currently runs in evaluate mode. In this mode, workflow runs continue, but you can use policy insights to identify runs that would be blocked after enforcement.</p><p>On November 2, 2026, GitHub will enforce the default policy for affected repositories that were using the default pull_request_target policy before general availability.</p><p>Warning: Only allow pull_request_target when it is necessary. Workflows triggered by this event should not check out, build, or run code from an untrusted pull request with access to repository secrets or a privileged GITHUB_TOKEN.</p><p class="cite">— <a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target" target="_blank" rel="noopener noreferrer">Securely using pull_request_target | GitHub Docs</a></p></blockquote><p>OSS コミュニティでは「evaluate mode では動いていたため放置していたが、期日を過ぎて PR CI が突然動かなくなるリポジトリが続出するのではないか」「安全な書き換え方法がよく分からず、ポリシーで全許可にしてしまいサプライチェーン攻撃のリスクを抱え込むメンテナが出そう」という懸念が広がっています。 セキュリティ強化のための変更が、準備不足の開発現場でワークフロー停止事故を引き起こす典型的な構造です。</p><h4 id="パターン判定-why-now-1">パターン判定 &amp; Why Now</h4><p>パターンは<strong>プラットフォーム変更・規約変更対応型</strong>および<strong>マイクロDevExツール型</strong>の複合です。</p><p>Why Now は、<strong>2026年11月2日（あと12日後！）という GitHub による強制適用期日の到来</strong>です。 現在運用されている evaluate mode が終了し、Enforcement フェーズに切り替わるため、放置されたリポジトリは 11月2日の朝から PR 自動化が突発的に機能停止します。 手動で 1 ファイルずつ YAML を直すのではなく、CI 上やローカルでワンライナー監査・自動修正できるツールの需要は今まさにピークに達しています。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: GitHub の Policy Insights 画面を見て、警告が出ているワークフローを手動で特定し、手書きで YAML やリポジトリ設定を変更すること。</li><li><strong>未解決</strong>: <strong>Pwn request 脆弱性パターンの精密な静的検出、安全な <code>pull_request</code> への自動 Codemod、および組織内全パブリックリポジトリの一括ポリシー監査。</strong></li></ul><hr><h3 id="アイデア-3-lambda-dotnet10-shifter-aws-lambda-2026年11月10日-net-8-eol・deprecation-直前救済-net-10-al2023-自動互換性監査・プロジェクト移行-cli">アイデア 3: <code>lambda-dotnet10-shifter</code> (AWS Lambda 2026年11月10日 .NET 8 EOL・Deprecation 直前救済 &amp; .NET 10 / AL2023 自動互換性監査・プロジェクト移行 CLI)</h3><p>対象は、<strong>AWS Lambda 上で C# や F# を用いたサーバーレスバックエンド（<code>.NET 8</code> / <code>dotnet8</code>）を商用運用しており、2026年11月10日の公式サポート終了に伴うセキュリティパッチ停止を回避し、最新の <code>.NET 10</code>（<code>dotnet10</code> on AL2023）へ安全に移行したいクラウドエンジニア、SRE チーム</strong>です。</p><p>入力は 2 つです。 1. <strong>AWS アカウントへの読み取り権限（Lambda 関数のランタイム設定一覧）</strong> 2. <strong>対象 C# プロジェクトのソースコード（<code>.csproj</code>, <code>sln</code>, <code>Dockerfile</code> 等）</strong></p><p>出力は次の 3 点です。 1. <strong>アカウント内の全 Lambda 関数を走査し、サポート終了を迎える <code>dotnet8</code>（および <code>dotnet9</code>）ランタイムを使用している関数を洗い出す棚卸し台帳</strong> 2. <strong><code>.csproj</code> の <code>TargetFramework</code> を <code>net10.0</code> へ書き換え、AWS 公式 Lambda パッケージ（<code>Amazon.Lambda.Core</code> 等）を AL2023 対応最新版へ自動更新する Codemod エンジン</strong> 3. <strong>Amazon Linux 2 から Amazon Linux 2023（AL2023）への切り替えに伴うネイティブライブラリ依存（OpenSSL 3.0 等）の互換性を静的検証し、移行ブロッカーを特定する互換性レポート</strong></p><p>本体は 1 番目と 2 番目です。 AWS 公式ドキュメントに明記されている通り、2026年11月10日に <code>dotnet8</code> の管理ランタイムが非推奨化され、セキュリティパッチの提供が打ち切られます。 本質的な価値は、C# サーバーレス環境における EOL 対応工数を最小化し、最新の .NET 10 LTS 環境へ安全にランディングできる点にあります。</p><h4 id="検知した生の声-リンク付きエビデンス-2">検知した生の声（リンク付きエビデンス）</h4><p>決定的なエビデンスは、AWS Lambda 公式ドキュメントのランタイム一覧において、<code>dotnet8</code> の非推奨化日が 2026年11月10日と明記されている事実です。</p><blockquote class="voice"><p>Name: .NET 8 Identifier: dotnet8 Operating system: Amazon Linux 2023 Deprecation date: Nov 10, 2026 Block function create: Jul 29, 2027 Block function update: Aug 31, 2027</p><p class="cite">— <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener noreferrer">AWS Lambda Managed Runtimes Lifecycle | AWS Documentation</a></p></blockquote><p>C# サーバーレス開発者の間では「.NET 8 は LTS だと思っていたが、2026年11月にあっという間にサポートが終わる」「.NET 10 への更新に伴い、AL2023 環境での動作検証やパッケージの互換性チェックが必要で後回しになっている」という声が上がっています。</p><h4 id="パターン判定-why-now-2">パターン判定 &amp; Why Now</h4><p>パターンは<strong>プラットフォーム変更・EOL対応型</strong>です。</p><p>Why Now は、<strong>2026年11月10日（あと20日後！）という Microsoft .NET 8 LTS 満了および AWS Lambda 非推奨化の到来</strong>です。 SOC2 や PCI-DSS などのセキュリティ基準を満たす企業にとって、EOL ランタイムの放置は重大な監査不適合となるため、迅速なバージョン更新が必須となります。</p><p>境界線は以下のとおりです。</p><ul><li><strong>解決済み</strong>: AWS マネジメントコンソール上で手動でランタイム警告を確認し、個別に .csproj を開いて書き換えること。</li><li><strong>未解決</strong>: <strong>AWS アカウント全体の <code>dotnet8</code> 関数の自動スキャン、.NET 10 互換性の静的解析、および AL2023 最適化を含む一括 Codemod。</strong></li></ul><hr><h2 id="3-5軸スコアリング評価-総合判定">3. 5軸スコアリング評価 &amp; 総合判定</h2><p>各アイデア候補に対し、<code>references/evaluation-framework.md</code> に基づいて厳密に 5 軸評価（各 1〜5 点、満点 25 点）を行いました。</p><h3 id="5軸スコア比較表">5軸スコア比較表</h3><div class="tw"><table class="score"><thead><tr><th class="axname">評価軸</th><th class="idea" style="--k:var(--series-1)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 1: claude-win-updater</span></th><th class="idea" style="--k:var(--series-2)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 2: gh-prt-shield</span></th><th class="idea" style="--k:var(--series-3)"><span class="hd"><span class="dot" aria-hidden="true"></span>Idea 3: lambda-dotnet10-shifter</span></th></tr></thead><tbody><tr><th scope="row" class="axname"><strong>1. タイミング / 市場規模</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">Claude Code の世界的急拡大と Windows + VS Code ユーザー全員が直面するサイレント更新断絶。公式が not planned で放置した絶好の参入機会</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">2026年11月2日強制適用という、あと12日の絶対的デッドライン。数百万のパブリックリポジトリが対象</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">11月10日EOLだが、AWS の関数更新ブロックは2027年のため組織により対応の緊急度に差があるため -1</span></td></tr><tr><th scope="row" class="axname"><strong>2. 技術的実現可能性 / MVP工数</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pipv">5<span class="u"> / 5</span></span><span class="why">PowerShell / Go / Rust による軽量CLI。Shadow-copy と遅延置換プロセスにより1〜2週間でコア機能が完成可能</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub CLI プラグイン / AST YAML 解析。2週間で開発可能だが、動的スクリプト内のシークレット解析にエッジケースがあり -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">AWS SDK と Roslyn による静的解析。2〜3週間で開発可能だが、推移的 NuGet パッケージ解決の検証負荷が高く -1</span></td></tr><tr><th scope="row" class="axname"><strong>3. 収益性 / 課金モデル</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">個人向けOSS無料 + 開発チーム向け集中バージョン管理・更新監査 Pro 版月額 $19。個人開発者の無料志向を考慮して -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">OSS メンテナ無料 + 企業 GitHub 組織向け一括ポリシーデプロイ月額 $29。個人リポジトリへの単体課金難易度で -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="pipv">3<span class="u"> / 5</span></span><span class="why">移行ライセンス 1 アカウント $99。単発のフロー収益になりやすく、継続的 ARR 化が難しいため -2</span></td></tr><tr><th scope="row" class="axname"><strong>4. 競合優位性 / ギャップ</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">公式が not planned でクローズしたため公式競合リスクが極小。将来的に Volta 等の外部マネージャが Windows 対応する可能性で -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">GitHub 公式は警告とブロックのみで安全な YAML Codemod は未提供。大手 SAST ベンダーの追従リスクで -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">AWS 公式ツールは単純アップグレードのみ。Microsoft 公式 upgrade-assistant との競合余地で -1</span></td></tr><tr><th scope="row" class="axname"><strong>5. 個人開発適性 / 運用持続性</strong></th><td class="ax"><span class="pips" style="--k:var(--series-1)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全ローカル CLI 実行、サーバーレス、ゼロインフラ。Windows の OS バージョン差［10/11/Server］の保守負荷で -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-2)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">ローカル CLI / GitHub Actions 実行、サーバー不要。GitHub Actions 構文仕様改定への追従負荷で -1</span></td><td class="ax"><span class="pips" style="--k:var(--series-3)" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="pipv">4<span class="u"> / 5</span></span><span class="why">完全クライアントサイド実行、ゼロインフラ。AWS AL2023 カーネル仕様追従のメンテナンス負荷で -1</span></td></tr><tr class="total"><th scope="row" class="axname"><strong>総合スコア (25点満点)</strong></th><td><span class="tot">22<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">21<span class="u">/ 25</span></span> <span class="chip chip-go"><span aria-hidden="true">✅</span>GO（Tier 1）</span></td><td><span class="tot">19<span class="u">/ 25</span></span> <span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD（Tier 2）</span></td></tr><tr><th scope="row" class="axname"><strong>判定</strong></th><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-go"><span aria-hidden="true">✅</span>GO</span><span class="why">Tier 1 (GO</span></td><td><span class="chip chip-hold"><span aria-hidden="true">⏸</span>HOLD</span><span class="why">Tier 2 (HOLD</span></td></tr></tbody></table></div><h3 id="ポジショニングマップ">ポジショニングマップ</h3><figure class="quad"><figcaption>&quot;参入障壁 (技術・運用) vs 市場機会 (タイミング・切実さ)&quot;</figcaption><svg viewBox="0 0 720 372" role="img" aria-label="&quot;参入障壁 (技術・運用) vs 市場機会 (タイミング・切実さ)&quot;"><title>&quot;参入障壁 (技術・運用) vs 市場機会 (タイミング・切実さ)&quot;</title><rect x="118" y="30" width="568" height="284" fill="none" class="qaxis"/><line x1="402.0" y1="30" x2="402.0" y2="314" class="qgrid"/><line x1="118" y1="172.0" x2="686" y2="172.0" class="qgrid"/><text x="676" y="50" text-anchor="end" class="qquad">&quot;高難度・高機会 (要リソース)&quot;</text><text x="128" y="50" text-anchor="start" class="qquad">&quot;穴場・高機会 (最優先 MVP)&quot;</text><text x="128" y="302" text-anchor="start" class="qquad">&quot;低機会・低障壁 (見送り)&quot;</text><text x="676" y="302" text-anchor="end" class="qquad">&quot;高難度・低機会 (参入不可)&quot;</text><text x="118" y="338" class="qlabel">← &quot;参入障壁が低い (軽量スタック)&quot;</text><text x="686" y="338" text-anchor="end" class="qlabel">&quot;参入障壁が高い (検証・保守重い)&quot; →</text><text transform="translate(20,314) rotate(-90)" class="qlabel">← &quot;市場機会が小さい (需要限定的)&quot;</text><text transform="translate(20,30) rotate(-90)" text-anchor="end" class="qlabel">&quot;市場機会が大きい (今すぐ必要・切実)&quot; →</text><g><circle cx="260.0" cy="58.4" r="6" fill="var(--series-1)" class="qpt-ring"/><text x="272.0" y="62.4" text-anchor="start" class="qpt-label">1</text><circle cx="260.0" cy="58.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 1: claude-win-updater 総合 22 / 25（Tier 1）" data-tv="Idea 1: claude-win-updater" data-td="総合 22 / 25（Tier 1）"/></g><g><circle cx="345.2" cy="72.6" r="6" fill="var(--series-2)" class="qpt-ring"/><text x="357.2" y="76.6" text-anchor="start" class="qpt-label">2</text><circle cx="345.2" cy="72.6" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 2: gh-prt-shield 総合 21 / 25（Tier 1）" data-tv="Idea 2: gh-prt-shield" data-td="総合 21 / 25（Tier 1）"/></g><g><circle cx="458.8" cy="129.4" r="6" fill="var(--series-3)" class="qpt-ring"/><text x="470.8" y="133.4" text-anchor="start" class="qpt-label">3</text><circle cx="458.8" cy="129.4" r="14" class="qhit" tabindex="0" role="img" aria-label="Idea 3: lambda-dotnet10-shifter 総合 19 / 25（Tier 2）" data-tv="Idea 3: lambda-dotnet10-shifter" data-td="総合 19 / 25（Tier 2）"/></g></svg><div class="legend"><span class="k"><span class="sw" style="background:var(--series-1)"></span><b>1</b>Idea 1: claude-win-updater</span><span class="k"><span class="sw" style="background:var(--series-2)"></span><b>2</b>Idea 2: gh-prt-shield</span><span class="k"><span class="sw" style="background:var(--series-3)"></span><b>3</b>Idea 3: lambda-dotnet10-shifter</span></div><div class="note">各アイデアの相対的な位置づけ。座標は定性評価であり、5軸スコアの再掲ではない。 点数は「5軸評価フレームワークによる採点結果」の表で確認できる。</div></figure><hr><h2 id="4-最有力候補の深掘り-claude-win-updater">4. 最有力候補の深掘り: <code>claude-win-updater</code></h2><p>総合スコア 22 点を獲得した <strong><code>claude-win-updater</code></strong> を今回の最有力 MVP 候補として選定します。</p><h3 id="リスク・反証分析-失敗する理由と対策">リスク・反証分析（失敗する理由と対策）</h3><p>1. <strong>リスク 1: Anthropic 公式による方針転換と Windows 更新機構の再実装</strong></p><ul><li><strong>分析</strong>: Issue #61676 は現在「Closed as not planned」ですが、コミュニティからの反発が強まり、Anthropic が v2.1.146 以前のバイナリ置換ロジックや detached spawn を再採用した場合、本ツールの価値は大幅に減少します。</li><li><strong>対策</strong>: 単なる <code>claude.exe</code> の更新スクリプトにとどまらず、「現在稼働中の Claude Code セッション一覧の可視化」「複数プロジェクトでのバージョン固定・管理」「VS Code 拡張機能と CLI 本体の不整合診断」といった、公式ツールが提供しない Windows 開発者向けの包括的 DevEx スイートへとポジショニングを拡張します。</li></ul><p>2. <strong>リスク 2: Windows UAC（管理者権限）昇格によるユーザー体験の悪化</strong></p><ul><li><strong>分析</strong>: <code>npm install -g</code> が <code>C:\Program Files</code> や保護されたシステム領域に配置されている場合、バックグラウンドでのファイル置換に管理者権限昇格（UAC プロンプト）が必要となり、自動化のスムーズさが損なわれます。</li><li><strong>対策</strong>: ユーザーディレクトリ（<code>%LOCALAPPDATA%</code>）配下の Shim 配置を標準とし、UAC なしでアトミックにバイナリを切り替えられるシンボリックリンク / 接合ポイント（Junction）アーキテクチャを採用します。</li></ul><p>3. <strong>リスク 3: 収益化の難しさ（無料の PowerShell ワンライナーで済まされる懸念）</strong></p><ul><li><strong>分析</strong>: 単純な更新だけであれば、技術力の高い開発者は自作の PowerShell 関数で回避してしまう可能性があります。</li><li><strong>対策</strong>: コアの更新 CLI は GitHub 上で MIT ライセンスの OSS として無料公開して知名度と信頼を獲得します。その上で、企業・開発チーム向けに「チーム内全 Windows マシンの Claude Code バージョン統制・脆弱性自動監査」を提供する Pro 版（月額 $19）で収益化を図ります。</li></ul><h3 id="14日間-mvp-ロードマップ">14日間 MVP ロードマップ</h3><p>実装から入らず、初日に前提の「事前検証」を置くことで仮説倒れのリスクを最小化します。</p><ul><li><strong>Day 1: 前提の事前検証（仮説の生死判定）</strong><ul><li>Windows 11 環境において、VS Code 拡張機能がアクティブな状態で <code>claude.exe</code> を Shadow-copy 手法（別名保存 → プロセス終了待機または遅延 MoveFileEx 置換）により安全に更新できるかを実機検証。</li><li>現在の Claude Code が Issue #61676 の通り、更新失敗時にエラーコードを握りつぶして終了している仕様をプロセストレースで確認。</ul></li></li><li><strong>Day 2〜3: コア更新エンジン（Shadow-Copy &amp; Shim）プロトタイプ実装</strong><ul><li>Go または Rust により、実行中バイナリをロック回避しながらアトミック置換する軽量 Shim プログラムを作成。</ul></li></li><li><strong>Day 4〜5: バージョン乖離診断 &amp; アラート機能の実装</strong><ul><li>npm レジストリ（<code>@anthropic-ai/claude-code</code>）の最新バージョンとローカルバージョンを非同期照会し、乖離を検知して通知する機能を実装。</ul></li></li><li><strong>Day 6〜7: CLI コマンドインターフェース（<code>cwu</code>）の整備</strong><ul><li><code>cwu check</code>（乖離確認）、<code>cwu update</code>（アトミック更新）、<code>cwu status</code>（セッション・プロセス状態表示）のコマンドを実装。</ul></li></li><li><strong>Day 8〜9: ドッグフーディング &amp; Windows エッジケーステスト</strong><ul><li>VS Code 拡張機能実行中、Git Bash 実行中、PowerShell 実行中の各パターンでテストし、プロセス競合やファイル破損が起きないかを検証。</ul></li></li><li><strong>Day 10〜11: 配布パッケージ作成（Scoop / winget / npm）</strong><ul><li>Windows 開発者がワンライナーでインストールできるよう、<code>scoop install</code> および <code>npm install -g claude-win-updater</code> のパッケージを整備。</ul></li></li><li><strong>Day 12〜13: 技術コミュニティ（Issue #61676, X, Reddit r/ClaudeCode）への発信</strong><ul><li>Issue #61676 のスレッドや関連コミュニティに対し、Windows での安全な自動更新ソリューションとして成果物を共有。</ul></li></li><li><strong>Day 14: フィードバック収集 &amp; チーム向け Pro 機能要件の策定</strong><ul><li>利用者のフィードバックを収集し、複数マシンでのバージョン統制機能のロードマップを策定。</li></ul></li></ul><hr><h2 id="5-まとめと次のアクション">5. まとめと次のアクション</h2><p>2026年10月21日時点のリサーチにより、以下の穴場市場と参入機会が明らかになりました。</p><p>1. <strong><code>claude-win-updater</code></strong>: Claude Code の Windows + VS Code 環境における auto-updater のサイレント EBUSY ロック失敗とバージョン乖離を解決するマイクロ DevEx ツール。公式が「not planned」で放置したため、最有力候補として検証を進める価値が極めて高い。 2. <strong><code>gh-prt-shield</code></strong>: 2026年11月2日に迫る GitHub Actions の <code>pull_request_target</code> 既定ブロックポリシー強制適用による CI 突然死を防ぐ事前監査 &amp; YAML Codemod ツール。絶対的なデッドライン需要が存在する。 3. <strong><code>lambda-dotnet10-shifter</code></strong>: 2026年11月10日の AWS Lambda .NET 8 EOL に伴うセキュリティパッチ停止を回避し、.NET 10 / AL2023 への安全な移行を支援するクラウド SRE ツール。</p><p><strong>注意事項</strong>: 本レポートは市場機会の調査・アイデア提案にとどまり、ユーザーの意思決定前に <code>05_Projects/side-hustle/TODOs/TODO.md</code> へのタスク追加は行いません。</p><h2 id="primary-sources">一次ソース（フロントマター記載）</h2><ul class="sources"><li><a href="https://github.com/anthropics/claude-code/issues/61676" target="_blank" rel="noopener noreferrer">[BUG] Auto-updater silently fails on Windows when VS Code extension is active (regression since 2.1.147) · Issue #61676 · anthropics/claude-code · GitHub</a><span class="u">https://github.com/anthropics/claude-code/issues/61676</span></li><li><a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target" target="_blank" rel="noopener noreferrer">Securely using pull_request_target &amp; Actions Default Policy Enforcement (November 2, 2026) | GitHub Docs</a><span class="u">https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target</span></li><li><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener noreferrer">AWS Lambda Managed Runtimes Lifecycle — .NET 8 Deprecation (November 10, 2026) | AWS Lambda Documentation</a><span class="u">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</span></li></ul>
+<footer class="disc">
+本ファイルは <code>2026-10-21_market_research_report.md</code> の閲覧用レンダリングです。正本は Markdown 版です。<br>
+本レポートは AI エージェントによる市場探索の結果であり、事業性を保証するものではありません。着手の判断は利用者に帰属します。
+</footer>
+</main>
+<script>
+(function () {
+  // --- テーマ切替（OS設定を初期値にし、選択は localStorage に残す） ---
+  var root = document.documentElement;
+  var KEY = 'scout-theme';
+  function apply(mode) {
+    if (mode === 'auto') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    var btns = document.querySelectorAll('.theme-toggle button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].dataset.mode === mode));
+    }
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved || 'auto');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.theme-toggle button');
+    if (!b) return;
+    apply(b.dataset.mode);
+    try { localStorage.setItem(KEY, b.dataset.mode); } catch (err) {}
+  });
+
+  // --- セクションナビ: ヘッダの実測高さを共有し、現在位置を追従表示する ---
+  var topbar = document.querySelector('.topbar');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.secnav a'));
+
+  function syncHeight() {
+    if (!topbar) return;
+    root.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+  }
+  syncHeight();
+  window.addEventListener('resize', syncHeight);
+
+  if (navLinks.length) {
+    var byId = {};
+    navLinks.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = Object.keys(byId)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    function markActive(id) {
+      navLinks.forEach(function (a) {
+        if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      var cur = byId[id];
+      if (cur && cur.parentElement) {
+        var box = cur.parentElement.getBoundingClientRect();
+        var it = cur.getBoundingClientRect();
+        if (it.left < box.left || it.right > box.right) {
+          cur.parentElement.scrollTo({
+            left: cur.offsetLeft - box.width / 2 + it.width / 2,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      var active = null;
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (t.getBoundingClientRect().top - (topbar ? topbar.offsetHeight : 0) - 16 <= 0) active = t.id;
+      }
+      if (!active) {
+        for (var j = 0; j < targets.length; j++) {
+          if (visible[targets[j].id]) { active = targets[j].id; break; }
+        }
+      }
+      if (active) markActive(active);
+    }, { rootMargin: '-1px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { io.observe(t); });
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.secnav a');
+      if (!a) return;
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', a.getAttribute('href'));
+      markActive(el.id);
+    });
+  }
+
+  // --- ホバー／フォーカスのツールチップ ---
+  // ツールチップは補助であり、値はスコア表からも読める（表がそのまま表形式ビュー）。
+  var tip = document.getElementById('tip');
+  function showTip(el) {
+    if (!tip) return;
+    var v = el.getAttribute('data-tv') || '';
+    var d = el.getAttribute('data-td') || '';
+    tip.textContent = '';
+    if (v) { var a = document.createElement('div'); a.className = 'tv'; a.textContent = v; tip.appendChild(a); }
+    if (d) { var b = document.createElement('div'); b.className = 'td'; b.textContent = d; tip.appendChild(b); }
+    var r = el.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.opacity = '1';
+  }
+  function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+  var hot = document.querySelectorAll('[data-tv]');
+  for (var i = 0; i < hot.length; i++) {
+    (function (el) {
+      el.addEventListener('pointerenter', function () { showTip(el); });
+      el.addEventListener('pointerleave', hideTip);
+      el.addEventListener('focus', function () { showTip(el); });
+      el.addEventListener('blur', hideTip);
+    })(hot[i]);
+  }
+})();
+</script>
+</body>
+</html>
