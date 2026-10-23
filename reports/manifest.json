@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T06:15:51+09:00",
+  "generated_at": "2026-10-24T07:07:30+09:00",
   "categories": [
     {
       "slug": "stock-investment",
@@ -333,6 +333,12 @@
       "description": "個人開発者向けの穴場市場・ビジネスアイデア候補を、生の声のエビデンスと5軸評価（満点25点）でスクリーニングした探索レポート。",
       "icon": "🔎",
       "reports": [
+        {
+          "file": "2026-10-24_market_research_report.html",
+          "title": "2026-10-24: システムリマインダー再注入のコンテキスト暴食と迫る料金・プロトコル断崖 — Claude Code ルール多重注入・AWS OpenSearch 延長料金倍増・Shopify Global Catalog REST 停止における穴場市場の特定",
+          "date": "2026-10-24",
+          "bytes": 76649
+        },
         {
           "file": "2026-10-23_market_research_report.html",
           "title": "2026-10-23: 状態キャッシュ破損の永久ループと迫る推論・フィード断崖 — Claude Code 編集ループ・Azure OpenAI oシリーズ退役・Reddit RSS 停止における穴場市場の特定",
