@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>【ITプロジェクト版】失敗原因マンダラ図 Viewer &amp; Analyzer</title>
+  <link rel="stylesheet" href="./viewer/styles.css" />
+</head>
+<body>
+  <!-- トップヘッダー -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-badge">RCA IT360</span>
+      <div>
+        <span class="brand-title">【ITプロジェクト版】失敗原因マンダラ図</span>
+        <span class="brand-subtitle">データ分離型インタラクティブViewer &amp; 真因分析シート</span>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="原因・定義・対策を検索..." />
+      </div>
+
+      <div class="view-tabs">
+        <button class="tab-btn active" data-tab="mandala">🕸️ マンダラ図</button>
+        <button class="tab-btn" data-tab="dictionary">📖 用語定義・対策一覧</button>
+        <button class="tab-btn" data-tab="rca">
+          📋 振り返り・真因分析 (AAR)
+          <span class="badge-count" id="rca-badge-count">0</span>
+        </button>
+        <button class="tab-btn" data-tab="editor">⚙️ データ定義・編集</button>
+      </div>
+
+      <button class="btn" id="btn-open-add-modal" title="失敗原因アイテムを追加">＋ 項目追加</button>
+      <button class="btn" id="btn-toggle-theme" title="ダーク/ライトモード切替">🌓 テーマ</button>
+    </div>
+  </header>
+
+  <!-- サブツールバー（フィルタ） -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">起因領域フィルタ:</span>
+      <button class="chip active" data-filter-domain="all">すべて表示</button>
+      <button class="chip" data-filter-domain="individual">
+        <span class="chip-dot" style="background:#3b82f6;"></span>個人 (4分類/13項目)
+      </button>
+      <button class="chip" data-filter-domain="project">
+        <span class="chip-dot" style="background:#10b981;"></span>プロジェクト (3分類/23項目)
+      </button>
+      <button class="chip" data-filter-domain="organization">
+        <span class="chip-dot" style="background:#f59e0b;"></span>組織 (2分類/16項目)
+      </button>
+      <button class="chip" data-filter-domain="unknown">
+        <span class="chip-dot" style="background:#8b5cf6;"></span>未知 (1分類/2項目)
+      </button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">出典版フィルタ:</span>
+      <button class="chip active" data-filter-edition="all">全54項目（統合版）</button>
+      <button class="chip" data-filter-edition="2014_original">SAAJ 2015発表原典 (49項目)</button>
+      <button class="chip" data-filter-edition="expanded_54">54項目拡張での追加分 (5項目)</button>
+      <button class="chip" id="chip-rca-only">★ 抽出中のみハイライト</button>
+    </div>
+  </div>
+
+  <!-- メインワークスペース -->
+  <main class="workspace">
+    <!-- パネル1: マンダラ図 (SVG) -->
+    <section class="view-panel active" id="panel-mandala">
+      <div class="mandala-canvas-wrap" id="mandala-canvas-wrap">
+        <svg id="mandala-svg" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet"></svg>
+
+        <div class="canvas-legend">
+          <div class="legend-title">凡例・操作ヒント</div>
+          <div class="legend-items">
+            <div>・<strong>クリック</strong>: 右ペインに定義・具体例・再発防止策を表示</div>
+            <div>・<strong>ダブルクリック</strong>: 候補(橙) → 真因(赤) → 解除 を切替</div>
+            <div>・<strong>ドラッグ / ホイール</strong>: キャンバスの移動・拡大縮小</div>
+          </div>
+        </div>
+
+        <div class="canvas-controls">
+          <button class="btn" id="btn-zoom-in">＋ 拡大</button>
+          <button class="btn" id="btn-zoom-out">－ 縮小</button>
+          <button class="btn" id="btn-zoom-reset">リセット</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- パネル2: 用語定義・対策一覧 -->
+    <section class="view-panel" id="panel-dictionary">
+      <div class="dictionary-container" id="dictionary-view-content"></div>
+    </section>
+
+    <!-- パネル3: 振り返り・真因分析 (RCA / AAR) -->
+    <section class="view-panel" id="panel-rca">
+      <div class="rca-container" id="rca-view-content"></div>
+    </section>
+
+    <!-- パネル4: データ定義・編集 -->
+    <section class="view-panel" id="panel-editor">
+      <div class="editor-container">
+        <div class="editor-layout">
+          <div class="editor-toolbar">
+            <div>
+              <h3 style="font-size:15px;">データ定義エディタ (<code>data/mandala_data.js</code> 構造)</h3>
+              <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                階層（domains / categories / items）や各要素の定義・具体例・対策はデータとして分離されています。ここで編集して即時プレビューするか、<code>mandala_data.js</code> としてダウンロードしてファイルを置き換えられます。
+              </p>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button class="btn" id="btn-reset-default-data">初期値に戻す</button>
+              <button class="btn" id="btn-download-data-js">💾 mandala_data.js を保存</button>
+              <button class="btn btn-primary" id="btn-apply-json">✨ 変更をViewerに反映</button>
+            </div>
+          </div>
+          <textarea id="json-editor-textarea" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右サイドバー（選択中のノード定義＆対策表示） -->
+    <aside class="detail-sidebar" id="detail-sidebar-content"></aside>
+  </main>
+
+  <!-- 項目追加・編集モーダル -->
+  <div class="modal-backdrop" id="item-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="modal-title">失敗原因の追加・編集</span>
+        <button class="btn" id="btn-modal-close" style="padding:2px 8px;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label>所属する第1階層カテゴリ</label>
+          <select id="modal-cat-select" style="background:var(--bg-app);color:var(--text-main);border:1px solid var(--border-color);padding:8px;border-radius:6px;"></select>
+        </div>
+        <div class="form-field">
+          <label>第2階層 項目名（必須）</label>
+          <input type="text" id="modal-item-label" placeholder="例：クラウド権限設計不良" />
+        </div>
+        <div class="form-field">
+          <label>用語定義（システム開発における意味・必須）</label>
+          <textarea id="modal-item-def" rows="3" placeholder="例：IAMロールやアクセス権限の最小権限設計が不十分なまま構築・運用してしまうこと。"></textarea>
+        </div>
+        <div class="form-field">
+          <label>具体例・典型的シナリオ（1行に1件）</label>
+          <textarea id="modal-item-examples" rows="3" placeholder="例：開発用アカウントに本番DB削除権限が付与されたままになっていた。"></textarea>
+        </div>
+        <div class="form-field">
+          <label>再発防止策・予防アプローチ（1行に1件）</label>
+          <textarea id="modal-item-countermeasures" rows="3" placeholder="例：IaCによる権限コード化とCIでのポリシー自動検証を導入する。"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btn-modal-delete" style="color:#ef4444;margin-right:auto;display:none;">削除</button>
+        <button class="btn" id="btn-modal-cancel">キャンセル</button>
+        <button class="btn btn-primary" id="btn-modal-save">保存して反映</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- データファイル（Viewerロジックと分離） -->
+  <script src="./data/mandala_data.js"></script>
+  <!-- Viewerアプリケーション本体 -->
+  <script src="./viewer/app.js"></script>
+</body>
+</html>
+
